@@ -1,0 +1,42 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>org.cirjson.plugin.idea.cirjson-idea-plugin</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>CirJSON</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor email="vinccool96@gmail.com" url="https://www.cirjson.org">CirJSON</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+    <description>A plugin to write CirJSON files according to the CirJSON standard.</description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+        <fileType name="CirJson"
+                  implementationClass="org.cirjson.plugin.idea.CirJsonFileType"
+                  fieldName="INSTANCE" language="CirJson" extensions="cirjson"/>
+        <lang.parserDefinition language="CirJson"
+                               implementationClass="org.cirjson.plugin.idea.CirJsonParserDefinition"/>
+
+        <!-- Code style and formatting -->
+        <lang.syntaxHighlighterFactory language="CirJson"
+                                       implementationClass="org.cirjson.plugin.idea.highlighting.CirJsonSyntaxHighlighterFactory"/>
+        <colorSettingsPage implementation="org.cirjson.plugin.idea.highlighting.CirJsonColorsPage"/>
+
+        <!-- Codeinsight -->
+        <lang.psiStructureViewFactory language="CirJson"
+                                      implementationClass="org.cirjson.plugin.idea.structureView.CirJsonStructureViewBuilderFactory"/>
+    </extensions>
+
+    <resource-bundle>messages.CirJsonBundle</resource-bundle>
+</idea-plugin>

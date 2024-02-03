@@ -14,7 +14,7 @@ public interface CirJsonObject extends CirJsonContainer {
   @NotNull
   List<CirJsonProperty> getPropertyList();
 
-  @NotNull
+  @Nullable
   String getId();
 
   @Nullable

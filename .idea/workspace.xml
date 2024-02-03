@@ -4,90 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="930979bc-c329-46f0-9693-7fd2d0388d10" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/kotlinc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.run/Run IDE with Plugin.run.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/CirJsonElementTypes.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/CirJsonFlexLexer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/CirJsonParser.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonArray.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonBooleanLiteral.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonContainer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonElementVisitor.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonIdKeyLiteral.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonLiteral.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonNullLiteral.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonNumberLiteral.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonObject.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonObjectIdElement.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonProperty.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonReferenceExpression.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonStringLiteral.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonValue.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonArrayImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonBooleanLiteralImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonContainerImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonIdKeyLiteralImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonLiteralImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonNullLiteralImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonNumberLiteralImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonObjectIdElementImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonObjectImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonPropertyImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonReferenceExpressionImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonStringLiteralImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonValueImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradlew" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/grammars/CirJsonLexer.flex" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/grammars/CirJsonParser.bnf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/CirJsonBundle.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/CirJsonConstants.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/CirJsonElementType.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/CirJsonFileType.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/CirJsonLanguage.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/CirJsonLexer.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/CirJsonParserDefinition.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/CirJsonTokenSets.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/CirJsonTokenType.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/highlighting/CirJsonColorsPage.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/highlighting/CirJsonSyntaxHighlighterFactory.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/icons/CirJsonIcons.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/CirJsonElement.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/CirJsonFile.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/CirJsonParserUtil.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/CirJsonPsiUtil.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonElementImpl.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonFileImpl.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonIdLiteralMixin.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonLiteralMixin.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonObjectMixin.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonPropertyMixin.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonPsiImplUtils.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonReferenceLiteralMixin.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonStringLiteralMixin.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/JSStringLiteralEscaper.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/structureView/CirJsonStructureViewBuilderFactory.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/structureView/CirJsonStructureViewElement.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/structureView/CirJsonStructureViewModel.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/META-INF/a.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/META-INF/pluginIcon.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/icons/cirJson.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/icons/cirJsonDark.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/messages/CirJsonBundle.properties" afterDir="false" />
+    <list default="true" id="930979bc-c329-46f0-9693-7fd2d0388d10" name="Changes" comment="Base">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonObject.java" beforeDir="false" afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonObject.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonObjectImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonObjectImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonPsiImplUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonPsiImplUtils.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/messages/CirJsonBundle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/messages/CirJsonBundle.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -170,7 +92,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Gradle.Run Plugin.executor": "Run",
+    "Gradle.Run Plugin.executor": "Debug",
     "Gradle.cirjson-idea-plugin [build].executor": "Run",
     "Gradle.cirjson-idea-plugin [setupDependencies].executor": "Run",
     "Gradle.cirjson-intellij-plugin [setupDependencies].executor": "Run",
@@ -265,34 +187,47 @@
       <workItem from="1706108289592" duration="8535000" />
       <workItem from="1706826803990" duration="78000" />
       <workItem from="1706826892635" duration="745000" />
-      <workItem from="1706982334996" duration="6935000" />
+      <workItem from="1706982334996" duration="8237000" />
     </task>
+    <task id="LOCAL-00001" summary="Base">
+      <option name="closed" value="true" />
+      <created>1706989419212</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1706989419212</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Base" />
+    <option name="LAST_COMMIT_MESSAGE" value="Base" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonPsiImplUtils.kt</url>
-          <line>113</line>
+          <line>120</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonPsiImplUtils.kt</url>
-          <line>180</line>
+          <line>187</line>
           <option name="timeStamp" value="7" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonPsiImplUtils.kt</url>
-          <line>200</line>
+          <line>207</line>
           <option name="timeStamp" value="8" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonPsiImplUtils.kt</url>
-          <line>179</line>
+          <line>186</line>
           <option name="timeStamp" value="45" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
@@ -379,16 +314,6 @@
           <url>file://$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonElementVisitor.java</url>
           <line>26</line>
           <option name="timeStamp" value="35" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonObjectIdElementImpl.java</url>
-          <line>16</line>
-          <option name="timeStamp" value="43" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonPropertyImpl.java</url>
-          <line>16</line>
-          <option name="timeStamp" value="44" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -41,7 +41,7 @@ public class CirJsonObjectImpl extends CirJsonObjectMixin implements CirJsonObje
   }
 
   @Override
-  @NotNull
+  @Nullable
   public String getId() {
     return CirJsonPsiImplUtils.getId(this);
   }

@@ -57,12 +57,19 @@ object CirJsonPsiImplUtils {
     }
 
     @JvmStatic
-    @Suppress("UNUSED_PARAMETER")
     fun getPresentation(array: CirJsonArray): ItemPresentation {
         return object : ItemPresentation {
 
             override fun getPresentableText(): String {
-                return CirJsonBundle.message("cirjson.array")
+                val result = StringBuilder(CirJsonBundle.message("cirjson.array") + " ")
+                val id = array.id
+                if (id != null) {
+                    result.append(CirJsonBundle.message("cirjson.with_id") + " ")
+                    result.append("\"$id\"")
+                } else {
+                    result.append(CirJsonBundle.message("cirjson.no_id"))
+                }
+                return result.toString()
             }
 
             override fun getIcon(p0: Boolean): Icon {
@@ -73,9 +80,18 @@ object CirJsonPsiImplUtils {
     }
 
     @JvmStatic
-    fun getId(array: CirJsonArray): String {
-        val a = 1 + 2
-        TODO()
+    fun getId(array: CirJsonArray): String? {
+        val values = array.valueList
+        if (values.isEmpty()) {
+            return null
+        }
+
+        val firstElement = array.valueList[0]
+        if (firstElement !is CirJsonStringLiteral || !firstElement.isId) {
+            return null
+        }
+
+        return firstElement.value
     }
 
     @JvmStatic

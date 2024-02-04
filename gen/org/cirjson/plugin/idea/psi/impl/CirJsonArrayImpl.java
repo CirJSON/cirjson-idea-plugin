@@ -41,7 +41,7 @@ public class CirJsonArrayImpl extends CirJsonContainerImpl implements CirJsonArr
   }
 
   @Override
-  @NotNull
+  @Nullable
   public String getId() {
     return CirJsonPsiImplUtils.getId(this);
   }

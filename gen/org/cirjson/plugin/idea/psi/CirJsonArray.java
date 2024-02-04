@@ -14,7 +14,7 @@ public interface CirJsonArray extends CirJsonContainer {
   @NotNull
   ItemPresentation getPresentation();
 
-  @NotNull
+  @Nullable
   String getId();
 
 }

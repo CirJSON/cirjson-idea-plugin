@@ -4,12 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="930979bc-c329-46f0-9693-7fd2d0388d10" name="Changes" comment="Base">
+    <list default="true" id="930979bc-c329-46f0-9693-7fd2d0388d10" name="Changes" comment="Get object ID">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonObject.java" beforeDir="false" afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonObject.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonObjectImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonObjectImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonArray.java" beforeDir="false" afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/CirJsonArray.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonArrayImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonArrayImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonPsiImplUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonPsiImplUtils.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/messages/CirJsonBundle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/messages/CirJsonBundle.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,28 +89,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Gradle.Run Plugin.executor": "Debug",
-    "Gradle.cirjson-idea-plugin [build].executor": "Run",
-    "Gradle.cirjson-idea-plugin [setupDependencies].executor": "Run",
-    "Gradle.cirjson-intellij-plugin [setupDependencies].executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "master",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/User/Documents/IdeaProjects/cirjson-idea-plugin/src/main/resources/icons",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.sourceCode.Kotlin",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Gradle.Run Plugin.executor&quot;: &quot;Debug&quot;,
+    &quot;Gradle.cirjson-idea-plugin [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.cirjson-idea-plugin [setupDependencies].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.cirjson-intellij-plugin [setupDependencies].executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/User/Documents/IdeaProjects/cirjson-idea-plugin/src/main/resources/icons&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode.Kotlin&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\User\Documents\IdeaProjects\cirjson-idea-plugin\src\main\resources\icons" />
@@ -187,7 +186,9 @@
       <workItem from="1706108289592" duration="8535000" />
       <workItem from="1706826803990" duration="78000" />
       <workItem from="1706826892635" duration="745000" />
-      <workItem from="1706982334996" duration="8237000" />
+      <workItem from="1706982334996" duration="8372000" />
+      <workItem from="1707015186097" duration="4000" />
+      <workItem from="1707066487383" duration="542000" />
     </task>
     <task id="LOCAL-00001" summary="Base">
       <option name="closed" value="true" />
@@ -197,7 +198,15 @@
       <option name="project" value="LOCAL" />
       <updated>1706989419212</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Get object ID">
+      <option name="closed" value="true" />
+      <created>1706990656281</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1706990656281</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -205,30 +214,36 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Base" />
-    <option name="LAST_COMMIT_MESSAGE" value="Base" />
+    <MESSAGE value="Get object ID" />
+    <option name="LAST_COMMIT_MESSAGE" value="Get object ID" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonPsiImplUtils.kt</url>
-          <line>120</line>
+          <line>135</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonPsiImplUtils.kt</url>
-          <line>187</line>
+          <line>202</line>
           <option name="timeStamp" value="7" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonPsiImplUtils.kt</url>
-          <line>207</line>
+          <line>222</line>
           <option name="timeStamp" value="8" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonPsiImplUtils.kt</url>
-          <line>186</line>
+          <line>201</line>
           <option name="timeStamp" value="45" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/src/main/kotlin/org/cirjson/plugin/idea/psi/impl/CirJsonPsiImplUtils.kt</url>
+          <line>83</line>
+          <option name="timeStamp" value="46" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/gen/org/cirjson/plugin/idea/psi/impl/CirJsonObjectImpl.java</url>

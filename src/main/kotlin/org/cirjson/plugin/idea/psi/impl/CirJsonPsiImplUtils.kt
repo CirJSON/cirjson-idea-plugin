@@ -110,9 +110,10 @@ object CirJsonPsiImplUtils {
 
             override fun getPresentableText(): String {
                 val result = StringBuilder(CirJsonBundle.message("cirjson.object") + " ")
-                if (obj.id != null) {
+                val id = obj.id
+                if (id != null) {
                     result.append(CirJsonBundle.message("cirjson.with_id") + " ")
-                    result.append("\"${obj.id}\"")
+                    result.append("\"$id\"")
                 } else {
                     result.append(CirJsonBundle.message("cirjson.no_id"))
                 }
@@ -120,7 +121,7 @@ object CirJsonPsiImplUtils {
             }
 
             override fun getIcon(p0: Boolean): Icon {
-                return AllIcons.Json.Array
+                return AllIcons.Json.Object
             }
 
         }

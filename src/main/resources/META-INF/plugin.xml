@@ -29,6 +29,9 @@
                                implementationClass="org.cirjson.plugin.idea.CirJsonParserDefinition"/>
 
         <!-- Code style and formatting -->
+        <codeStyleSettingsProvider implementation="org.cirjson.plugin.idea.formatter.CirJsonCodeStyleSettingsProvider"/>
+        <langCodeStyleSettingsProvider
+                implementation="org.cirjson.plugin.idea.formatter.CirJsonLanguageCodeStyleSettingsProvider"/>
         <lang.syntaxHighlighterFactory language="CirJson"
                                        implementationClass="org.cirjson.plugin.idea.highlighting.CirJsonSyntaxHighlighterFactory"/>
         <colorSettingsPage implementation="org.cirjson.plugin.idea.highlighting.CirJsonColorsPage"/>

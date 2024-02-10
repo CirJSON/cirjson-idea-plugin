@@ -35,6 +35,9 @@
         <langCodeStyleSettingsProvider
                 implementation="org.cirjson.plugin.idea.formatter.CirJsonLanguageCodeStyleSettingsProvider"/>
         <colorSettingsPage implementation="org.cirjson.plugin.idea.highlighting.CirJsonColorsPage"/>
+        <lang.formatter language="CirJson"
+                        implementationClass="org.cirjson.plugin.idea.formatter.CirJsonFormattingBuilderModel"/>
+        <preFormatProcessor implementation="org.cirjson.plugin.idea.formatter.CirJsonTrailingCommaRemover"/>
 
         <!-- Codeinsight -->
         <lang.psiStructureViewFactory language="CirJson"

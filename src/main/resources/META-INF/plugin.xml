@@ -38,6 +38,7 @@
         <lang.formatter language="CirJson"
                         implementationClass="org.cirjson.plugin.idea.formatter.CirJsonFormattingBuilderModel"/>
         <preFormatProcessor implementation="org.cirjson.plugin.idea.formatter.CirJsonTrailingCommaRemover"/>
+        <lang.braceMatcher language="CirJson" implementationClass="org.cirjson.plugin.idea.CirJsonBraceMatcher"/>
 
         <!-- Codeinsight -->
         <lang.psiStructureViewFactory language="CirJson"

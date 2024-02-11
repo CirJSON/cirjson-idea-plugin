@@ -23,12 +23,12 @@
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
         <fileType name="CirJson"
-                  implementationClass="org.cirjson.plugin.idea.CirJsonFileType"
-                  fieldName="INSTANCE" language="CirJson" extensions="cirjson"/>
+                implementationClass="org.cirjson.plugin.idea.CirJsonFileType"
+                fieldName="INSTANCE" language="CirJson" extensions="cirjson"/>
         <lang.parserDefinition language="CirJson"
-                               implementationClass="org.cirjson.plugin.idea.CirJsonParserDefinition"/>
+                implementationClass="org.cirjson.plugin.idea.CirJsonParserDefinition"/>
         <lang.syntaxHighlighterFactory language="CirJson"
-                                       implementationClass="org.cirjson.plugin.idea.highlighting.CirJsonSyntaxHighlighterFactory"/>
+                implementationClass="org.cirjson.plugin.idea.highlighting.CirJsonSyntaxHighlighterFactory"/>
 
         <!-- Code style and formatting -->
         <codeStyleSettingsProvider implementation="org.cirjson.plugin.idea.formatter.CirJsonCodeStyleSettingsProvider"/>
@@ -36,13 +36,13 @@
                 implementation="org.cirjson.plugin.idea.formatter.CirJsonLanguageCodeStyleSettingsProvider"/>
         <colorSettingsPage implementation="org.cirjson.plugin.idea.highlighting.CirJsonColorsPage"/>
         <lang.formatter language="CirJson"
-                        implementationClass="org.cirjson.plugin.idea.formatter.CirJsonFormattingBuilderModel"/>
+                implementationClass="org.cirjson.plugin.idea.formatter.CirJsonFormattingBuilderModel"/>
         <preFormatProcessor implementation="org.cirjson.plugin.idea.formatter.CirJsonTrailingCommaRemover"/>
         <lang.braceMatcher language="CirJson" implementationClass="org.cirjson.plugin.idea.CirJsonBraceMatcher"/>
 
         <!-- Codeinsight -->
         <lang.psiStructureViewFactory language="CirJson"
-                                      implementationClass="org.cirjson.plugin.idea.structureView.CirJsonStructureViewBuilderFactory"/>
+                implementationClass="org.cirjson.plugin.idea.structureView.CirJsonStructureViewBuilderFactory"/>
     </extensions>
 
     <resource-bundle>messages.CirJsonBundle</resource-bundle>

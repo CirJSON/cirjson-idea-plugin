@@ -39,6 +39,13 @@
                 implementationClass="org.cirjson.plugin.idea.formatter.CirJsonFormattingBuilderModel"/>
         <preFormatProcessor implementation="org.cirjson.plugin.idea.formatter.CirJsonTrailingCommaRemover"/>
         <lang.braceMatcher language="CirJson" implementationClass="org.cirjson.plugin.idea.CirJsonBraceMatcher"/>
+        <quoteHandler fileType="CirJson" className="org.cirjson.plugin.idea.CirJsonQuoteHandler"/>
+        <enterBetweenBracesDelegate language="CirJson"
+                implementationClass="com.intellij.codeInsight.editorActions.enter.EnterBetweenBracesAndBracketsDelegate"/>
+        <enterHandlerDelegate id="CirJsonEnterHandler"
+                implementation="org.cirjson.plugin.idea.editor.CirJsonEnterHandler"/>
+        <typedHandler id="CirJsonTypedHandler" implementation="org.cirjson.plugin.idea.editor.CirJsonTypedHandler"/>
+        <applicationService serviceImplementation="org.cirjson.plugin.idea.editor.CirJsonEditorOptions"/>
 
         <!-- Codeinsight -->
         <lang.psiStructureViewFactory language="CirJson"

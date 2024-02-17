@@ -7,23 +7,13 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.PsiDocumentManager
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiErrorElement
-import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiWhiteSpace
+import com.intellij.psi.*
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiUtilCore
 import org.cirjson.plugin.idea.CirJsonDialectUtil
 import org.cirjson.plugin.idea.CirJsonElementTypes
-import org.cirjson.plugin.idea.psi.CirJsonArray
-import org.cirjson.plugin.idea.psi.CirJsonFile
-import org.cirjson.plugin.idea.psi.CirJsonObject
-import org.cirjson.plugin.idea.psi.CirJsonProperty
-import org.cirjson.plugin.idea.psi.CirJsonReferenceExpression
-import org.cirjson.plugin.idea.psi.CirJsonStringLiteral
-import org.cirjson.plugin.idea.psi.CirJsonValue
+import org.cirjson.plugin.idea.psi.*
 
 class CirJsonTypedHandler : TypedHandlerDelegate() {
 

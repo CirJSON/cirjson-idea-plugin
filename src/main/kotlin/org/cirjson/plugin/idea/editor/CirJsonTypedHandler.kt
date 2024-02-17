@@ -191,7 +191,7 @@ class CirJsonTypedHandler : TypedHandlerDelegate() {
             }
         }
 
-        private fun processPairedBracesComma(c: Char, editor: Editor, file: PsiFile) {
+        fun processPairedBracesComma(c: Char, editor: Editor, file: PsiFile) {
             if (!CirJsonEditorOptions.instance.COMMA_ON_MATCHING_BRACES
                     || (c != '[' && c != '{' && c != '"' && c != '\'')) {
                 return

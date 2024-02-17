@@ -23,7 +23,7 @@ open class CirJsonCopyPasteProcessor : CopyPastePreProcessor {
 
         val selectionStart = startOffsets[0]
         val selectionEnd = endOffsets[0]
-        val literalExpression = getSingleElementFromSelectionOrNull(file, selectionStart, selectionEnd) ?: return null
+        getSingleElementFromSelectionOrNull(file, selectionStart, selectionEnd) ?: return null
 
         return StringUtil.unescapeStringCharacters(StringUtil.replaceUnicodeEscapeSequences(text))
     }
@@ -42,7 +42,7 @@ open class CirJsonCopyPasteProcessor : CopyPastePreProcessor {
         val selectionStart = selectionModel.selectionStart
         val selectionEnd = selectionModel.selectionEnd
 
-        val literalExpression = getSingleElementFromSelectionOrNull(file, selectionStart, selectionEnd) ?: return text
+        getSingleElementFromSelectionOrNull(file, selectionStart, selectionEnd) ?: return text
 
         return StringUtil.escapeStringCharacters(text)
     }

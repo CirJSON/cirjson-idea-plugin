@@ -45,6 +45,9 @@
         <enterHandlerDelegate id="CirJsonEnterHandler"
                 implementation="org.cirjson.plugin.idea.editor.CirJsonEnterHandler"/>
         <typedHandler id="CirJsonTypedHandler" implementation="org.cirjson.plugin.idea.editor.CirJsonTypedHandler"/>
+        <copyPastePreProcessor implementation="org.cirjson.plugin.idea.editor.CirJsonCopyPasteProcessor"/>
+        <editorSmartKeysConfigurable id="editor.preferences.cirJsonOptions"
+                instance="org.cirjson.plugin.idea.editor.CirJsonSmartKeysConfigurable"/>
         <applicationService serviceImplementation="org.cirjson.plugin.idea.editor.CirJsonEditorOptions"/>
 
         <!-- Codeinsight -->

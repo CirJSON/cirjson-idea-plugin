@@ -51,6 +51,10 @@
         <applicationService serviceImplementation="org.cirjson.plugin.idea.editor.CirJsonEditorOptions"/>
 
         <!-- Codeinsight -->
+        <breadcrumbsInfoProvider implementation="org.cirjson.plugin.idea.breadcrumbs.CirJsonBreadcrumbsProvider"/>
+        <focusModeProvider language="CirJson"
+                implementationClass="org.cirjson.plugin.idea.editor.CirJsonFocusModeProvider"/>
+        <qualifiedNameProvider implementation="org.cirjson.plugin.idea.navigation.CirJsonQualifiedNameProvider"/>
         <lang.psiStructureViewFactory language="CirJson"
                 implementationClass="org.cirjson.plugin.idea.structureView.CirJsonStructureViewBuilderFactory"/>
     </extensions>

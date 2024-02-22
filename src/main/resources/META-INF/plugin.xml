@@ -55,6 +55,8 @@
         <focusModeProvider language="CirJson"
                 implementationClass="org.cirjson.plugin.idea.editor.CirJsonFocusModeProvider"/>
         <qualifiedNameProvider implementation="org.cirjson.plugin.idea.navigation.CirJsonQualifiedNameProvider"/>
+        <completion.contributor language="CirJson" id="CirJsonCompletionContributor" order="last"
+                implementationClass="org.cirjson.plugin.idea.codeinsight.CirJsonCompletionContributor"/>
         <lang.psiStructureViewFactory language="CirJson"
                 implementationClass="org.cirjson.plugin.idea.structureView.CirJsonStructureViewBuilderFactory"/>
     </extensions>

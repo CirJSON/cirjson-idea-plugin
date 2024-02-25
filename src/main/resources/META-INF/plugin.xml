@@ -59,6 +59,16 @@
                 implementationClass="org.cirjson.plugin.idea.codeinsight.CirJsonCompletionContributor"/>
         <lang.psiStructureViewFactory language="CirJson"
                 implementationClass="org.cirjson.plugin.idea.structureView.CirJsonStructureViewBuilderFactory"/>
+        <lang.foldingBuilder language="CirJson"
+                implementationClass="org.cirjson.plugin.idea.editor.folding.CirJsonFoldingBuilder"/>
+        <lang.smartEnterProcessor language="CirJson"
+                implementationClass="org.cirjson.plugin.idea.editor.smartEnter.CirJsonSmartEnterProcessor"/>
+        <lang.namesValidator language="CirJson" implementationClass="org.cirjson.plugin.idea.CirJsonNamesValidator"/>
+        <lang.commenter language="CirJson" implementationClass="org.cirjson.plugin.idea.editor.CirJsonCommenter"/>
+        <lang.surroundDescriptor language="CirJson"
+                implementationClass="org.cirjson.plugin.idea.surroundWith.CirJsonSurroundDescriptor"/>
+        <lang.findUsagesProvider language="CirJson"
+                implementationClass="org.cirjson.plugin.idea.findUsages.CirJsonFindUsagesProvider"/>
     </extensions>
 
     <resource-bundle>messages.CirJsonBundle</resource-bundle>

@@ -71,6 +71,14 @@
                 implementationClass="org.cirjson.plugin.idea.findUsages.CirJsonFindUsagesProvider"/>
         <statementUpDownMover id="CirJson" order="before line"
                 implementation="org.cirjson.plugin.idea.editor.lineMover.CirJsonLineMover"/>
+
+        <!-- Live template context -->
+        <liveTemplateContext contextId="CirJson"
+                implementation="org.cirjson.plugin.idea.liveTemplates.CirJsonContextType"/>
+        <liveTemplateContext contextId="CirJsonStringValues" baseContextId="CirJson"
+                implementation="org.cirjson.plugin.idea.liveTemplates.CirJsonInLiteralsContextType"/>
+        <liveTemplateContext contextId="CirJsonPropertyKeys" baseContextId="CirJson"
+                implementation="org.cirjson.plugin.idea.liveTemplates.CirJsonInPropertyKeysContextType"/>
     </extensions>
 
     <resource-bundle>messages.CirJsonBundle</resource-bundle>

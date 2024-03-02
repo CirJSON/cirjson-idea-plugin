@@ -69,6 +69,8 @@
                 implementationClass="org.cirjson.plugin.idea.surroundWith.CirJsonSurroundDescriptor"/>
         <lang.findUsagesProvider language="CirJson"
                 implementationClass="org.cirjson.plugin.idea.findUsages.CirJsonFindUsagesProvider"/>
+        <statementUpDownMover id="CirJson" order="before line"
+                implementation="org.cirjson.plugin.idea.editor.lineMover.CirJsonLineMover"/>
     </extensions>
 
     <resource-bundle>messages.CirJsonBundle</resource-bundle>

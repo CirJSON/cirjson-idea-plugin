@@ -84,6 +84,10 @@
         <spellchecker.support language="CirJson"
                 implementationClass="org.cirjson.plugin.idea.CirJsonSpellcheckerStrategy"/>
 
+        <!-- Selection handling -->
+        <extendWordSelectionHandler
+                implementation="org.cirjson.plugin.idea.editor.selection.CirJsonStringLiteralSelectionHandler"/>
+
         <!-- Services -->
         <projectService
                 serviceImplementation="org.cirjson.plugin.idea.schema.CirJsonSchemaMappingsProjectConfiguration"/>

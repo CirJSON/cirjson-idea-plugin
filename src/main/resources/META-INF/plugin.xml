@@ -79,7 +79,33 @@
                 implementation="org.cirjson.plugin.idea.liveTemplates.CirJsonInLiteralsContextType"/>
         <liveTemplateContext contextId="CirJsonPropertyKeys" baseContextId="CirJson"
                 implementation="org.cirjson.plugin.idea.liveTemplates.CirJsonInPropertyKeysContextType"/>
+
+        <!-- Spellchecking -->
+        <spellchecker.support language="CirJson"
+                implementationClass="org.cirjson.plugin.idea.CirJsonSpellcheckerStrategy"/>
+
+        <!-- Services -->
+        <projectService
+                serviceImplementation="org.cirjson.plugin.idea.schema.CirJsonSchemaMappingsProjectConfiguration"/>
+        <projectService
+                serviceImplementation="org.cirjson.plugin.idea.schema.CirJsonSchemaCatalogProjectConfiguration"/>
+        <projectService serviceInterface="org.cirjson.plugin.idea.schema.CirJsonSchemaService"
+                serviceImplementation="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaServiceImpl"/>
     </extensions>
+
+    <extensionPoints>
+        <extensionPoint qualifiedName="javaScript.cirJsonSchema.providerFactory"
+                interface="org.cirjson.plugin.idea.schema.extension.CirJsonSchemaProviderFactory" dynamic="true"/>
+        <extensionPoint qualifiedName="javaScript.cirJsonSchema.contentAwareSchemaFileProvider"
+                interface="org.cirjson.plugin.idea.schema.extension.ContentAwareCirJsonSchemaFileProvider"
+                dynamic="true"/>
+        <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonLikePsiWalkerFactory"
+                interface="org.cirjson.plugin.idea.schema.extension.CirJsonLikePsiWalkerFactory" dynamic="true"/>
+        <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonSchemaEnabler"
+                interface="org.cirjson.plugin.idea.schema.extension.CirJsonSchemaEnabler" dynamic="true"/>
+        <extensionPoint qualifiedName="org.cirjson.plugin.idea.catalog.exclusion"
+                interface="org.cirjson.plugin.idea.schema.remote.CirJsonSchemaCatalogExclusion" dynamic="true"/>
+    </extensionPoints>
 
     <resource-bundle>messages.CirJsonBundle</resource-bundle>
 </idea-plugin>

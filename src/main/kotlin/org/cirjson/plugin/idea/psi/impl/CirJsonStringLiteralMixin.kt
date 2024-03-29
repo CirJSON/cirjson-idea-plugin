@@ -19,7 +19,11 @@ abstract class CirJsonStringLiteralMixin(node: ASTNode) : CirJsonLiteralImpl(nod
     }
 
     override fun createLiteralTextEscaper(): LiteralTextEscaper<out PsiLanguageInjectionHost> {
-        TODO("Not yet implemented")
+        return object : JSStringLiteralEscaper<PsiLanguageInjectionHost>(this@CirJsonStringLiteralMixin) {
+
+            override val isRegExpLiteral: Boolean = false
+
+        }
     }
 
     override fun subtreeChanged() {

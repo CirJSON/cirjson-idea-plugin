@@ -97,6 +97,10 @@
                 serviceImplementation="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaServiceImpl"/>
     </extensions>
 
+    <extensions defaultExtensionNs="org.cirjson.plugin.idea">
+        <cirJsonLiteralChecker implementation="org.cirjson.plugin.idea.codeinsight.StandardCirJsonLiteralChecker"/>
+    </extensions>
+
     <extensionPoints>
         <extensionPoint qualifiedName="javaScript.cirJsonSchema.providerFactory"
                 interface="org.cirjson.plugin.idea.schema.extension.CirJsonSchemaProviderFactory" dynamic="true"/>
@@ -107,6 +111,8 @@
                 interface="org.cirjson.plugin.idea.schema.extension.CirJsonLikePsiWalkerFactory" dynamic="true"/>
         <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonSchemaEnabler"
                 interface="org.cirjson.plugin.idea.schema.extension.CirJsonSchemaEnabler" dynamic="true"/>
+        <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonLiteralChecker"
+                interface="org.cirjson.plugin.idea.codeinsight.CirJsonLiteralChecker" dynamic="true"/>
         <extensionPoint qualifiedName="org.cirjson.plugin.idea.catalog.exclusion"
                 interface="org.cirjson.plugin.idea.schema.remote.CirJsonSchemaCatalogExclusion" dynamic="true"/>
     </extensionPoints>

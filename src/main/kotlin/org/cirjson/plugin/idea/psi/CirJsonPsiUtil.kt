@@ -1,6 +1,7 @@
 package org.cirjson.plugin.idea.psi
 
 import com.intellij.lang.ASTNode
+import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.TokenType
 import com.intellij.psi.tree.IElementType
@@ -109,6 +110,23 @@ object CirJsonPsiUtil {
      */
     fun hasElementType(element: PsiElement, vararg types: IElementType): Boolean {
         return hasElementType(element.node ?: return false, TokenSet.create(*types))
+    }
+
+    /**
+     * Returns text of the given PSI element. Unlike obvious [PsiElement.getText] this method unescapes text of the
+     * element if latter belongs to injected code fragment using [InjectedLanguageManager.getUnescapedText].
+     *
+     * @param element PSI element which text is needed
+     *
+     * @return text of the element with any host escaping removed
+     */
+    fun getElementTextWithoutHostEscaping(element: PsiElement): String {
+        val manager = InjectedLanguageManager.getInstance(element.project)
+        return if (manager.isInjectedFragment(element.containingFile)) {
+            manager.getUnescapedText(element)
+        } else {
+            element.text
+        }
     }
 
     /**

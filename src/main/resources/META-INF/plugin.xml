@@ -88,6 +88,12 @@
         <annotator language="CirJson"
                 implementationClass="org.cirjson.plugin.idea.codeinsight.CirJsonLiteralAnnotator"/>
 
+        <!-- Inspections -->
+        <localInspection language="CirJson" shortName="CirJsonStandardCompliance" bundle="messages.CirJsonBundle"
+                key="inspection.compliance.name" groupKey="cirJson.inspection.group" enabledByDefault="true"
+                level="ERROR"
+                implementationClass="org.cirjson.plugin.idea.codeinsight.CirJsonStandardComplianceInspection"/>
+
         <!-- Selection handling -->
         <extendWordSelectionHandler
                 implementation="org.cirjson.plugin.idea.editor.selection.CirJsonStringLiteralSelectionHandler"/>
@@ -106,6 +112,8 @@
     </extensions>
 
     <extensionPoints>
+        <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonStandardComplianceProvider"
+                interface="org.cirjson.plugin.idea.codeinsight.CirJsonStandardComplianceProvider" dynamic="true"/>
         <extensionPoint qualifiedName="javaScript.cirJsonSchema.providerFactory"
                 interface="org.cirjson.plugin.idea.schema.extension.CirJsonSchemaProviderFactory" dynamic="true"/>
         <extensionPoint qualifiedName="javaScript.cirJsonSchema.contentAwareSchemaFileProvider"

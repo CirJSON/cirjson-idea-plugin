@@ -2,6 +2,8 @@ package org.cirjson.plugin.idea.psi
 
 import com.intellij.lang.ASTNode
 import com.intellij.lang.injection.InjectedLanguageManager
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.ScrollType
 import com.intellij.psi.PsiElement
 import com.intellij.psi.TokenType
 import com.intellij.psi.tree.IElementType
@@ -175,5 +177,15 @@ object CirJsonPsiUtil {
         return count % 2 != 0
     }
 
+    /**
+     * Sends the caret to the element and scrolls to it
+     *
+     * @param editor the current editor
+     * @param toNavigate the element you want to navigate to
+     */
+    fun navigateTo(editor: Editor, toNavigate: PsiElement) {
+        editor.caretModel.moveToOffset(toNavigate.textOffset)
+        editor.scrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
+    }
 
 }

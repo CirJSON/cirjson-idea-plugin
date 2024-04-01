@@ -93,6 +93,10 @@
                 key="inspection.compliance.name" groupKey="cirJson.inspection.group" enabledByDefault="true"
                 level="ERROR"
                 implementationClass="org.cirjson.plugin.idea.codeinsight.CirJsonStandardComplianceInspection"/>
+        <localInspection language="CirJson" shortName="CirJsonDifferentDataTypesShareID" bundle="messages.CirJsonBundle"
+                key="inspection.id.different.type" groupKey="cirJson.inspection.group" enabledByDefault="true"
+                level="ERROR"
+                implementationClass="org.cirjson.plugin.idea.codeinsight.CirJsonDifferentDataTypesShareIDInspection"/>
         <localInspection language="CirJson" shortName="CirJsonDuplicatePropertyKeys" bundle="messages.CirJsonBundle"
                 key="inspection.duplicate.keys.name" groupKey="cirJson.inspection.group" enabledByDefault="true"
                 level="WARNING"

@@ -6,7 +6,6 @@ import com.intellij.codeInspection.LocalQuickFixAndIntentionActionOnPsiElement
 import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.ScrollType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.PopupStep
@@ -23,10 +22,11 @@ import org.cirjson.plugin.idea.CirJsonBundle
 import org.cirjson.plugin.idea.extentions.intellij.set
 import org.cirjson.plugin.idea.psi.CirJsonElementVisitor
 import org.cirjson.plugin.idea.psi.CirJsonObject
+import org.cirjson.plugin.idea.psi.CirJsonPsiUtil
 import org.cirjson.plugin.idea.schema.CirJsonSchemaService
 import javax.swing.Icon
 
-@Suppress("UnstableApiUsage")
+@Suppress("UnstableApiUsage", "DuplicatedCode")
 open class CirJsonDuplicatePropertyKeysInspection : LocalInspectionTool() {
 
     override fun buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor {
@@ -82,7 +82,7 @@ open class CirJsonDuplicatePropertyKeysInspection : LocalInspectionTool() {
                     return
                 }
 
-                navigateTo(editor, toNavigate)
+                CirJsonPsiUtil.navigateTo(editor, toNavigate)
             } else {
                 val allElements = mySameNamedKeys.map { it.element }.filter { it !== startElement }
                 JBPopupFactory.getInstance().createListPopup(object : BaseListPopupStep<PsiElement>(
@@ -102,7 +102,7 @@ open class CirJsonDuplicatePropertyKeysInspection : LocalInspectionTool() {
                     }
 
                     override fun onChosen(selectedValue: PsiElement, finalChoice: Boolean): PopupStep<*>? {
-                        navigateTo(editor, selectedValue)
+                        CirJsonPsiUtil.navigateTo(editor, selectedValue)
                         return PopupStep.FINAL_CHOICE
                     }
 
@@ -112,15 +112,6 @@ open class CirJsonDuplicatePropertyKeysInspection : LocalInspectionTool() {
 
                 }).showInBestPositionFor(editor)
             }
-        }
-
-        companion object {
-
-            private fun navigateTo(editor: Editor, toNavigate: PsiElement) {
-                editor.caretModel.moveToOffset(toNavigate.textOffset)
-                editor.scrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
-            }
-
         }
 
     }

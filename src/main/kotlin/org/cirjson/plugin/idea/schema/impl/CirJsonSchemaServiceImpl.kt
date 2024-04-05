@@ -352,6 +352,11 @@ open class CirJsonSchemaServiceImpl(override val project: Project) : CirJsonSche
         return myState.getProvider(schemaFile)
     }
 
+    override fun getSchemaProvider(schemaObject: CirJsonSchemaObject): CirJsonSchemaFileProvider? {
+        val file = resolveSchemaFile(schemaObject) ?: return null
+        return getSchemaProvider(file)
+    }
+
     override fun resolveSchemaFile(schemaObject: CirJsonSchemaObject): VirtualFile? {
         val rawFile = schemaObject.rawFile
 

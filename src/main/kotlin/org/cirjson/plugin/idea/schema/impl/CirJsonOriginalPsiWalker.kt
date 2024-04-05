@@ -102,6 +102,10 @@ class CirJsonOriginalPsiWalker private constructor() : CirJsonLikePsiWalker {
         return pos
     }
 
+    override fun isQuotedString(element: PsiElement): Boolean {
+        return element is CirJsonStringLiteral
+    }
+
     override fun createValueAdapter(element: PsiElement): CirJsonValueAdapter? {
         return if (element is CirJsonValue) CirJsonCirJsonPropertyAdapter.createAdapterByType(element) else null
     }

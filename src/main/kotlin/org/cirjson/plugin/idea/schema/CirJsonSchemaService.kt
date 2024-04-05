@@ -29,6 +29,8 @@ interface CirJsonSchemaService {
 
     fun getSchemaProvider(schemaFile: VirtualFile): CirJsonSchemaFileProvider?
 
+    fun getSchemaProvider(schemaObject: CirJsonSchemaObject): CirJsonSchemaFileProvider?
+
     fun resolveSchemaFile(schemaObject: CirJsonSchemaObject): VirtualFile?
 
     fun reset()

@@ -7,6 +7,7 @@ import org.cirjson.plugin.idea.pointer.CirJsonPointerPosition
 import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonValueAdapter
 import org.cirjson.plugin.idea.schema.impl.CirJsonOriginalPsiWalker
 import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaObject
+import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaType
 
 interface CirJsonLikePsiWalker {
 
@@ -21,9 +22,23 @@ interface CirJsonLikePsiWalker {
 
     fun findPosition(element: PsiElement, forceLastTransition: Boolean): CirJsonPointerPosition?
 
+    val isRequiringValueQuote: Boolean
+        get() = true
+
+    fun isQuotedString(element: PsiElement): Boolean {
+        return false
+    }
+
     fun createValueAdapter(element: PsiElement): CirJsonValueAdapter?
 
     fun getRoots(file: PsiFile): Collection<PsiElement>?
+
+    val hasWhitespaceDelimitedCodeBlocks: Boolean
+        get() = false
+
+    fun getPropertyValueSeparator(valueType: CirJsonSchemaType?): String {
+        return ":"
+    }
 
     companion object {
 

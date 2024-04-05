@@ -108,6 +108,10 @@
         <extendWordSelectionHandler
                 implementation="org.cirjson.plugin.idea.editor.selection.CirJsonStringLiteralSelectionHandler"/>
 
+        <!-- Element manipulators -->
+        <lang.elementManipulator forClass="org.cirjson.plugin.idea.psi.CirJsonStringLiteral"
+                implementationClass="org.cirjson.plugin.idea.psi.CirJsonStringLiteralManipulator"/>
+
         <!-- Services -->
         <projectService
                 serviceImplementation="org.cirjson.plugin.idea.schema.CirJsonSchemaMappingsProjectConfiguration"/>

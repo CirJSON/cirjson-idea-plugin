@@ -89,6 +89,7 @@
                 implementationClass="org.cirjson.plugin.idea.codeinsight.CirJsonLiteralAnnotator"/>
 
         <!-- Inspections -->
+        <!--suppress PluginXmlValidity -->
         <inspection.basicVisitor class="org.cirjson.plugin.idea.psi.CirJsonElementVisitor"/>
 
         <localInspection language="CirJson" shortName="CirJsonStandardCompliance" bundle="messages.CirJsonBundle"

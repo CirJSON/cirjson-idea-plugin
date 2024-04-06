@@ -15,13 +15,18 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiUtilCore
+import com.intellij.util.ThreeState
 import org.cirjson.plugin.idea.psi.CirJsonFile
 import org.cirjson.plugin.idea.psi.CirJsonObject
 import org.cirjson.plugin.idea.psi.CirJsonProperty
 import org.cirjson.plugin.idea.schema.CirJsonSchemaService
 import org.cirjson.plugin.idea.schema.extension.CirJsonLikePsiWalker
 import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaFileProvider
+import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaNestedCompletionsTreeProvider
 import org.cirjson.plugin.idea.schema.extension.SchemaType
+import org.cirjson.plugin.idea.schema.impl.nestedCompletions.SchemaPath
+import org.cirjson.plugin.idea.schema.impl.nestedCompletions.collectNestedCompletions
+import org.cirjson.plugin.idea.schema.impl.nestedCompletions.navigate
 import org.jetbrains.annotations.TestOnly
 import java.util.function.Consumer
 
@@ -77,6 +82,37 @@ class CirJsonSchemaCompletionContributor : CompletionContributor() {
         }
 
         fun work() {
+            if (myWalker == null) {
+                return
+            }
+
+            val checkable = myWalker.findElementToCheck(myPosition) ?: return
+            val isName = myWalker.isName(checkable)
+            val position = myWalker.findPosition(checkable, isName == ThreeState.NO) ?: return
+
+            if (position.empty && isName == ThreeState.NO) {
+                return
+            }
+
+            val knownNames = HashSet<String>()
+
+            val nestedCompletionsNode = CirJsonSchemaNestedCompletionsTreeProvider.getNestedCompletionsData(
+                    myOriginalPosition.containingFile).navigate(position)
+
+            CirJsonSchemaResolver(myProject, myRootSchema, position).resolve().forEach {
+                it.collectNestedCompletions(myProject, nestedCompletionsNode,
+                        null) { path: SchemaPath?, subSchema: CirJsonSchemaObject ->
+                    processSchema(subSchema, isName, checkable, knownNames, path)
+                }
+            }
+
+            for (variant in myVariants) {
+                myResultConsumer.accept(variant)
+            }
+        }
+
+        private fun processSchema(schema: CirJsonSchemaObject, isName: ThreeState, checkable: PsiElement,
+                knownNames: Set<String>, path: SchemaPath?) {
             TODO()
         }
 

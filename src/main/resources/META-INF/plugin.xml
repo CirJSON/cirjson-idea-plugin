@@ -138,6 +138,9 @@
                 dynamic="true"/>
         <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonLikePsiWalkerFactory"
                 interface="org.cirjson.plugin.idea.schema.extension.CirJsonLikePsiWalkerFactory" dynamic="true"/>
+        <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonSchemaNestedCompletionsTreeProvider"
+                interface="org.cirjson.plugin.idea.schema.extension.CirJsonSchemaNestedCompletionsTreeProvider"
+                dynamic="true"/>
         <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonSchemaEnabler"
                 interface="org.cirjson.plugin.idea.schema.extension.CirJsonSchemaEnabler" dynamic="true"/>
         <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonLiteralChecker"

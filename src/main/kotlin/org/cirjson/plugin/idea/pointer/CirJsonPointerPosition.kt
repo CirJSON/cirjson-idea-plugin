@@ -1,6 +1,7 @@
 package org.cirjson.plugin.idea.pointer
 
 import com.intellij.util.containers.ContainerUtil
+import org.cirjson.plugin.idea.schema.CirJsonPointerUtil
 
 class CirJsonPointerPosition(private val mySteps: MutableList<Step>) {
 
@@ -12,6 +13,10 @@ class CirJsonPointerPosition(private val mySteps: MutableList<Step>) {
 
     fun addPrecedingStep(value: String) {
         mySteps.add(0, Step.createPropertyStep(value))
+    }
+
+    fun addFollowingStep(value: String) {
+        mySteps.add(Step.createPropertyStep(value))
     }
 
     val empty: Boolean
@@ -33,12 +38,12 @@ class CirJsonPointerPosition(private val mySteps: MutableList<Step>) {
 
     val firstName: String?
         get() {
-            return ContainerUtil.getFirstItem(mySteps)?.name
+            return ContainerUtil.getFirstItem(mySteps)?.myName
         }
 
     val firstIndex: Int
         get() {
-            return ContainerUtil.getFirstItem(mySteps)?.idx ?: -1
+            return ContainerUtil.getFirstItem(mySteps)?.myIdx ?: -1
         }
 
     val size: Int
@@ -51,6 +56,12 @@ class CirJsonPointerPosition(private val mySteps: MutableList<Step>) {
         mySteps.addAll(from.mySteps)
     }
 
+    fun toCirJsonPointer(): String {
+        return "/" + mySteps.joinToString("/") {
+            CirJsonPointerUtil.escapeFromCirJsonPointer(it.myName ?: it.myIdx.toString())
+        }
+    }
+
     private fun checkPosInRange(pos: Int): Boolean {
         return mySteps.size > pos
     }
@@ -59,9 +70,9 @@ class CirJsonPointerPosition(private val mySteps: MutableList<Step>) {
         return mySteps.size >= pos
     }
 
-    class Step private constructor(val name: String?, val idx: Int) {
+    class Step private constructor(val myName: String?, val myIdx: Int) {
 
-        val isFromObject = name != null
+        val isFromObject = myName != null
 
         companion object {
 

@@ -58,7 +58,7 @@ class CirJsonPointerPosition(private val mySteps: MutableList<Step>) {
 
     fun toCirJsonPointer(): String {
         return "/" + mySteps.joinToString("/") {
-            CirJsonPointerUtil.escapeFromCirJsonPointer(it.myName ?: it.myIdx.toString())
+            CirJsonPointerUtil.escapeForCirJsonPointer(it.myName ?: it.myIdx.toString())
         }
     }
 

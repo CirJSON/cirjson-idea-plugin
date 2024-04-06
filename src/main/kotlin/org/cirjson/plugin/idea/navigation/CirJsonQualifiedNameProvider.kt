@@ -43,7 +43,7 @@ class CirJsonQualifiedNameProvider : QualifiedNameProvider {
                     var name = parentProperty.name
 
                     if (qualifiedNameKind == CirJsonQualifiedNameKind.CirJsonPointer) {
-                        name = CirJsonPointerUtil.escapeFromCirJsonPointer(name)
+                        name = CirJsonPointerUtil.escapeForCirJsonPointer(name)
                     }
 
                     builder.insert(0, name)

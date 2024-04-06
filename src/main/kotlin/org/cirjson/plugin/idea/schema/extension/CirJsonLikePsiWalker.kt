@@ -4,6 +4,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.util.ThreeState
 import org.cirjson.plugin.idea.pointer.CirJsonPointerPosition
+import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonPropertyAdapter
 import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonValueAdapter
 import org.cirjson.plugin.idea.schema.impl.CirJsonOriginalPsiWalker
 import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaObject
@@ -18,9 +19,13 @@ interface CirJsonLikePsiWalker {
      */
     fun isName(element: PsiElement): ThreeState
 
+    fun isPropertyWithValue(element: PsiElement): Boolean
+
     fun findElementToCheck(element: PsiElement): PsiElement?
 
     fun findPosition(element: PsiElement, forceLastTransition: Boolean): CirJsonPointerPosition?
+
+    val isRequiringNameQuote: Boolean
 
     val isRequiringValueQuote: Boolean
         get() = true
@@ -28,6 +33,12 @@ interface CirJsonLikePsiWalker {
     fun isQuotedString(element: PsiElement): Boolean {
         return false
     }
+
+    fun hasMissingCommaAfter(element: PsiElement): Boolean
+
+    fun getPropertyNamesOfParentObject(originalPosition: PsiElement, computedPosition: PsiElement): Set<String>
+
+    fun getParentPropertyAdapter(element: PsiElement): CirJsonPropertyAdapter?
 
     fun createValueAdapter(element: PsiElement): CirJsonValueAdapter?
 

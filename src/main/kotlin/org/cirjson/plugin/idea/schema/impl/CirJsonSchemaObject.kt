@@ -62,6 +62,8 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
 
     private var myItemsSchemaList: MutableList<CirJsonSchemaObject>? = null
 
+    private var myRequired: MutableSet<String>? = null
+
     private var myEnum: MutableList<Any>? = null
 
     private var myAllOf: MutableList<CirJsonSchemaObject>? = null
@@ -69,6 +71,8 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
     private var myAnyOf: MutableList<CirJsonSchemaObject>? = null
 
     private var myOneOf: MutableList<CirJsonSchemaObject>? = null
+
+    private var myNot: CirJsonSchemaObject? = null
 
     private var myIfThenElse: MutableList<IfThenElse>? = null
 
@@ -248,7 +252,14 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
         // TODO: merge myUniqueItems when added
         // TODO: merge myMaxProperties when added
         // TODO: merge myMinProperties when added
-        // TODO: merge myRequired when added
+
+        if (myRequired != null && other.myRequired != null) {
+            val set = HashSet<String>(myRequired!!.size + other.myRequired!!.size)
+            set.addAll(myRequired!!)
+            set.addAll(other.myRequired!!)
+            myRequired = set
+        }
+
         // TODO: merge myPropertyDependencies when added
         // TODO: merge mySchemaDependencies when added
         // TODO: merge myEnumMetadata when added
@@ -261,7 +272,9 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
         myAnyOf = copyList(myAnyOf, other.myAnyOf)
         myOneOf = copyList(myOneOf, other.myOneOf)
 
-        // TODO: merge myNot when added
+        if (other.myNot != null) {
+            myNot = other.myNot
+        }
 
         if (other.myIfThenElse != null) {
             if (myIfThenElse == null) {
@@ -415,6 +428,14 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
             myId = value
         }
 
+    var required: Set<String>?
+        get() {
+            return myRequired
+        }
+        set(value) {
+            myRequired = value?.toMutableSet()
+        }
+
     var enum: List<Any>?
         get() {
             return myEnum
@@ -450,6 +471,14 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
     val ifThenElse: List<IfThenElse>?
         get() {
             return myIfThenElse
+        }
+
+    var not: CirJsonSchemaObject?
+        get() {
+            return myNot
+        }
+        set(value) {
+            myNot = value
         }
 
     var `if`: CirJsonSchemaObject?

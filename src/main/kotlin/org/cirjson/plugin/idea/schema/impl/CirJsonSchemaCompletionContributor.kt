@@ -24,8 +24,10 @@ import org.cirjson.plugin.idea.schema.extension.CirJsonLikePsiWalker
 import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaFileProvider
 import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaNestedCompletionsTreeProvider
 import org.cirjson.plugin.idea.schema.extension.SchemaType
+import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonPropertyAdapter
 import org.cirjson.plugin.idea.schema.impl.nestedCompletions.SchemaPath
 import org.cirjson.plugin.idea.schema.impl.nestedCompletions.collectNestedCompletions
+import org.cirjson.plugin.idea.schema.impl.nestedCompletions.findChildBy
 import org.cirjson.plugin.idea.schema.impl.nestedCompletions.navigate
 import org.jetbrains.annotations.TestOnly
 import java.util.function.Consumer
@@ -112,7 +114,47 @@ class CirJsonSchemaCompletionContributor : CompletionContributor() {
         }
 
         private fun processSchema(schema: CirJsonSchemaObject, isName: ThreeState, checkable: PsiElement,
-                knownNames: Set<String>, path: SchemaPath?) {
+                knownNames: Set<String>, completionPath: SchemaPath?) {
+            if (isName != ThreeState.NO) {
+                val completionOriginalPosition = myWalker!!.findChildBy(completionPath, myOriginalPosition)
+                val completionPosition = myWalker.findChildBy(completionPath, myPosition)
+                val insertComma = myWalker.hasMissingCommaAfter(myPosition)
+                val hasValue = myWalker.isPropertyWithValue(checkable)
+
+                val properties = myWalker.getPropertyNamesOfParentObject(completionOriginalPosition, completionPosition)
+                val adapter = myWalker.getParentPropertyAdapter(completionOriginalPosition)
+
+                val forbiddenNames =
+                        findPropertiesThatMustNotBePresent(schema, myPosition, myProject, properties) + properties
+                addAllPropertyVariants(schema, insertComma, hasValue, forbiddenNames, adapter, knownNames,
+                        completionPath)
+                addIfThenElsePropertyNameVariants(schema, insertComma, hasValue, forbiddenNames, adapter, knownNames,
+                        completionPath)
+                addPropertyNameSchemaVariants(schema)
+            }
+
+            if (isName != ThreeState.YES) {
+                suggestValues(schema, isName == ThreeState.NO, completionPath)
+            }
+        }
+
+        private fun addAllPropertyVariants(schema: CirJsonSchemaObject, insertComma: Boolean, hasValue: Boolean,
+                forbiddenNames: Set<String>, adapter: CirJsonPropertyAdapter?, knownNames: Set<String>?,
+                completionPath: SchemaPath?) {
+            TODO()
+        }
+
+        private fun addIfThenElsePropertyNameVariants(schema: CirJsonSchemaObject, insertComma: Boolean,
+                hasValue: Boolean, forbiddenNames: Set<String>, adapter: CirJsonPropertyAdapter?,
+                knownNames: Set<String>?, completionPath: SchemaPath?) {
+            TODO()
+        }
+
+        private fun addPropertyNameSchemaVariants(schema: CirJsonSchemaObject) {
+            TODO()
+        }
+
+        private fun suggestValues(schema: CirJsonSchemaObject, isSurelyValue: Boolean, completionPath: SchemaPath?) {
             TODO()
         }
 

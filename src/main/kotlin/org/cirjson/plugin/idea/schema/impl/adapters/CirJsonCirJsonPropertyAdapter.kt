@@ -4,6 +4,7 @@ import org.cirjson.plugin.idea.psi.CirJsonArray
 import org.cirjson.plugin.idea.psi.CirJsonObject
 import org.cirjson.plugin.idea.psi.CirJsonProperty
 import org.cirjson.plugin.idea.psi.CirJsonValue
+import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonObjectValueAdapter
 import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonPropertyAdapter
 import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonValueAdapter
 import java.util.*
@@ -18,6 +19,12 @@ class CirJsonCirJsonPropertyAdapter(private val myProperty: CirJsonProperty) : C
             val value = myProperty.value ?: return emptyList()
 
             return Collections.singletonList(createAdapterByType(value))
+        }
+
+    override val parentObject: CirJsonObjectValueAdapter?
+        get() {
+            val parent = myProperty.parent
+            return if (parent is CirJsonObject) CirJsonCirJsonObjectAdapter(parent) else null
         }
 
     companion object {

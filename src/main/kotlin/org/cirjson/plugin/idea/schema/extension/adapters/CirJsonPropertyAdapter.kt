@@ -6,4 +6,6 @@ interface CirJsonPropertyAdapter {
 
     val values: Collection<CirJsonValueAdapter>
 
+    val parentObject: CirJsonObjectValueAdapter?
+
 }

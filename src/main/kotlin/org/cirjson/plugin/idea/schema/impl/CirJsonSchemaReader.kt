@@ -152,7 +152,7 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             // TODO uniqueItems when added
             // TODO maxProperties when added
             // TODO minProperties when added
-            // TODO required when added
+            this["required"] = createRequired()
             this["additionalProperties"] = createAdditionalProperties()
             // TODO propertyNames when added
             // TODO patternProperties when added
@@ -162,7 +162,7 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             this["allOf"] = createContainer { obj, members -> obj.allOf = members }
             this["anyOf"] = createContainer { obj, members -> obj.anyOf = members }
             this["oneOf"] = createContainer { obj, members -> obj.oneOf = members }
-            // TODO not when added
+            this["not"] = createFromObject("not") { obj, members -> obj.not = members }
             this["if"] = createFromObject("if") { obj, members -> obj.`if` = members }
             this["then"] = createFromObject("then") { obj, members -> obj.then = members }
             this["else"] = createFromObject("else") { obj, members -> obj.`else` = members }
@@ -258,7 +258,7 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
         }
 
         private fun createType(): MyReader {
-            return MyReader { element, obj, queue, virtualFile ->
+            return MyReader { element, obj, _, _ ->
                 if (element.isStringLiteral) {
                     val type = parseType(StringUtil.unquoteString(element.delegate.text)) ?: return@MyReader
                     obj.type = type
@@ -308,7 +308,7 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
         }
 
         private fun createEnum(): MyReader {
-            return MyReader { element, obj, queue, virtualFile ->
+            return MyReader { element, obj, _, _ ->
                 if (element is CirJsonArrayValueAdapter) {
                     val objects = ArrayList<Any>()
                     val list = element.elements
@@ -378,6 +378,15 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
                                     CirJsonSchemaObject(virtualFile, getNewPointer("items/$i", obj.pointer)), value))
                         }
                     }
+                }
+            }
+        }
+
+        private fun createRequired(): MyReader {
+            return MyReader { element, obj, _, _ ->
+                if (element is CirJsonArrayValueAdapter) {
+                    obj.required = LinkedHashSet(element.elements.filter(notEmptyString())
+                            .map { StringUtil.unquoteString(it.delegate.text) })
                 }
             }
         }

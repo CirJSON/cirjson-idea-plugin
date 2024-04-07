@@ -57,8 +57,8 @@
         <qualifiedNameProvider implementation="org.cirjson.plugin.idea.navigation.CirJsonQualifiedNameProvider"/>
         <completion.contributor language="CirJson" id="CirJsonCompletionContributor" order="last"
                 implementationClass="org.cirjson.plugin.idea.codeinsight.CirJsonCompletionContributor"/>
-        <completion.contributor language="CirJson" order="last, before CirJsonCompletionContributor"
-                implementationClass="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaCompletionContributor"/>
+        <!-- <completion.contributor language="CirJson" order="last, before CirJsonCompletionContributor"-->
+        <!--         implementationClass="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaCompletionContributor"/>-->
         <lang.psiStructureViewFactory language="CirJson"
                 implementationClass="org.cirjson.plugin.idea.structureView.CirJsonStructureViewBuilderFactory"/>
         <lang.foldingBuilder language="CirJson"

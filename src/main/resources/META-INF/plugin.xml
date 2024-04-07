@@ -127,6 +127,14 @@
         <lang.lineWrapStrategy language="CirJson"
                 implementationClass="org.cirjson.plugin.idea.formatter.CirJsonLineWrapPositionStrategy"/>
         <highlightVisitor implementation="org.cirjson.plugin.idea.highlighting.CirJsonRainbowVisitor"/>
+
+        <!-- Intentions -->
+        <intentionAction>
+            <language>CirJson</language>
+            <className>org.cirjson.plugin.idea.intentions.CirJsonSortPropertiesIntention</className>
+            <bundleName>messages.CirJsonBundle</bundleName>
+            <categoryKey>cirjson.intention.category.name</categoryKey>
+        </intentionAction>
     </extensions>
 
     <extensions defaultExtensionNs="org.cirjson.plugin.idea">

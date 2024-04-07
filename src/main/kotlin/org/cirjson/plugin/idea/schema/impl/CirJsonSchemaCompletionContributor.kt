@@ -142,6 +142,11 @@ class CirJsonSchemaCompletionContributor : CompletionContributor() {
             TODO()
         }
 
+        private fun addPropertyVariant(key: String, cirJsonSchemaObject: CirJsonSchemaObject, hasValue: Boolean,
+                insertComma: Boolean, completionPath: SchemaPath?) {
+            TODO()
+        }
+
         private fun addIfThenElsePropertyNameVariants(schema: CirJsonSchemaObject, insertComma: Boolean,
                 hasValue: Boolean, forbiddenNames: Set<String>, adapter: CirJsonPropertyAdapter?,
                 knownNames: Set<String>?, completionPath: SchemaPath?) {

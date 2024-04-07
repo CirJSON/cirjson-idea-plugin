@@ -122,6 +122,10 @@
                 serviceImplementation="org.cirjson.plugin.idea.schema.CirJsonSchemaCatalogProjectConfiguration"/>
         <projectService serviceInterface="org.cirjson.plugin.idea.schema.CirJsonSchemaService"
                 serviceImplementation="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaServiceImpl"/>
+
+        <!-- IDE utils -->
+        <lang.lineWrapStrategy language="CirJson"
+                implementationClass="org.cirjson.plugin.idea.formatter.CirJsonLineWrapPositionStrategy"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.cirjson.plugin.idea">

@@ -126,6 +126,7 @@
         <!-- IDE utils -->
         <lang.lineWrapStrategy language="CirJson"
                 implementationClass="org.cirjson.plugin.idea.formatter.CirJsonLineWrapPositionStrategy"/>
+        <highlightVisitor implementation="org.cirjson.plugin.idea.highlighting.CirJsonRainbowVisitor"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.cirjson.plugin.idea">

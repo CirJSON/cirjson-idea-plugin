@@ -86,6 +86,8 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
 
     private var myIdsMap: MutableMap<String, String>? = null
 
+    private var myEnumMetadata: MutableMap<String, Map<String, String>>? = null
+
     private val myUserDataHolder = UserDataHolderBase()
 
     constructor(file: VirtualFile?, pointer: String) : this(
@@ -262,7 +264,7 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
 
         // TODO: merge myPropertyDependencies when added
         // TODO: merge mySchemaDependencies when added
-        // TODO: merge myEnumMetadata when added
+        myEnumMetadata = copyMap(myEnumMetadata, other.myEnumMetadata)
 
         if (other.myEnum != null) {
             myEnum = other.myEnum
@@ -434,6 +436,14 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
         }
         set(value) {
             myRequired = value?.toMutableSet()
+        }
+
+    var enumMetadata: Map<String, Map<String, String>>?
+        get() {
+            return myEnumMetadata
+        }
+        set(value) {
+            myEnumMetadata = value?.toMutableMap()
         }
 
     var enum: List<Any>?
@@ -688,7 +698,15 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
 
         const val ADDITIONAL_ITEMS = "additionalItems"
 
+        const val X_INTELLIJ_HTML_DESCRIPTION = "x-intellij-html-description"
+
         const val X_INTELLIJ_LANGUAGE_INJECTION = "x-intellij-language-injection"
+
+        const val X_INTELLIJ_CASE_INSENSITIVE = "x-intellij-case-insensitive"
+
+        const val X_INTELLIJ_ENUM_METADATA = "x-intellij-enum-metadata"
+
+        const val X_INTELLIJ_ENUM_ORDER_SENSITIVE = "x-intellij-enum-order-sensitive"
 
         val NULL_OBJ = CirJsonSchemaObject("\$_NULL_$")
 

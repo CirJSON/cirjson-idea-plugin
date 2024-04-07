@@ -19,8 +19,26 @@ import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonArrayValueAdapte
 import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonObjectValueAdapter
 import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonValueAdapter
 import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaReader.MyReader
+import java.util.*
 import java.util.function.BiConsumer
 import java.util.stream.Collectors
+import kotlin.collections.ArrayDeque
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
+import kotlin.collections.LinkedHashSet
+import kotlin.collections.Map
+import kotlin.collections.MutableCollection
+import kotlin.collections.MutableList
+import kotlin.collections.filter
+import kotlin.collections.first
+import kotlin.collections.isNotEmpty
+import kotlin.collections.map
+import kotlin.collections.mapNotNull
+import kotlin.collections.set
+import kotlin.collections.toMutableMap
+import kotlin.collections.toSet
+import kotlin.collections.toTypedArray
+import kotlin.collections.withIndex
 
 class CirJsonSchemaReader(private val myFile: VirtualFile) {
 
@@ -117,7 +135,8 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             // TODO description when added
             // TODO htmlDescription when added
             // TODO injectionMetadata when added
-            // TODO enumMetadata when added
+            this[CirJsonSchemaObject.X_INTELLIJ_LANGUAGE_INJECTION] =
+                    MyReader { element, obj, _, _ -> readEnumMetadata(element, obj) }
             // TODO forceCaseInsensitive when added
             // TODO title when added
             this["\$ref"] = createFromStringValue { obj, s -> obj.ref = s }
@@ -197,6 +216,50 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             } else {
                 "$oldPointer/$name"
             }
+        }
+
+        private fun readEnumMetadata(element: CirJsonValueAdapter, obj: CirJsonSchemaObject) {
+            if (element !is CirJsonObjectValueAdapter) {
+                return
+            }
+
+            val metadataMap = HashMap<String, Map<String, String>>()
+
+            for (adapter in element.propertyList) {
+                val name = adapter.name ?: continue
+                val values = adapter.values
+
+                if (values.size != 1) {
+                    continue
+                }
+
+                val valueAdapter = values.first()
+
+                if (valueAdapter.isStringLiteral) {
+                    metadataMap[name] = Collections.singletonMap("description", getString(valueAdapter))
+                } else if (valueAdapter is CirJsonObjectValueAdapter) {
+                    val valueMap = HashMap<String, String>()
+
+                    for (propertyAdapter in valueAdapter.propertyList) {
+                        val adapterName = propertyAdapter.name ?: continue
+                        val adapterValues = propertyAdapter.values
+
+                        if (adapterValues.size != 1) {
+                            continue
+                        }
+
+                        val next = adapterValues.first()
+
+                        if (next.isStringLiteral) {
+                            valueMap[adapterName] = getString(next)
+                        }
+                    }
+
+                    metadataMap[name] = valueMap
+                }
+            }
+
+            obj.enumMetadata = metadataMap
         }
 
         private fun createFromStringValue(propertySetter: BiConsumer<CirJsonSchemaObject, String>): MyReader {

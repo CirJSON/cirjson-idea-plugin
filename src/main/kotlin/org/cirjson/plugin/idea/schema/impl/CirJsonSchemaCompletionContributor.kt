@@ -1,10 +1,7 @@
 package org.cirjson.plugin.idea.schema.impl
 
 import com.intellij.codeInsight.AutoPopupController
-import com.intellij.codeInsight.completion.CompletionContributor
-import com.intellij.codeInsight.completion.CompletionParameters
-import com.intellij.codeInsight.completion.CompletionResultSet
-import com.intellij.codeInsight.completion.InsertionContext
+import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorModificationUtil
@@ -25,6 +22,7 @@ import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaFileProvider
 import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaNestedCompletionsTreeProvider
 import org.cirjson.plugin.idea.schema.extension.SchemaType
 import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonPropertyAdapter
+import org.cirjson.plugin.idea.schema.impl.light.CirJsonSchemaObjectReadingUtils
 import org.cirjson.plugin.idea.schema.impl.nestedCompletions.SchemaPath
 import org.cirjson.plugin.idea.schema.impl.nestedCompletions.collectNestedCompletions
 import org.cirjson.plugin.idea.schema.impl.nestedCompletions.findChildBy
@@ -155,7 +153,76 @@ class CirJsonSchemaCompletionContributor : CompletionContributor() {
         }
 
         private fun suggestValues(schema: CirJsonSchemaObject, isSurelyValue: Boolean, completionPath: SchemaPath?) {
+            suggestValuesForSchemaVariants(schema.anyOf, isSurelyValue, completionPath)
+            suggestValuesForSchemaVariants(schema.oneOf, isSurelyValue, completionPath)
+            suggestValuesForSchemaVariants(schema.allOf, isSurelyValue, completionPath)
+
+            if (schema.enum != null && completionPath != null) {
+                val metadata = schema.enumMetadata
+                for (o in schema.enum!!) {
+                    if (myInsideStringLiteral && o !is String) {
+                        continue
+                    }
+
+                    val variant = o.toString()
+
+                    if (variant !in FILTERED) {
+                        val valueMetadata = metadata?.get(StringUtil.unquoteString(variant))
+                        val description = valueMetadata?.get("description")
+                        val deprecated = valueMetadata?.get("deprecationMessage")
+                        val order: Int? = null
+                        addValueVariant(variant, description, deprecated?.let { "$variant ($it)" }, null, order)
+                    }
+                }
+            } else if (isSurelyValue) {
+                val type = CirJsonSchemaObjectReadingUtils.guessType(schema)
+                suggestSpecialValues(type)
+
+                if (type != null) {
+                    suggestByType(schema, type)
+                } else if (schema.typeVariants != null) {
+                    for (schemaType in schema.typeVariants!!) {
+                        suggestByType(schema, schemaType)
+                    }
+                }
+            }
+        }
+
+        private fun suggestValuesForSchemaVariants(list: List<CirJsonSchemaObject>?, isSurelyValue: Boolean,
+                completionPath: SchemaPath?) {
+            if (!list.isNullOrEmpty()) {
+                for (schemaObject in list) {
+                    suggestValues(schemaObject, isSurelyValue, completionPath)
+                }
+            }
+        }
+
+        private fun addValueVariant(key: String, description: String?) {
+            addValueVariant(key, description, null, null)
+        }
+
+        private fun addValueVariant(key: String, description: String?, altText: String?,
+                handler: InsertHandler<LookupElement>?) {
+            addValueVariant(key, description, altText, handler, null)
+        }
+
+        private fun addValueVariant(key: String, description: String?, altText: String?,
+                handler: InsertHandler<LookupElement>?, order: Int?) {
             TODO()
+        }
+
+        private fun suggestSpecialValues(type: CirJsonSchemaType?) {
+            TODO()
+        }
+
+        private fun suggestByType(schema: CirJsonSchemaObject, type: CirJsonSchemaType) {
+            TODO()
+        }
+
+        companion object {
+
+            private val FILTERED = setOf("[]", "{}", "[ ]", "{ }")
+
         }
 
     }

@@ -1,0 +1,13 @@
+{
+  "__cirJsonId__": "1",
+  "foo": {
+    "__cirJsonId__": "3",
+    <warning descr="Object contains duplicate keys 'foo'">"foo"</warning>: 1,
+    <warning descr="Object contains duplicate keys 'foo'">'foo'</warning>: 2,
+    <warning descr="Object contains duplicate keys 'foo'">foo</warning>: 3,
+    <warning descr="Object contains duplicate keys 'foo'">"\u0066\u006f\u006f"</warning>: {
+      "__cirJsonId__": "1",
+      "foo": 4
+    }
+  }
+}

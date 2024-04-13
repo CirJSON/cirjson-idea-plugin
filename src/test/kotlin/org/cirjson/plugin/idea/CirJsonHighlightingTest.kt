@@ -1,5 +1,6 @@
 package org.cirjson.plugin.idea
 
+import org.cirjson.plugin.idea.codeinsight.CirJsonDuplicatePropertyKeysInspection
 import org.cirjson.plugin.idea.codeinsight.CirJsonStandardComplianceInspection
 
 class CirJsonHighlightingTest : CirJsonHighlightingTestBase() {
@@ -21,6 +22,11 @@ class CirJsonHighlightingTest : CirJsonHighlightingTestBase() {
 
     fun testComplianceProblems() {
         enableStandardComplianceInspection(checkComments = true, checkTopLevelValues = true)
+        doTestHighlighting(checkInfo = false, checkWeakWarning = true, checkWarning = true)
+    }
+
+    fun testDuplicatePropertyKeys() {
+        myFixture.enableInspections(CirJsonDuplicatePropertyKeysInspection::class.java)
         doTestHighlighting(checkInfo = false, checkWeakWarning = true, checkWarning = true)
     }
 

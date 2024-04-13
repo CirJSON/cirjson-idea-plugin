@@ -63,7 +63,7 @@
 // Empty file is also allowed
 cirJson ::= value*
 
-object ::= '{' object_id_element ',' object_element* '}' {
+object ::= '{' object_id_element [(',' object_element*)] '}' {
     pin=1
     methods=[
         getId

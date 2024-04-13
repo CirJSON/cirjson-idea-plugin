@@ -161,6 +161,4 @@
         <extensionPoint qualifiedName="org.cirjson.plugin.idea.catalog.exclusion"
                 interface="org.cirjson.plugin.idea.schema.remote.CirJsonSchemaCatalogExclusion" dynamic="true"/>
     </extensionPoints>
-
-    <resource-bundle>messages.CirJsonBundle</resource-bundle>
 </idea-plugin>

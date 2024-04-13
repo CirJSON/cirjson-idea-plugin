@@ -1,15 +1,16 @@
 // This is a generated file. Not intended for manual editing.
 package org.cirjson.plugin.idea;
 
+import com.intellij.lang.ASTNode;
+import com.intellij.lang.LightPsiParser;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilder.Marker;
+import com.intellij.lang.PsiParser;
+import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.TokenSet;
+
 import static org.cirjson.plugin.idea.CirJsonElementTypes.*;
 import static org.cirjson.plugin.idea.psi.CirJsonParserUtil.*;
-import com.intellij.psi.tree.IElementType;
-import com.intellij.lang.ASTNode;
-import com.intellij.psi.tree.TokenSet;
-import com.intellij.lang.PsiParser;
-import com.intellij.lang.LightPsiParser;
 
 @SuppressWarnings({"SimplifiableIfStatement", "UnusedAssignment"})
 public class CirJsonParser implements PsiParser, LightPsiParser {
@@ -241,7 +242,7 @@ public class CirJsonParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // '{' object_id_element ',' object_element* '}'
+  // '{' object_id_element [(',' object_element*)] '}'
   public static boolean object(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "object")) return false;
     if (!nextTokenIs(b, L_CURLY)) return false;
@@ -250,20 +251,45 @@ public class CirJsonParser implements PsiParser, LightPsiParser {
     r = consumeToken(b, L_CURLY);
     p = r; // pin = 1
     r = r && report_error_(b, object_id_element(b, l + 1));
-    r = p && report_error_(b, consumeToken(b, COMMA)) && r;
-    r = p && report_error_(b, object_3(b, l + 1)) && r;
+    r = p && report_error_(b, object_2(b, l + 1)) && r;
     r = p && consumeToken(b, R_CURLY) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
+  // [(',' object_element*)]
+  private static boolean object_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "object_2")) {
+      return false;
+    }
+    object_2_0(b, l + 1);
+    return true;
+  }
+
+  // ',' object_element*
+  private static boolean object_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "object_2_0")) {
+      return false;
+    }
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, COMMA);
+    r = r && object_2_0_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
   // object_element*
-  private static boolean object_3(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "object_3")) return false;
+  private static boolean object_2_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "object_2_0_1")) {
+      return false;
+    }
     while (true) {
       int c = current_position_(b);
       if (!object_element(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "object_3", c)) break;
+      if (!empty_element_parsed_guard_(b, "object_2_0_1", c)) {
+        break;
+      }
     }
     return true;
   }

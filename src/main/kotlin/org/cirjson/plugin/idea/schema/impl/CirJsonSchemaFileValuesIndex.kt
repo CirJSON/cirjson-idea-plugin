@@ -7,17 +7,53 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.TokenType
 import com.intellij.psi.tree.IElementType
-import com.intellij.util.indexing.FileBasedIndex
-import com.intellij.util.indexing.ID
+import com.intellij.util.indexing.*
+import com.intellij.util.indexing.hints.FileTypeInputFilterPredicate
+import com.intellij.util.indexing.hints.FileTypeSubstitutionStrategy
+import com.intellij.util.io.DataExternalizer
+import com.intellij.util.io.EnumeratorStringDescriptor
+import com.intellij.util.io.KeyDescriptor
 import org.cirjson.plugin.idea.CirJsonElementTypes
 import org.cirjson.plugin.idea.CirJsonFileType
 import org.cirjson.plugin.idea.CirJsonLexer
 
-class CirJsonSchemaFileValuesIndex {
+class CirJsonSchemaFileValuesIndex : FileBasedIndexExtension<String, String>() {
 
+    private val myIndexer = DataIndexer<String, String, FileContent> {
+        return@DataIndexer readTopLevelProps(it.fileType, it.contentAsText)
+    }
+
+    override fun getName(): ID<String, String> {
+        return INDEX_ID
+    }
+
+    override fun getIndexer(): DataIndexer<String, String, FileContent> {
+        return myIndexer
+    }
+
+    override fun getKeyDescriptor(): KeyDescriptor<String> {
+        return EnumeratorStringDescriptor.INSTANCE
+    }
+
+    override fun getValueExternalizer(): DataExternalizer<String> {
+        return EnumeratorStringDescriptor.INSTANCE
+    }
+
+    override fun getVersion(): Int = VERSION
+
+    @Suppress("UnstableApiUsage")
+    override fun getInputFilter(): FileBasedIndex.InputFilter {
+        return FileTypeInputFilterPredicate(FileTypeSubstitutionStrategy.BEFORE_SUBSTITUTION) { it is CirJsonFileType }
+    }
+
+    override fun dependsOnFileContent(): Boolean = true
+
+    @Suppress("CompanionObjectInExtension")
     companion object {
 
         val INDEX_ID = ID.create<String, String>("cirJson.file.root.values")
+
+        private const val VERSION = 1
 
         const val NULL = "\$NULL$"
 

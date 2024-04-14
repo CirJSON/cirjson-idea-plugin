@@ -184,9 +184,15 @@ open class CirJsonStandardComplianceInspection : LocalInspectionTool() {
             val id = array.id
 
             if (id == null) {
-                myHolder.registerProblem(array, CirJsonBundle.message("inspection.compliance.msg.array.without.id"))
-            } else if (id.isEmpty()) {
-                myHolder.registerProblem(array.firstChild, CirJsonBundle.message("inspection.compliance.msg.empty.id"))
+                val arrayIdLiteral = array.idLiteral
+
+                if (arrayIdLiteral == null) {
+                    myHolder.registerProblem(array, CirJsonBundle.message("inspection.compliance.msg.array.without.id"))
+                } else {
+                    myHolder.registerProblem(arrayIdLiteral,
+                            CirJsonBundle.message("inspection.compliance.msg.empty.id"))
+                }
+
             }
 
             super.visitArray(array)

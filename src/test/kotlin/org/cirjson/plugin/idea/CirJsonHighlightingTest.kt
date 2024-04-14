@@ -34,4 +34,9 @@ class CirJsonHighlightingTest : CirJsonHighlightingTestBase() {
         doTestHighlighting(checkInfo = false, checkWeakWarning = false, checkWarning = false)
     }
 
+    fun testEmptyIds() {
+        enableStandardComplianceInspection(checkComments = false, checkTopLevelValues = false)
+        doTestHighlighting(checkInfo = false, checkWeakWarning = false, checkWarning = false)
+    }
+
 }

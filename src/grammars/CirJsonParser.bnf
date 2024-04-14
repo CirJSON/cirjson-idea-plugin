@@ -107,6 +107,7 @@ array ::= '[' string_literal ']' | '[' string_literal ',' array_element* ']' {
     methods=[
         getPresentation
         getId
+        getIdLiteral
     ]
     pin=1
 }

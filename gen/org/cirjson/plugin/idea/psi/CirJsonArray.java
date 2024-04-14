@@ -1,10 +1,11 @@
 // This is a generated file. Not intended for manual editing.
 package org.cirjson.plugin.idea.psi;
 
-import java.util.List;
-import org.jetbrains.annotations.*;
-import com.intellij.psi.PsiElement;
 import com.intellij.navigation.ItemPresentation;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public interface CirJsonArray extends CirJsonContainer {
 
@@ -16,5 +17,8 @@ public interface CirJsonArray extends CirJsonContainer {
 
   @Nullable
   String getId();
+
+  @Nullable
+  CirJsonStringLiteral getIdLiteral();
 
 }

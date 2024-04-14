@@ -63,12 +63,14 @@ object CirJsonPsiImplUtils {
             override fun getPresentableText(): String {
                 val result = StringBuilder(CirJsonBundle.message("cirjson.array") + " ")
                 val id = array.id
+
                 if (id != null) {
                     result.append(CirJsonBundle.message("cirjson.with_id") + " ")
                     result.append("\"$id\"")
                 } else {
                     result.append(CirJsonBundle.message("cirjson.no_id"))
                 }
+
                 return result.toString()
             }
 
@@ -81,17 +83,25 @@ object CirJsonPsiImplUtils {
 
     @JvmStatic
     fun getId(array: CirJsonArray): String? {
+        val idLiteral = array.idLiteral ?: return null
+
+        if (!idLiteral.isId) {
+            return null
+        }
+
+        return idLiteral.value
+    }
+
+    @JvmStatic
+    fun getIdLiteral(array: CirJsonArray): CirJsonStringLiteral? {
         val values = array.valueList
+
         if (values.isEmpty()) {
             return null
         }
 
         val firstElement = array.valueList[0]
-        if (firstElement !is CirJsonStringLiteral || !firstElement.isId) {
-            return null
-        }
-
-        return firstElement.value
+        return firstElement as? CirJsonStringLiteral
     }
 
     @JvmStatic
@@ -111,12 +121,14 @@ object CirJsonPsiImplUtils {
             override fun getPresentableText(): String {
                 val result = StringBuilder(CirJsonBundle.message("cirjson.object") + " ")
                 val id = obj.id
+
                 if (id != null) {
                     result.append(CirJsonBundle.message("cirjson.with_id") + " ")
                     result.append("\"$id\"")
                 } else {
                     result.append(CirJsonBundle.message("cirjson.no_id"))
                 }
+
                 return result.toString()
             }
 
@@ -169,6 +181,7 @@ object CirJsonPsiImplUtils {
                         if (i == length || !StringUtil.isHexDigit(text[i])) {
                             break
                         }
+
                         i++
                     }
 

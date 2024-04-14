@@ -1,0 +1,11 @@
+{
+  "__cirJsonId__": "root",
+  "obj1": {
+    "__cirJsonId__": <error descr="Different data types share the same ID '1'">"1"</error>
+  },
+  "array1": [<error descr="Different data types share the same ID '1'">"1"</error>],
+  "array2": [<error descr="Different data types share the same ID '2'">"2"</error>],
+  "obj2": {
+    "__cirJsonId__": <error descr="Different data types share the same ID '2'">"2"</error>
+  }
+}

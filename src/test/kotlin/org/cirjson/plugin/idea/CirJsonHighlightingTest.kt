@@ -1,5 +1,6 @@
 package org.cirjson.plugin.idea
 
+import org.cirjson.plugin.idea.codeinsight.CirJsonDifferentDataTypesShareIDInspection
 import org.cirjson.plugin.idea.codeinsight.CirJsonDuplicatePropertyKeysInspection
 import org.cirjson.plugin.idea.codeinsight.CirJsonStandardComplianceInspection
 
@@ -37,6 +38,11 @@ class CirJsonHighlightingTest : CirJsonHighlightingTestBase() {
     fun testEmptyIds() {
         enableStandardComplianceInspection(checkComments = false, checkTopLevelValues = false)
         doTestHighlighting(checkInfo = false, checkWeakWarning = false, checkWarning = false)
+    }
+
+    fun testDifferentTypesSameID() {
+        myFixture.enableInspections(CirJsonDifferentDataTypesShareIDInspection::class.java)
+        doTestHighlighting(checkInfo = false, checkWeakWarning = true, checkWarning = true)
     }
 
 }

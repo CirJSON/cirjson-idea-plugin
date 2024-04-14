@@ -30,4 +30,8 @@ class CirJsonHighlightingTest : CirJsonHighlightingTestBase() {
         doTestHighlighting(checkInfo = false, checkWeakWarning = true, checkWarning = true)
     }
 
+    fun testIncompleteFloatingPointLiteralsWithExponent() {
+        doTestHighlighting(checkInfo = false, checkWeakWarning = false, checkWarning = false)
+    }
+
 }

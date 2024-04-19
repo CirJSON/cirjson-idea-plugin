@@ -54,6 +54,10 @@ class CirJsonLineMoverTest : CirJsonTestCase() {
         doTest(false)
     }
 
+    fun testFromUpperIntoScope() {
+        doTest(true)
+    }
+
     fun testOutsideArray() {
         doTest(true)
     }

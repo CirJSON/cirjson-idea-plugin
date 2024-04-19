@@ -1,0 +1,12 @@
+{
+  "__cirJsonId__": "root",
+  "foo": false,
+  "quux": null,
+  "bar": 42,
+  "baz": [
+    "1",
+    1,
+    2,
+    3
+  ]
+}

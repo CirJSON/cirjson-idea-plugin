@@ -1,0 +1,10 @@
+[
+  "root",
+  1, <selection>["1", 2],
+  [
+    "2",
+    true,
+    false
+  ]</selection>,
+  null
+]

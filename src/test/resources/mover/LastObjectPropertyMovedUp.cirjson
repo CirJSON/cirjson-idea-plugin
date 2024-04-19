@@ -1,0 +1,5 @@
+{
+  "__cirJsonId__": "root",
+  "foo": true,
+  "bar": fal<caret>se
+}

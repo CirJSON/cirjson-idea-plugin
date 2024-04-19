@@ -1,0 +1,15 @@
+[
+  "root",
+  null,
+  1, ["1", 2],
+  [
+    "2",
+    true,
+    true,
+    true,
+    true,
+    false,
+    tr<caret>ue
+  ],
+  false
+]

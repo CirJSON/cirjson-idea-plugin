@@ -19,4 +19,10 @@ enum class CirJsonSchemaType {
     _any,
 
     _string_number;
+
+    val realName: String = name.substring(1)
+
+    val description: String
+        get() = if (this == _any) "*" else realName
+
 }

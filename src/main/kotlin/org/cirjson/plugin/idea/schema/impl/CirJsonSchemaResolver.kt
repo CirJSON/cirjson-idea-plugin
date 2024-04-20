@@ -7,6 +7,8 @@ import java.util.*
 class CirJsonSchemaResolver(private val myProject: Project, private val mySchema: CirJsonSchemaObject,
         private val myPosition: CirJsonPointerPosition) {
 
+    constructor(myProject: Project, mySchema: CirJsonSchemaObject) : this(myProject, mySchema, CirJsonPointerPosition())
+
     fun detailedResolve(): MatchResult {
         val node = CirJsonSchemaVariantsTreeBuilder.buildTree(myProject, mySchema, myPosition, false)
         return MatchResult.create(node)

@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException
+import java.util.stream.Collectors
 
 class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fileUrl: String?,
         val pointer: String) {
@@ -513,6 +514,15 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
         return myPatternProperties?.getPatternPropertySchema(name)
     }
 
+    val propertyNames: Set<String>
+        get() {
+            return properties.keys
+        }
+
+    fun getPropertyByName(name: String): CirJsonSchemaObject? {
+        return properties[name]
+    }
+
     fun findRelativeDefinition(ref: String): CirJsonSchemaObject? {
         var realRef = ref
         if (CirJsonPointerUtil.isSelfReference(realRef)) {
@@ -598,6 +608,10 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
 
     override fun hashCode(): Int {
         return arrayOf(fileUrl, pointer).hashCode()
+    }
+
+    fun getTypeDescription(shortDesc: Boolean): String? {
+        TODO()
     }
 
     fun resolveRefSchema(service: CirJsonSchemaService): CirJsonSchemaObject? {
@@ -876,6 +890,34 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
                 LOG.info(e)
                 false
             }
+        }
+
+        internal fun getTypesDescription(shortDesc: Boolean, possibleTypes: Collection<CirJsonSchemaType>?): String? {
+            if (possibleTypes.isNullOrEmpty()) {
+                return null
+            }
+
+            if (possibleTypes.size == 1) {
+                return possibleTypes.first().description
+            }
+
+            if (CirJsonSchemaType._any in possibleTypes) {
+                return CirJsonSchemaType._any.description
+            }
+
+            var typeDescriptions = possibleTypes.stream().map { it.description }.distinct().sorted()
+
+            var isShort = false
+
+            if (shortDesc) {
+                typeDescriptions = typeDescriptions.limit(3)
+
+                if (possibleTypes.size > 3) {
+                    isShort = true
+                }
+            }
+
+            return typeDescriptions.collect(Collectors.joining(" | ", "", if (isShort) "| ..." else ""))
         }
 
         private fun fetchSchemaFromRefDefinition(ref: String, schema: CirJsonSchemaObject,

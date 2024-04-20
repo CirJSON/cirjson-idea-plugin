@@ -3,6 +3,7 @@ package org.cirjson.plugin.idea.schema.impl
 import com.intellij.codeInsight.AutoPopupController
 import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorModificationUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -12,7 +13,9 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiUtilCore
+import com.intellij.util.ObjectUtils
 import com.intellij.util.ThreeState
+import com.intellij.util.containers.ContainerUtil
 import org.cirjson.plugin.idea.psi.CirJsonFile
 import org.cirjson.plugin.idea.psi.CirJsonObject
 import org.cirjson.plugin.idea.psi.CirJsonProperty
@@ -112,7 +115,7 @@ class CirJsonSchemaCompletionContributor : CompletionContributor() {
         }
 
         private fun processSchema(schema: CirJsonSchemaObject, isName: ThreeState, checkable: PsiElement,
-                knownNames: Set<String>, completionPath: SchemaPath?) {
+                knownNames: MutableSet<String>, completionPath: SchemaPath?) {
             if (isName != ThreeState.NO) {
                 val completionOriginalPosition = myWalker!!.findChildBy(completionPath, myOriginalPosition)
                 val completionPosition = myWalker.findChildBy(completionPath, myPosition)
@@ -137,13 +140,47 @@ class CirJsonSchemaCompletionContributor : CompletionContributor() {
         }
 
         private fun addAllPropertyVariants(schema: CirJsonSchemaObject, insertComma: Boolean, hasValue: Boolean,
-                forbiddenNames: Set<String>, adapter: CirJsonPropertyAdapter?, knownNames: Set<String>?,
+                forbiddenNames: Set<String>, adapter: CirJsonPropertyAdapter?, knownNames: MutableSet<String>,
                 completionPath: SchemaPath?) {
-            TODO()
+            schema.propertyNames.filter { it !in forbiddenNames && it !in knownNames || adapter?.name == it }.forEach {
+                knownNames.add(it)
+                val propertySchema = schema.getPropertyByName(it)!!
+                addPropertyVariant(it, propertySchema, hasValue, insertComma, completionPath)
+            }
         }
 
         private fun addPropertyVariant(key: String, cirJsonSchemaObject: CirJsonSchemaObject, hasValue: Boolean,
                 insertComma: Boolean, completionPath: SchemaPath?) {
+            var realCirJsonSchemaObject = cirJsonSchemaObject
+            var realKey = key
+
+            val variants = CirJsonSchemaResolver(myProject, realCirJsonSchemaObject).resolve()
+            realCirJsonSchemaObject =
+                    ObjectUtils.chooseNotNull(ContainerUtil.getFirstItem(variants), realCirJsonSchemaObject)
+            realKey = if (!shouldWrapInQuotes(realKey, false)) realKey else StringUtil.wrapWithDoubleQuote(realKey)
+            var builder = LookupElementBuilder.create(realKey)
+
+            val typeText = CirJsonSchemaDocumentationProvider.getBestDocumentation(true, realCirJsonSchemaObject)
+
+            if (!StringUtil.isEmptyOrSpaces(typeText)) {
+                val text = StringUtil.removeHtmlTags(typeText!!)
+                builder = builder.withTypeText(findFirstSentence(text), true)
+            } else {
+                val type = realCirJsonSchemaObject.getTypeDescription(true)
+
+                if (type != null) {
+                    builder = builder.withTypeText(type)
+                }
+            }
+
+            TODO()
+        }
+
+        private fun shouldWrapInQuotes(key: String, isValue: Boolean): Boolean {
+            TODO()
+        }
+
+        private fun findFirstSentence(sentence: String): String {
             TODO()
         }
 

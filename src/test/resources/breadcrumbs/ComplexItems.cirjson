@@ -1,0 +1,16 @@
+{
+  "__cirJsonId__": "root",
+  "foo": {
+    "__cirJsonId__": "1",
+    "bar": [
+      "2",
+      [
+        "3",
+        {
+          "__cirJsonId__": "4",
+          "baz<caret>": null
+        }
+      ]
+    ]
+  }
+}

@@ -33,7 +33,7 @@ class CirJsonBreadcrumbsProvider : BreadcrumbsProvider {
             val i = CirJsonUtil.getArrayIndexOfItem(e)
 
             if (i != -1) {
-                return i.toString()
+                return if (i == 0) CirJsonBundle.message("cirjson.id") else (i - 1).toString()
             }
         }
 

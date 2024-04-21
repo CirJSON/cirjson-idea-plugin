@@ -38,11 +38,21 @@ interface CirJsonLikePsiWalker {
 
     fun getPropertyNamesOfParentObject(originalPosition: PsiElement, computedPosition: PsiElement): Set<String>
 
+    fun indentOf(element: PsiElement): Int = 0
+
+    fun indentOf(file: PsiFile): Int = 4
+
     fun getParentPropertyAdapter(element: PsiElement): CirJsonPropertyAdapter?
 
     fun createValueAdapter(element: PsiElement): CirJsonValueAdapter?
 
     fun getRoots(file: PsiFile): Collection<PsiElement>?
+
+    val defaultObjectValue: String
+        get() = "{}"
+
+    val defaultArrayValue: String
+        get() = "[]"
 
     val hasWhitespaceDelimitedCodeBlocks: Boolean
         get() = false

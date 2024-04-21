@@ -23,22 +23,7 @@ import java.util.*
 import java.util.function.BiConsumer
 import java.util.stream.Collectors
 import kotlin.collections.ArrayDeque
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
-import kotlin.collections.LinkedHashSet
-import kotlin.collections.Map
-import kotlin.collections.MutableCollection
-import kotlin.collections.MutableList
-import kotlin.collections.filter
-import kotlin.collections.first
-import kotlin.collections.isNotEmpty
-import kotlin.collections.map
-import kotlin.collections.mapNotNull
 import kotlin.collections.set
-import kotlin.collections.toMutableMap
-import kotlin.collections.toSet
-import kotlin.collections.toTypedArray
-import kotlin.collections.withIndex
 
 class CirJsonSchemaReader(private val myFile: VirtualFile) {
 
@@ -133,6 +118,7 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             this["id"] = createFromStringValue { obj, s -> obj.id = s }
             // TODO schema when added
             // TODO description when added
+            this["deprecationMessage"] = createFromStringValue { obj, s -> obj.deprecationMessage = s }
             // TODO htmlDescription when added
             // TODO injectionMetadata when added
             this[CirJsonSchemaObject.X_INTELLIJ_LANGUAGE_INJECTION] =
@@ -149,7 +135,7 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
                     obj.isRecursiveAnchor = true
                 }
             }
-            // TODO default when added
+            this["default"] = createDefault()
             // TODO example when added
             // TODO format when added
             this[CirJsonSchemaObject.DEFINITIONS] = createDefinitionsConsumer()
@@ -519,6 +505,22 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             }
 
             return map
+        }
+
+        private fun createDefault(): MyReader {
+            return MyReader { element, obj, queue, virtualFile ->
+                if (element.isObject) {
+                    obj.default =
+                            enqueue(queue, CirJsonSchemaObject(virtualFile, getNewPointer("default", obj.pointer)),
+                                    element)
+                } else if (element.isStringLiteral) {
+                    obj.default = StringUtil.unquoteString(element.delegate.text)
+                } else if (element.isNumberLiteral) {
+                    obj.default = getNumber(element)
+                } else if (element.isBooleanLiteral) {
+                    obj.default = getBoolean(element)
+                }
+            }
         }
 
     }

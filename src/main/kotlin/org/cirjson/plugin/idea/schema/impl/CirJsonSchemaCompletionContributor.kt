@@ -16,6 +16,7 @@ import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.ObjectUtils
 import com.intellij.util.ThreeState
 import com.intellij.util.containers.ContainerUtil
+import org.cirjson.plugin.idea.CirJsonBundle
 import org.cirjson.plugin.idea.psi.CirJsonFile
 import org.cirjson.plugin.idea.psi.CirJsonObject
 import org.cirjson.plugin.idea.psi.CirJsonProperty
@@ -26,12 +27,10 @@ import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaNestedCompletionsTr
 import org.cirjson.plugin.idea.schema.extension.SchemaType
 import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonPropertyAdapter
 import org.cirjson.plugin.idea.schema.impl.light.CirJsonSchemaObjectReadingUtils
-import org.cirjson.plugin.idea.schema.impl.nestedCompletions.SchemaPath
-import org.cirjson.plugin.idea.schema.impl.nestedCompletions.collectNestedCompletions
-import org.cirjson.plugin.idea.schema.impl.nestedCompletions.findChildBy
-import org.cirjson.plugin.idea.schema.impl.nestedCompletions.navigate
+import org.cirjson.plugin.idea.schema.impl.nestedCompletions.*
 import org.jetbrains.annotations.TestOnly
 import java.util.function.Consumer
+import javax.swing.Icon
 
 class CirJsonSchemaCompletionContributor : CompletionContributor() {
 
@@ -173,14 +172,50 @@ class CirJsonSchemaCompletionContributor : CompletionContributor() {
                 }
             }
 
-            TODO()
+            val type = cirJsonSchemaObject.guessType()
+            builder = builder.withIcon(getIcon(type))
+
+            if (hasSameType(variants)) {
+                val values = cirJsonSchemaObject.enum
+                val defaultValue = cirJsonSchemaObject.default
+
+                val hasValues = !ContainerUtil.isEmpty(values)
+
+                if (type != null || hasValues || defaultValue != null) {
+                    val handler = if (!hasValues || values!!.stream().map { it::class.java }.distinct().count() == 1L) {
+                        createPropertyInsertHandler(cirJsonSchemaObject, hasValue, insertComma)
+                    } else {
+                        createDefaultPropertyInsertHandler(true, insertComma)
+                    }
+                    builder = builder.withInsertHandler(handler)
+                } else {
+                    builder = builder.withInsertHandler(createDefaultPropertyInsertHandler(true, insertComma))
+                }
+            } else {
+                builder = builder.withInsertHandler(createDefaultPropertyInsertHandler(true, insertComma))
+            }
+
+            val deprecationMessage = cirJsonSchemaObject.deprecationMessage
+
+            if (deprecationMessage != null) {
+                builder = builder.withTailText(CirJsonBundle.message("schema.documentation.deprecated.postfix"), true)
+                        .withStrikeoutness(true)
+            }
+
+            myVariants.add(builder.prefixedBy(completionPath, myWalker!!))
         }
 
         private fun shouldWrapInQuotes(key: String, isValue: Boolean): Boolean {
             TODO()
         }
 
-        private fun findFirstSentence(sentence: String): String {
+        private fun createPropertyInsertHandler(cirJsonSchemaObject: CirJsonSchemaObject, hasValue: Boolean,
+                insertComma: Boolean): InsertHandler<LookupElement> {
+            TODO()
+        }
+
+        private fun createDefaultPropertyInsertHandler(hasValue: Boolean,
+                insertComma: Boolean): InsertHandler<LookupElement> {
             TODO()
         }
 
@@ -264,6 +299,18 @@ class CirJsonSchemaCompletionContributor : CompletionContributor() {
         companion object {
 
             private val FILTERED = setOf("[]", "{}", "[ ]", "{ }")
+
+            private fun findFirstSentence(sentence: String): String {
+                TODO()
+            }
+
+            private fun getIcon(type: CirJsonSchemaType?): Icon {
+                TODO()
+            }
+
+            private fun hasSameType(variants: Collection<CirJsonSchemaObject>): Boolean {
+                TODO()
+            }
 
         }
 

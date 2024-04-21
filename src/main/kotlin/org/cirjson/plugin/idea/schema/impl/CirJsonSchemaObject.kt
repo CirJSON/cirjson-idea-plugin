@@ -41,6 +41,16 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
 
     private var myType: CirJsonSchemaType? = null
 
+    var default: Any? = null
+        get() {
+            if (myType == CirJsonSchemaType._integer) {
+                val current = field
+                return if (current is Number) current.toInt() else current
+            }
+
+            return field
+        }
+
     private var myRef: String? = null
 
     private var myRefIsRecursive = false
@@ -84,6 +94,8 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
     private var myElse: CirJsonSchemaObject? = null
 
     private var myIsValidByExclusion = true
+
+    var deprecationMessage: String? = null
 
     private var myIdsMap: MutableMap<String, String>? = null
 
@@ -196,11 +208,17 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
         // TODO: merge myTitle when added
         // TODO: merge myDescription when added
         // TODO: merge myHtmlDescription when added
-        // TODO: merge myDeprecationMessage when added
+
+        if (!StringUtil.isEmptyOrSpaces(other.deprecationMessage)) {
+            deprecationMessage = other.deprecationMessage
+        }
 
         myType = mergeTypes(myType, other.myType, other.myTypeVariants)
 
-        // TODO: merge myDefault when added
+        if (other.default != null) {
+            default = other.default
+        }
+
         // TODO: merge myExample when added
 
         if (other.myRef != null) {
@@ -611,6 +629,10 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
     }
 
     fun getTypeDescription(shortDesc: Boolean): String? {
+        TODO()
+    }
+
+    fun guessType(): CirJsonSchemaType? {
         TODO()
     }
 

@@ -4,22 +4,32 @@ import com.intellij.codeInsight.AutoPopupController
 import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
+import com.intellij.ide.DataManager
+import com.intellij.lang.Language
+import com.intellij.lang.LanguageUtil
+import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorModificationUtil
+import com.intellij.openapi.editor.actionSystem.CaretSpecificDataContext
+import com.intellij.openapi.editor.actionSystem.EditorActionManager
+import com.intellij.openapi.editor.actions.EditorActionUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.impl.http.HttpVirtualFile
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
+import com.intellij.psi.TokenType
 import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.injection.Injectable
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.ObjectUtils
 import com.intellij.util.ThreeState
+import com.intellij.util.concurrency.ThreadingAssertions
 import com.intellij.util.containers.ContainerUtil
+import com.intellij.util.containers.JBIterable
 import org.cirjson.plugin.idea.CirJsonBundle
-import org.cirjson.plugin.idea.psi.CirJsonFile
-import org.cirjson.plugin.idea.psi.CirJsonObject
-import org.cirjson.plugin.idea.psi.CirJsonProperty
+import org.cirjson.plugin.idea.psi.*
 import org.cirjson.plugin.idea.schema.CirJsonSchemaService
 import org.cirjson.plugin.idea.schema.extension.CirJsonLikePsiWalker
 import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaFileProvider
@@ -206,27 +216,128 @@ class CirJsonSchemaCompletionContributor : CompletionContributor() {
         }
 
         private fun shouldWrapInQuotes(key: String, isValue: Boolean): Boolean {
-            TODO()
+            return myWrapInQuotes && myWalker != null && (isValue && myWalker.isRequiringValueQuote
+                    || !isValue && myWalker.isRequiringNameQuote || !myWalker.isValidIdentifier(key, myProject))
         }
 
         private fun createPropertyInsertHandler(cirJsonSchemaObject: CirJsonSchemaObject, hasValue: Boolean,
                 insertComma: Boolean): InsertHandler<LookupElement> {
-            TODO()
+            var type = cirJsonSchemaObject.guessType()
+            val values = cirJsonSchemaObject.enum
+
+            if (type == null && !values.isNullOrEmpty()) {
+                type = detectType(values)
+            }
+
+            val defaultValue = cirJsonSchemaObject.default
+            val defaultValueAsString = if (defaultValue == null || defaultValue is CirJsonSchemaObject) {
+                null
+            } else if (defaultValue is String) {
+                "\"$defaultValue\""
+            } else {
+                defaultValue.toString()
+            }
+
+            val finalType = type
+            return createPropertyInsertHandler(hasValue, insertComma, finalType, defaultValueAsString, values, myWalker,
+                    myInsideStringLiteral)
         }
 
         private fun createDefaultPropertyInsertHandler(hasValue: Boolean,
                 insertComma: Boolean): InsertHandler<LookupElement> {
-            TODO()
+            return object : InsertHandler<LookupElement> {
+
+                override fun handleInsert(context: InsertionContext, item: LookupElement) {
+                    ThreadingAssertions.assertWriteAccess()
+                    val editor = context.editor
+                    val project = context.project
+
+                    if (handleInsideQuotesInsertion(context, editor, hasValue, myInsideStringLiteral)) {
+                        return
+                    }
+
+                    var offset = editor.caretModel.offset
+                    val initialOffset = offset
+                    val docChars = context.document.charsSequence
+
+                    while (offset < docChars.length && docChars[offset].isWhitespace()) {
+                        offset++
+                    }
+
+                    val propertyValueSeparator = myWalker!!.getPropertyValueSeparator(null)
+
+                    if (hasValue) {
+                        if (offset < docChars.length && !isSeparatorAtOffset(docChars, offset,
+                                        propertyValueSeparator)) {
+                            editor.document.insertString(initialOffset, propertyValueSeparator)
+                            handleWhitespaceAfterColon(editor, docChars, offset + propertyValueSeparator.length)
+                        }
+
+                        return
+                    }
+
+                    if (offset < docChars.length && isSeparatorAtOffset(docChars, offset, propertyValueSeparator)) {
+                        handleWhitespaceAfterColon(editor, docChars, offset + propertyValueSeparator.length)
+                    } else {
+                        val stringToInsert = "$propertyValueSeparator 1${if (insertComma) "," else ""}"
+                        EditorModificationUtil.insertStringAtCaret(editor, stringToInsert, false, true,
+                                propertyValueSeparator.length + 1)
+                        formatInsertedString(context, stringToInsert.length)
+                        offset = editor.caretModel.offset
+                        context.document.deleteString(offset, offset + 1)
+                    }
+
+                    PsiDocumentManager.getInstance(project).commitDocument(editor.document)
+                    AutoPopupController.getInstance(context.project).autoPopupMemberLookup(context.editor, null)
+                }
+
+                private fun handleWhitespaceAfterColon(editor: Editor, docChars: CharSequence, nextOffset: Int) {
+                    if (nextOffset < docChars.length && docChars[nextOffset] == ' ') {
+                        editor.caretModel.moveToOffset(nextOffset + 1)
+                    } else {
+                        editor.caretModel.moveToOffset(nextOffset)
+                        EditorModificationUtil.insertStringAtCaret(editor, " ", false, true, 1)
+                    }
+                }
+
+            }
+        }
+
+        private fun isSeparatorAtOffset(docChars: CharSequence, offset: Int, propertyValueSeparator: String): Boolean {
+            return docChars.subSequence(offset, docChars.length).startsWith(propertyValueSeparator)
         }
 
         private fun addIfThenElsePropertyNameVariants(schema: CirJsonSchemaObject, insertComma: Boolean,
                 hasValue: Boolean, forbiddenNames: Set<String>, adapter: CirJsonPropertyAdapter?,
-                knownNames: Set<String>?, completionPath: SchemaPath?) {
-            TODO()
+                knownNames: MutableSet<String>, completionPath: SchemaPath?) {
+            val ifThenElseList = schema.ifThenElse ?: return
+
+            val walker = CirJsonLikePsiWalker.getWalker(myPosition, schema)
+            val propertyAdapter = walker?.getParentPropertyAdapter(myPosition) ?: return
+
+            val obj = propertyAdapter.parentObject ?: return
+
+            for (ifThenElse in ifThenElseList) {
+                val effectiveBranch = ifThenElse.effectiveBranchOrNull(myProject, obj) ?: continue
+
+                addAllPropertyVariants(effectiveBranch, insertComma, hasValue, forbiddenNames, adapter, knownNames,
+                        completionPath)
+            }
         }
 
         private fun addPropertyNameSchemaVariants(schema: CirJsonSchemaObject) {
-            TODO()
+            val propertyNamesSchema = schema.propertyNamesSchema ?: return
+            val anEnum = propertyNamesSchema.enum ?: return
+
+            for (o in anEnum) {
+                if (o !is String) {
+                    continue
+                }
+
+                var key = o
+                key = if (!shouldWrapInQuotes(key, false)) key else StringUtil.wrapWithDoubleQuote(key)
+                myVariants.add(LookupElementBuilder.create(StringUtil.unquoteString(key)))
+            }
         }
 
         private fun suggestValues(schema: CirJsonSchemaObject, isSurelyValue: Boolean, completionPath: SchemaPath?) {
@@ -285,15 +396,133 @@ class CirJsonSchemaCompletionContributor : CompletionContributor() {
 
         private fun addValueVariant(key: String, description: String?, altText: String?,
                 handler: InsertHandler<LookupElement>?, order: Int?) {
-            TODO()
+            val unquoted = StringUtil.unquoteString(key)
+            var builder = LookupElementBuilder.create(if (!shouldWrapInQuotes(unquoted, true)) unquoted else key)
+            altText?.let { builder = builder.withPresentableText(it) }
+            description?.let { builder = builder.withTypeText(it) }
+            handler?.let { builder = builder.withInsertHandler(it) }
+
+            if (order != null) {
+                myVariants.add(PrioritizedLookupElement.withPriority(builder, -order.toDouble()))
+            } else {
+                myVariants.add(builder)
+            }
         }
 
         private fun suggestSpecialValues(type: CirJsonSchemaType?) {
-            TODO()
+            if (!CirJsonSchemaVersion.isSchemaSchemaId(myRootSchema.id) || type != CirJsonSchemaType._string) {
+                return
+            }
+
+            val propertyAdapter = myWalker!!.getParentPropertyAdapter(myOriginalPosition) ?: return
+            val name = propertyAdapter.name ?: return
+
+            when (name) {
+                "required" -> addRequiredPropVariants()
+                CirJsonSchemaObject.X_INTELLIJ_LANGUAGE_INJECTION -> addInjectedLanguageVariants()
+                "language" -> {
+                    val parent = propertyAdapter.parentObject ?: return
+                    val adapter = myWalker.getParentPropertyAdapter(parent.delegate) ?: return
+                    if (CirJsonSchemaObject.X_INTELLIJ_LANGUAGE_INJECTION == adapter.name) {
+                        addInjectedLanguageVariants()
+                    }
+                }
+            }
+        }
+
+        private fun addRequiredPropVariants() {
+            val checkable = myWalker!!.findElementToCheck(myPosition)
+
+            if (checkable !is CirJsonStringLiteral && checkable !is CirJsonReferenceExpression) {
+                return
+            }
+
+            val propertiesObject = CirJsonRequiredPropsReferenceProvider.findPropertiesObject(checkable) ?: return
+            val parent = checkable.parent
+            val items = if (parent is CirJsonArray) {
+                parent.valueList.mapNotNull { (it as? CirJsonStringLiteral)?.value }.toSet()
+            } else {
+                HashSet()
+            }
+            propertiesObject.propertyList.map { it.name }.filter { !items.contains(it) }
+                    .forEach { addStringVariant(it) }
+        }
+
+        private fun addStringVariant(defaultValueString: String?) {
+            defaultValueString ?: return
+            var normalizedValue = defaultValueString
+            val shouldQuote = myWalker!!.isRequiringValueQuote
+            val isQuoted = StringUtil.isQuotedString(normalizedValue)
+
+            if (shouldQuote && !isQuoted) {
+                normalizedValue = StringUtil.wrapWithDoubleQuote(normalizedValue)
+            } else if (!shouldQuote && isQuoted) {
+                normalizedValue = StringUtil.unquoteString(normalizedValue)
+            }
+
+            addValueVariant(normalizedValue, null)
+        }
+
+        private fun addInjectedLanguageVariants() {
+            val checkable = myWalker!!.findElementToCheck(myPosition)
+
+            if (checkable !is CirJsonStringLiteral && checkable !is CirJsonReferenceExpression) {
+                return
+            }
+
+            JBIterable.from(Language.getRegisteredLanguages()).filter(LanguageUtil::isInjectableLanguage)
+                    .map(Injectable::fromLanguage).forEach {
+                        myVariants.add(
+                                LookupElementBuilder.create(it.id).withIcon(it.icon)
+                                        .withTailText("(${it.displayName})", true))
+                    }
         }
 
         private fun suggestByType(schema: CirJsonSchemaObject, type: CirJsonSchemaType) {
-            TODO()
+            if (CirJsonSchemaType._string == type) {
+                addPossibleStringValue(schema)
+            }
+
+            if (myInsideStringLiteral) {
+                return
+            }
+
+            when (type) {
+                CirJsonSchemaType._boolean -> addPossibleBooleanValue(type)
+
+                CirJsonSchemaType._null -> addValueVariant("null", null)
+
+                CirJsonSchemaType._array -> {
+                    val value = myWalker!!.defaultArrayValue
+                    addValueVariant(value, null, "[...]",
+                            createArrayOrObjectLiteralInsertHandler(myWalker.hasWhitespaceDelimitedCodeBlocks,
+                                    value.length))
+                }
+
+                CirJsonSchemaType._object -> {
+                    val value = myWalker!!.defaultObjectValue
+                    addValueVariant(value, null, "{...}",
+                            createArrayOrObjectLiteralInsertHandler(myWalker.hasWhitespaceDelimitedCodeBlocks,
+                                    value.length))
+                }
+
+                else -> {}
+            }
+        }
+
+        private fun addPossibleStringValue(schema: CirJsonSchemaObject) {
+            val defaultValue = schema.default
+            val defaultValueString = defaultValue?.toString()
+            addStringVariant(defaultValueString)
+        }
+
+        private fun addPossibleBooleanValue(type: CirJsonSchemaType) {
+            if (type != CirJsonSchemaType._boolean) {
+                return
+            }
+
+            addValueVariant("true", null)
+            addValueVariant("false", null)
         }
 
         companion object {
@@ -310,6 +539,43 @@ class CirJsonSchemaCompletionContributor : CompletionContributor() {
 
             private fun hasSameType(variants: Collection<CirJsonSchemaObject>): Boolean {
                 TODO()
+            }
+
+            private fun detectType(values: List<Any>): CirJsonSchemaType? {
+                var type: CirJsonSchemaType? = null
+                for (value in values) {
+                    var newType: CirJsonSchemaType? = null
+
+                    if (value is Int) {
+                        newType = CirJsonSchemaType._integer
+                    }
+
+                    if (type != null && type != newType) {
+                        return type
+                    }
+
+                    type = newType
+                }
+
+                return type
+            }
+
+            private fun createArrayOrObjectLiteralInsertHandler(newLine: Boolean,
+                    insertedTextSize: Int): InsertHandler<LookupElement> {
+                return InsertHandler<LookupElement> { context, item ->
+                    val editor = context.editor
+
+                    if (!newLine) {
+                        EditorModificationUtil.moveCaretRelatively(editor, -1)
+                    } else {
+                        EditorModificationUtil.moveCaretRelatively(editor, -insertedTextSize)
+                        PsiDocumentManager.getInstance(context.project).commitDocument(context.document)
+                        invokeEnterHandler(editor)
+                        EditorActionUtil.moveCaretToLineEnd(editor, false, false)
+                    }
+
+                    AutoPopupController.getInstance(context.project).autoPopupMemberLookup(editor, null)
+                }
             }
 
         }
@@ -364,6 +630,62 @@ class CirJsonSchemaCompletionContributor : CompletionContributor() {
             })
         }
 
+        private fun handleInsideQuotesInsertion(context: InsertionContext, editor: Editor, hasValue: Boolean,
+                insideStringLiteral: Boolean): Boolean {
+            if (insideStringLiteral) {
+                val offset = editor.caretModel.offset
+                val element = context.file.findElementAt(offset)
+                val tailOffset = context.tailOffset
+                val guessEndOffset = tailOffset + 1
+
+                if (element is LeafPsiElement) {
+                    if (handleIncompleteString(editor, element)) {
+                        return false
+                    }
+
+                    val endOffset = element.textRange.endOffset
+
+                    if (endOffset > tailOffset) {
+                        context.document.deleteString(tailOffset, endOffset - 1)
+                    }
+                }
+
+                if (hasValue) {
+                    return true
+                }
+
+                editor.caretModel.moveToOffset(guessEndOffset)
+            } else {
+                editor.caretModel.moveToOffset(context.tailOffset)
+            }
+
+            return false
+        }
+
+        private fun handleIncompleteString(editor: Editor, element: LeafPsiElement): Boolean {
+            if (element.elementType == TokenType.WHITE_SPACE) {
+                val prevSibling = element.prevSibling
+
+                if (prevSibling is CirJsonProperty) {
+                    val nameElement = prevSibling.nameElement
+
+                    if (!nameElement.text.endsWith("\"")) {
+                        editor.caretModel.moveToOffset(nameElement.textRange.endOffset)
+                        EditorModificationUtil.insertStringAtCaret(editor, "\"", false, true, 1)
+                        return true
+                    }
+                }
+            }
+
+            return false
+        }
+
+        fun createPropertyInsertHandler(hasValue: Boolean, insertComma: Boolean, finalType: CirJsonSchemaType?,
+                defaultValueAsString: String?, values: List<Any>?, walker: CirJsonLikePsiWalker?,
+                insideStringLiteral: Boolean): InsertHandler<LookupElement> {
+            TODO()
+        }
+
         private fun insertPropertyWithEnum(context: InsertionContext, editor: Editor, defaultValue: String?,
                 values: List<Any>?, type: CirJsonSchemaType?, comma: String, walker: CirJsonLikePsiWalker,
                 insertColon: Boolean) {
@@ -416,6 +738,14 @@ class CirJsonSchemaCompletionContributor : CompletionContributor() {
             PsiDocumentManager.getInstance(project).commitDocument(context.document)
             val codeStyleManager = CodeStyleManager.getInstance(project)
             codeStyleManager.reformatText(context.file, context.startOffset, context.tailOffset + offset)
+        }
+
+        private fun invokeEnterHandler(editor: Editor) {
+            val handler = EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_ENTER)
+            val caret = editor.caretModel.currentCaret
+            handler.execute(editor, caret,
+                    CaretSpecificDataContext.create(DataManager.getInstance().getDataContext(editor.contentComponent),
+                            caret))
         }
 
     }

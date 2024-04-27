@@ -1,5 +1,6 @@
 package org.cirjson.plugin.idea.schema.extension
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.util.ThreeState
@@ -29,6 +30,8 @@ interface CirJsonLikePsiWalker {
 
     val isRequiringValueQuote: Boolean
         get() = true
+
+    fun isValidIdentifier(string: String, project: Project): Boolean = true
 
     fun isQuotedString(element: PsiElement): Boolean {
         return false

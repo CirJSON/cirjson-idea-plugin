@@ -159,6 +159,8 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             // TODO minProperties when added
             this["required"] = createRequired()
             this["additionalProperties"] = createAdditionalProperties()
+            this["propertyNames"] =
+                    createFromObject("propertyNames") { obj, schema -> obj.propertyNamesSchema = schema }
             // TODO propertyNames when added
             // TODO patternProperties when added
             // TODO dependencies when added

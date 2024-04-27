@@ -65,6 +65,8 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
 
     private var myAdditionalPropertiesSchema: CirJsonSchemaObject? = null
 
+    var propertyNamesSchema: CirJsonSchemaObject? = null
+
     private var myAdditionalItemsAllowed: Boolean? = null
 
     private var myAdditionalItemsSchema: CirJsonSchemaObject? = null
@@ -250,6 +252,10 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
 
         if (other.myAdditionalPropertiesSchema != null) {
             myAdditionalPropertiesSchema = other.myAdditionalPropertiesSchema
+        }
+
+        if (other.propertyNamesSchema != null) {
+            propertyNamesSchema = other.propertyNamesSchema
         }
 
         if (other.myAdditionalItemsAllowed != null) {

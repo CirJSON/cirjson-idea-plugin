@@ -4,6 +4,7 @@ import com.intellij.codeInsight.AutoPopupController
 import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
+import com.intellij.icons.AllIcons
 import com.intellij.ide.DataManager
 import com.intellij.lang.Language
 import com.intellij.lang.LanguageUtil
@@ -13,6 +14,7 @@ import com.intellij.openapi.editor.EditorModificationUtil
 import com.intellij.openapi.editor.actionSystem.CaretSpecificDataContext
 import com.intellij.openapi.editor.actionSystem.EditorActionManager
 import com.intellij.openapi.editor.actions.EditorActionUtil
+import com.intellij.openapi.util.Pair
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.impl.http.HttpVirtualFile
@@ -23,6 +25,8 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.injection.Injectable
 import com.intellij.psi.util.PsiUtilCore
+import com.intellij.ui.IconManager
+import com.intellij.ui.PlatformIcons
 import com.intellij.util.ObjectUtils
 import com.intellij.util.ThreeState
 import com.intellij.util.concurrency.ThreadingAssertions
@@ -530,15 +534,39 @@ class CirJsonSchemaCompletionContributor : CompletionContributor() {
             private val FILTERED = setOf("[]", "{}", "[ ]", "{ }")
 
             private fun findFirstSentence(sentence: String): String {
-                TODO()
+                var i = sentence.indexOf(". ")
+
+                while (i >= 0) {
+                    val egText = ", e.g."
+
+                    if (!sentence.regionMatches(i - egText.length + 1, egText, 0, egText.length)) {
+                        return sentence.substring(0, i + 1)
+                    }
+
+                    i = sentence.indexOf(". ", i + 1)
+                }
+
+                return sentence
             }
 
             private fun getIcon(type: CirJsonSchemaType?): Icon {
-                TODO()
+                return when (type) {
+                    CirJsonSchemaType._object -> AllIcons.Json.Object
+                    CirJsonSchemaType._array -> AllIcons.Json.Array
+                    else -> IconManager.getInstance().getPlatformIcon(PlatformIcons.Property)
+                }
             }
 
             private fun hasSameType(variants: Collection<CirJsonSchemaObject>): Boolean {
-                TODO()
+                return variants.map { Pair(it.guessType(), isUntypedEnum(it)) }.distinct().count() <= 1
+            }
+
+            private fun isUntypedEnum(it: CirJsonSchemaObject): Boolean {
+                if (it.guessType() != null) {
+                    return false
+                }
+
+                return !it.enum.isNullOrEmpty()
             }
 
             private fun detectType(values: List<Any>): CirJsonSchemaType? {
@@ -683,7 +711,117 @@ class CirJsonSchemaCompletionContributor : CompletionContributor() {
         fun createPropertyInsertHandler(hasValue: Boolean, insertComma: Boolean, finalType: CirJsonSchemaType?,
                 defaultValueAsString: String?, values: List<Any>?, walker: CirJsonLikePsiWalker?,
                 insideStringLiteral: Boolean): InsertHandler<LookupElement> {
-            TODO()
+            return InsertHandler { context, _ ->
+                ThreadingAssertions.assertWriteAccess()
+                val editor = context.editor
+                val project = context.project
+                var stringToInsert: String? = null
+                val comma = if (insertComma) "," else ""
+
+                if (handleInsideQuotesInsertion(context, editor, hasValue, insideStringLiteral)) {
+                    return@InsertHandler
+                }
+
+                val propertyValueSeparator = walker!!.getPropertyValueSeparator(finalType)
+
+                val element = context.file.findElementAt(editor.caretModel.offset)
+                val insertColon = propertyValueSeparator != element?.text
+
+                if (!insertColon) {
+                    editor.caretModel.moveToOffset(editor.caretModel.offset + propertyValueSeparator.length)
+                }
+
+                if (finalType == null) {
+                    insertPropertyWithEnum(context, editor, defaultValueAsString, values, null, comma, walker,
+                            insertColon)
+                    return@InsertHandler
+                }
+
+                var hadEnter: Boolean
+
+                when (finalType) {
+                    CirJsonSchemaType._object -> {
+                        EditorModificationUtil.insertStringAtCaret(editor,
+                                if (insertColon) "$propertyValueSeparator " else " ", false, true,
+                                if (insertColon) propertyValueSeparator.length + 1 else 1)
+                        hadEnter = false
+                        val invokeEnter = walker.hasWhitespaceDelimitedCodeBlocks
+
+                        if (insertColon && invokeEnter) {
+                            invokeEnterHandler(editor)
+                            hadEnter = true
+                        }
+
+                        if (insertColon) {
+                            stringToInsert = walker.defaultObjectValue + comma
+                            EditorModificationUtil.insertStringAtCaret(editor, stringToInsert, false, true,
+                                    if (hadEnter) 0 else 1)
+                        }
+
+                        if (hadEnter || !insertColon) {
+                            EditorActionUtil.moveCaretToLineEnd(editor, false, false)
+                        }
+
+                        PsiDocumentManager.getInstance(project).commitDocument(editor.document)
+
+                        if (!hadEnter && stringToInsert != null) {
+                            formatInsertedString(context, stringToInsert.length)
+                        }
+
+                        if (stringToInsert != null && !invokeEnter) {
+                            invokeEnterHandler(editor)
+                        }
+                    }
+
+                    CirJsonSchemaType._array -> {
+                        EditorModificationUtil.insertStringAtCaret(editor,
+                                if (insertColon) "$propertyValueSeparator " else " ", false, true,
+                                if (insertColon) propertyValueSeparator.length + 1 else 1)
+                        hadEnter = false
+
+                        if (insertColon && walker.hasWhitespaceDelimitedCodeBlocks) {
+                            invokeEnterHandler(editor)
+                            hadEnter = true
+                        } else {
+                            EditorModificationUtil.insertStringAtCaret(editor, " ", false, true, 1)
+                        }
+
+                        if (insertColon) {
+                            stringToInsert = walker.defaultArrayValue + comma
+                            EditorModificationUtil.insertStringAtCaret(editor, stringToInsert, false, true,
+                                    if (hadEnter) 0 else 1)
+                        }
+
+                        if (hadEnter) {
+                            EditorActionUtil.moveCaretToLineEnd(editor, false, false)
+                        }
+
+                        PsiDocumentManager.getInstance(project).commitDocument(editor.document)
+
+                        if (stringToInsert != null && walker.isRequiringReformatAfterArrayInsertion) {
+                            formatInsertedString(context, stringToInsert.length)
+                        }
+                    }
+
+                    CirJsonSchemaType._boolean -> {
+                        val value = (true.toString() == defaultValueAsString).toString()
+                        stringToInsert = "${if (insertColon) "$propertyValueSeparator " else " "}$value$comma"
+                        val model = editor.selectionModel
+
+                        EditorModificationUtil.insertStringAtCaret(editor, stringToInsert, false, true,
+                                stringToInsert.length - comma.length)
+                        formatInsertedString(context, stringToInsert.length)
+                        val start = editor.selectionModel.selectionStart
+                        model.setSelection(start - value.length, start)
+                        AutoPopupController.getInstance(context.project).autoPopupMemberLookup(context.editor, null)
+                    }
+
+                    CirJsonSchemaType._string, CirJsonSchemaType._integer, CirJsonSchemaType._number -> insertPropertyWithEnum(
+                            context, editor, defaultValueAsString, values, finalType, comma, walker, insertColon)
+
+                    else -> {}
+                }
+            }
         }
 
         private fun insertPropertyWithEnum(context: InsertionContext, editor: Editor, defaultValue: String?,

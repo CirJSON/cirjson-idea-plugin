@@ -51,6 +51,9 @@ interface CirJsonLikePsiWalker {
 
     fun getRoots(file: PsiFile): Collection<PsiElement>?
 
+    val isRequiringReformatAfterArrayInsertion: Boolean
+        get() = true
+
     val defaultObjectValue: String
         get() = "{}"
 

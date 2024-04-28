@@ -19,6 +19,7 @@ import org.cirjson.plugin.idea.psi.CirJsonFile
 import org.cirjson.plugin.idea.psi.CirJsonProperty
 import org.cirjson.plugin.idea.psi.CirJsonStringLiteral
 import org.cirjson.plugin.idea.schema.CirJsonPointerUtil
+import org.cirjson.plugin.idea.schema.CirJsonSchemaCatalogEntry
 import org.cirjson.plugin.idea.schema.CirJsonSchemaService
 import org.cirjson.plugin.idea.schema.extension.CirJsonLikePsiWalker
 import org.cirjson.plugin.idea.schema.remote.CirJsonFileResolver
@@ -167,6 +168,10 @@ object CirJsonCachedValues {
         val obsoleteId = props[OBSOLETE_ID_CACHE_KEY]
 
         return if (obsoleteId != CirJsonSchemaFileValuesIndex.NULL) obsoleteId else null
+    }
+
+    fun getSchemaCatalog(catalog: VirtualFile, project: Project): List<CirJsonSchemaCatalogEntry>? {
+        TODO()
     }
 
     private fun <T> getOrCompute(psiFile: PsiFile, eval: (PsiFile) -> T, key: Key<CachedValue<T>>): T {

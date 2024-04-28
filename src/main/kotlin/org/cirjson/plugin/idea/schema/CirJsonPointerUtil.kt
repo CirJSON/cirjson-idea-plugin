@@ -26,6 +26,10 @@ object CirJsonPointerUtil {
         return StringUtil.split(pointer, "/", true, false)
     }
 
+    fun normalizeSlashes(ref: String): String {
+        return StringUtil.trimStart(ref.replace('\\', '/'), "/")
+    }
+
     fun normalizeId(id: String): String {
         var realId = id
         realId = if (realId.endsWith("#")) realId.substring(0, realId.length - 1) else realId

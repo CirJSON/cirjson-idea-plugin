@@ -5,6 +5,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import org.cirjson.plugin.idea.schema.extension.CirJsonLikePsiWalker
 import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaFileProvider
+import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaInfo
 import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaObject
 
 interface CirJsonSchemaService {
@@ -34,6 +35,8 @@ interface CirJsonSchemaService {
     fun resolveSchemaFile(schemaObject: CirJsonSchemaObject): VirtualFile?
 
     fun reset()
+
+    val allUserVisibleSchemas: List<CirJsonSchemaInfo>
 
     fun isApplicableToFile(file: VirtualFile?): Boolean
 

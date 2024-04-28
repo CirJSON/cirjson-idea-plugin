@@ -374,6 +374,11 @@ open class CirJsonSchemaServiceImpl(override val project: Project) : CirJsonSche
         resetWithCurrentFactories()
     }
 
+    override val allUserVisibleSchemas: List<CirJsonSchemaInfo>
+        get() {
+            TODO()
+        }
+
     override fun isApplicableToFile(file: VirtualFile?): Boolean {
         if (file == null) {
             return false

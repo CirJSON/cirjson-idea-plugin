@@ -13,11 +13,11 @@ import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.testFramework.LightVirtualFile
+import com.intellij.util.AstLoadingFilter
+import com.intellij.util.containers.ContainerUtil
 import org.cirjson.plugin.idea.navigation.CirJsonQualifiedNameKind
 import org.cirjson.plugin.idea.navigation.CirJsonQualifiedNameProvider
-import org.cirjson.plugin.idea.psi.CirJsonFile
-import org.cirjson.plugin.idea.psi.CirJsonProperty
-import org.cirjson.plugin.idea.psi.CirJsonStringLiteral
+import org.cirjson.plugin.idea.psi.*
 import org.cirjson.plugin.idea.schema.CirJsonPointerUtil
 import org.cirjson.plugin.idea.schema.CirJsonSchemaCatalogEntry
 import org.cirjson.plugin.idea.schema.CirJsonSchemaService
@@ -41,6 +41,9 @@ object CirJsonCachedValues {
     const val ID_PATHS_CACHE_KEY: String = "CirJsonSchemaIdToPointerCache"
 
     private val SCHEMA_ID_PATHS_CACHE_KEY = Key.create<CachedValue<MutableMap<String, String>>>(ID_PATHS_CACHE_KEY)
+
+    private val SCHEMA_CATALOG_CACHE_KEY =
+            Key.create<CachedValue<List<CirJsonSchemaCatalogEntry>?>>("CirJsonSchemaCatalogCache")
 
     private val OBJECT_FOR_FILE_KEY = Key.create<CachedValue<CirJsonSchemaObject?>>("CirJsonCachedValues.OBJ_KEY")
 
@@ -179,7 +182,88 @@ object CirJsonCachedValues {
     }
 
     fun getSchemaCatalog(catalog: VirtualFile, project: Project): List<CirJsonSchemaCatalogEntry>? {
-        TODO()
+        if (!catalog.isValid) {
+            return null
+        }
+
+        return computeForFile(catalog, project, CirJsonCachedValues::computeSchemaCatalog, SCHEMA_CATALOG_CACHE_KEY)
+    }
+
+    private fun computeSchemaCatalog(catalog: PsiFile): List<CirJsonSchemaCatalogEntry>? {
+        if (!catalog.isValid) {
+            return null
+        }
+
+        val virtualFile = catalog.virtualFile ?: return null
+
+        if (!virtualFile.isValid) {
+            return null
+        }
+
+        val value = AstLoadingFilter.forceAllowTreeLoading<CirJsonValue, RuntimeException>(catalog) {
+            (catalog as? CirJsonFile)?.topLevelValue
+        }
+
+        if (value !is CirJsonObject) {
+            return null
+        }
+
+        val schemas = value.findProperty("schemas") ?: return null
+        val schemasValue = schemas.value
+
+        if (schemasValue !is CirJsonArray) {
+            return null
+        }
+
+        val catalogMap = arrayListOf<CirJsonSchemaCatalogEntry>()
+        fillMap(schemasValue, catalogMap)
+        return catalogMap
+    }
+
+    private fun fillMap(array: CirJsonArray, catalogMap: MutableList<CirJsonSchemaCatalogEntry>) {
+        for (value in array.valueList) {
+            val obj = value as? CirJsonObject ?: continue
+            val fileMatch = obj.findProperty("fileMatch")
+            val masks = fileMatch?.let { resolveMasks(it.value) } ?: emptyList()
+            val urlString = readStringValue(obj.findProperty("url")) ?: continue
+            catalogMap.add(CirJsonSchemaCatalogEntry(masks, urlString, readStringValue(obj.findProperty("name")),
+                    readStringValue(obj.findProperty("description"))))
+        }
+    }
+
+    private fun resolveMasks(value: CirJsonValue?): Collection<String> {
+        if (value is CirJsonStringLiteral) {
+            return ContainerUtil.createMaybeSingletonList(value.value)
+        }
+
+        if (value !is CirJsonArray) {
+            return emptyList()
+        }
+
+        val strings = arrayListOf<String>()
+
+        for (v in value.valueList) {
+            if (v is CirJsonStringLiteral) {
+                strings.add(v.value)
+            }
+        }
+
+        return strings
+    }
+
+    private fun readStringValue(property: CirJsonProperty?): String? {
+        property ?: return null
+        val urlValue = property.value
+
+        if (urlValue is CirJsonStringLiteral) {
+            val urlStringValue = urlValue.value
+
+            if (!StringUtil.isEmpty(urlStringValue)) {
+                return urlStringValue
+            }
+        }
+
+        return null
     }
 
     private fun <T> getOrCompute(psiFile: PsiFile, eval: (PsiFile) -> T, key: Key<CachedValue<T>>): T {

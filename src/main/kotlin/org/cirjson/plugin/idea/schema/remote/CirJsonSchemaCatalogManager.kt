@@ -1,12 +1,17 @@
 package org.cirjson.plugin.idea.schema.remote
 
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectFileIndex
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.impl.http.HttpVirtualFile
 import com.intellij.util.containers.ContainerUtil
 import org.cirjson.plugin.idea.schema.CirJsonSchemaCatalogEntry
 import org.cirjson.plugin.idea.schema.CirJsonSchemaCatalogProjectConfiguration
 import org.cirjson.plugin.idea.schema.impl.CirJsonCachedValues
+import java.nio.file.*
 
 class CirJsonSchemaCatalogManager(private val myProject: Project) {
 
@@ -39,16 +44,55 @@ class CirJsonSchemaCatalogManager(private val myProject: Project) {
             myResolvedMappings[file] = schemaUrl ?: EMPTY
         }
 
-        TODO()
+        if (schemaUrl == null || isIgnoredAsHavingTooManyVariants(schemaUrl)) {
+            return null
+        }
+
+        return CirJsonFileResolver.resolveSchemaByReference(file, schemaUrl)
     }
 
-    private class FileMatcher(private val myEntry: CirJsonSchemaCatalogEntry)
+    private class FileMatcher(val myEntry: CirJsonSchemaCatalogEntry) {
+
+        private var myMatcher: PathMatcher? = null
+
+        fun matches(filePath: Path): Boolean {
+            if (myMatcher == null) {
+                myMatcher = buildPathMatcher(myEntry.fileMasks)
+            }
+
+            return myMatcher!!.matches(filePath)
+        }
+
+        companion object {
+
+            private fun buildPathMatcher(fileMasks: Collection<String>): PathMatcher {
+                val refinedFileMasks = fileMasks.map { StringUtil.trimStart(it, "**/") }
+
+                return if (refinedFileMasks.size == 1) {
+                    FileSystems.getDefault().getPathMatcher("glob:${refinedFileMasks.first()}")
+                } else if (refinedFileMasks.isNotEmpty()) {
+                    FileSystems.getDefault().getPathMatcher("glob{${StringUtil.join(refinedFileMasks, ",")}}")
+                } else {
+                    PathMatcher { false }
+                }
+            }
+
+        }
+
+    }
 
     companion object {
 
         private const val NO_CACHE = "\$_\$_WS_NO_CACHE_\$_\$"
 
         private const val EMPTY: String = "\$_\$_WS_EMPTY_\$_\$"
+
+        private val SCHEMA_URL_PREFIXES_WITH_TOO_MANY_VARIANTS =
+                setOf("https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/")
+
+        private fun isIgnoredAsHavingTooManyVariants(schemaUrl: String): Boolean {
+            return SCHEMA_URL_PREFIXES_WITH_TOO_MANY_VARIANTS.any { schemaUrl.startsWith(it) }
+        }
 
         private fun resolveSchemaFile(file: VirtualFile, catalogFile: VirtualFile, project: Project): String? {
             CirJsonFileResolver.startFetchingHttpFileIfNeeded(catalogFile, project)
@@ -58,7 +102,60 @@ class CirJsonSchemaCatalogManager(private val myProject: Project) {
 
             val fileMatchers = ContainerUtil.map(schemaCatalog) { FileMatcher(it) }
 
-            TODO()
+            val fileRelativePathStr = getRelativePath(file, project)
+            var url = findMatchedUrl(fileMatchers, fileRelativePathStr)
+
+            if (url == null) {
+                val fileName = file.name
+
+                if (fileName != fileRelativePathStr) {
+                    url = findMatchedUrl(fileMatchers, fileName)
+                }
+            }
+
+            return url
+        }
+
+        private fun getRelativePath(file: VirtualFile, project: Project): String? {
+            var basePath = project.basePath
+
+            if (basePath != null) {
+                basePath = StringUtil.trimEnd(basePath, VfsUtilCore.VFS_SEPARATOR_CHAR) + VfsUtilCore.VFS_SEPARATOR_CHAR
+                val filePath = file.path
+
+                if (filePath.startsWith(basePath)) {
+                    return filePath.substring(basePath.length)
+                }
+            }
+
+            val contentRoot = ReadAction.compute<VirtualFile?, Throwable> {
+                if (project.isDisposed || !file.isValid) {
+                    return@compute null
+                }
+
+                return@compute ProjectFileIndex.getInstance(project).getContentRootForFile(file, false)
+            } ?: return null
+
+            return VfsUtilCore.findRelativePath(contentRoot, file, VfsUtilCore.VFS_SEPARATOR_CHAR)
+        }
+
+        private fun findMatchedUrl(matchers: List<FileMatcher>, filePath: String?): String? {
+            filePath ?: return null
+            val path: Path
+
+            try {
+                path = Paths.get(filePath)
+            } catch (_: InvalidPathException) {
+                return null
+            }
+
+            for (matcher in matchers) {
+                if (matcher.matches(path)) {
+                    return matcher.myEntry.url
+                }
+            }
+
+            return null
         }
 
     }

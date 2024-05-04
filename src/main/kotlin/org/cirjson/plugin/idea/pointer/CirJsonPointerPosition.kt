@@ -3,34 +3,34 @@ package org.cirjson.plugin.idea.pointer
 import com.intellij.util.containers.ContainerUtil
 import org.cirjson.plugin.idea.schema.CirJsonPointerUtil
 
-class CirJsonPointerPosition(private val mySteps: MutableList<Step>) {
+class CirJsonPointerPosition(val steps: MutableList<Step>) {
 
     constructor() : this(ArrayList())
 
     fun addPrecedingStep(value: Int) {
-        mySteps.add(0, Step.createArrayElementStep(value))
+        steps.add(0, Step.createArrayElementStep(value))
     }
 
     fun addPrecedingStep(value: String) {
-        mySteps.add(0, Step.createPropertyStep(value))
+        steps.add(0, Step.createPropertyStep(value))
     }
 
     fun addFollowingStep(value: String) {
-        mySteps.add(Step.createPropertyStep(value))
+        steps.add(Step.createPropertyStep(value))
     }
 
     val empty: Boolean
         get() {
-            return mySteps.isEmpty()
+            return steps.isEmpty()
         }
 
     fun isObject(pos: Int): Boolean {
-        return checkPosInRange(pos) && mySteps[pos].isFromObject
+        return checkPosInRange(pos) && steps[pos].isFromObject
     }
 
     fun skip(count: Int): CirJsonPointerPosition? {
         return if (checkPosInRangeIncl(count)) {
-            CirJsonPointerPosition(mySteps.subList(count, mySteps.size))
+            CirJsonPointerPosition(steps.subList(count, steps.size))
         } else {
             null
         }
@@ -38,41 +38,41 @@ class CirJsonPointerPosition(private val mySteps: MutableList<Step>) {
 
     val firstName: String?
         get() {
-            return ContainerUtil.getFirstItem(mySteps)?.myName
+            return ContainerUtil.getFirstItem(steps)?.name
         }
 
     val firstIndex: Int
         get() {
-            return ContainerUtil.getFirstItem(mySteps)?.myIdx ?: -1
+            return ContainerUtil.getFirstItem(steps)?.idx ?: -1
         }
 
     val size: Int
         get() {
-            return mySteps.size
+            return steps.size
         }
 
     fun updateFrom(from: CirJsonPointerPosition) {
-        mySteps.clear()
-        mySteps.addAll(from.mySteps)
+        steps.clear()
+        steps.addAll(from.steps)
     }
 
     fun toCirJsonPointer(): String {
-        return "/" + mySteps.joinToString("/") {
-            CirJsonPointerUtil.escapeForCirJsonPointer(it.myName ?: it.myIdx.toString())
+        return "/" + steps.joinToString("/") {
+            CirJsonPointerUtil.escapeForCirJsonPointer(it.name ?: it.idx.toString())
         }
     }
 
     private fun checkPosInRange(pos: Int): Boolean {
-        return mySteps.size > pos
+        return steps.size > pos
     }
 
     private fun checkPosInRangeIncl(pos: Int): Boolean {
-        return mySteps.size >= pos
+        return steps.size >= pos
     }
 
-    class Step private constructor(val myName: String?, val myIdx: Int) {
+    class Step private constructor(val name: String?, val idx: Int) {
 
-        val isFromObject = myName != null
+        val isFromObject = name != null
 
         companion object {
 
@@ -85,6 +85,25 @@ class CirJsonPointerPosition(private val mySteps: MutableList<Step>) {
                 return Step(null, idx)
             }
 
+        }
+
+    }
+
+    companion object {
+
+        fun parsePointer(pointer: String): CirJsonPointerPosition {
+            val chain = CirJsonPointerUtil.split(CirJsonPointerUtil.normalizeSlashes(pointer))
+            val steps = ArrayList<Step>(chain.size)
+
+            for (s in chain) {
+                try {
+                    steps.add(Step.createArrayElementStep(s.toInt()))
+                } catch (_: NumberFormatException) {
+                    steps.add(Step.createPropertyStep(CirJsonPointerUtil.unescapeCirJsonPointerPart(s)))
+                }
+            }
+
+            return CirJsonPointerPosition(steps)
         }
 
     }

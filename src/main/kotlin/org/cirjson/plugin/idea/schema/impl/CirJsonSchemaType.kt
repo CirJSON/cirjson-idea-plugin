@@ -1,5 +1,7 @@
 package org.cirjson.plugin.idea.schema.impl
 
+import java.math.BigInteger
+
 enum class CirJsonSchemaType {
 
     _string,
@@ -24,5 +26,25 @@ enum class CirJsonSchemaType {
 
     val description: String
         get() = if (this == _any) "*" else realName
+
+    companion object {
+
+        fun isInteger(text: String): Boolean {
+            return getIntegerValue(text) != null
+        }
+
+        fun getIntegerValue(text: String): Number? {
+            return try {
+                text.toInt()
+            } catch (_: NumberFormatException) {
+                try {
+                    BigInteger.valueOf(text.toLong())
+                } catch (_: NumberFormatException) {
+                    null
+                }
+            }
+        }
+
+    }
 
 }

@@ -139,6 +139,14 @@ object CirJsonCachedValues {
         return getOrCompute(psiFile, eval, key)
     }
 
+    fun getAllIdsInFile(file: PsiFile): Collection<String> {
+        return getOrComputeIdsMap(file).keys
+    }
+
+    fun resolveId(psiFile: PsiFile, id: String): String? {
+        return getOrComputeIdsMap(psiFile)[id]
+    }
+
     fun getOrComputeIdsMap(psiFile: PsiFile): MutableMap<String, String> {
         return getOrCompute(psiFile, CirJsonCachedValues::computeIdsMap, SCHEMA_ID_PATHS_CACHE_KEY)
     }

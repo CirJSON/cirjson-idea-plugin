@@ -32,7 +32,7 @@ import org.cirjson.plugin.idea.schema.remote.CirJsonSchemaCatalogManager
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 
-open class CirJsonSchemaServiceImpl(override val project: Project) : CirJsonSchemaService, ModificationTracker,
+open class CirJsonSchemaServiceImpl(final override val project: Project) : CirJsonSchemaService, ModificationTracker,
         Disposable {
 
     private val myCatalogManager = CirJsonSchemaCatalogManager(project)
@@ -52,6 +52,8 @@ open class CirJsonSchemaServiceImpl(override val project: Project) : CirJsonSche
     private val myRefs = ConcurrentCollectionFactory.createConcurrentSet<String>()
 
     private val myAnyChangeCount = AtomicLong(0)
+
+    private val myResetActions = ContainerUtil.createConcurrentList<Runnable>()
 
     init {
         CirJsonSchemaProviderFactory.EP_NAME.addChangeListener(this::reset, this)
@@ -73,7 +75,11 @@ open class CirJsonSchemaServiceImpl(override val project: Project) : CirJsonSche
     private fun resetWithCurrentFactories() {
         myState.reset()
         myBuiltInSchemaIds.drop()
-        // TODO reset myResetActions when added
+
+        for (action in myResetActions) {
+            action.run()
+        }
+
         DaemonCodeAnalyzer.getInstance(project).restart()
     }
 
@@ -434,7 +440,7 @@ open class CirJsonSchemaServiceImpl(override val project: Project) : CirJsonSche
                 val map = HashMap<VirtualFile, MutableList<CirJsonSchemaFileProvider>>()
 
                 for (provider in list) {
-                    var schemaFile: VirtualFile? = null
+                    var schemaFile: VirtualFile?
 
                     try {
                         schemaFile = getSchemaForProvider(project, provider)

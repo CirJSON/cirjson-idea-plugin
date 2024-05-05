@@ -37,6 +37,14 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
 
     private var myPatternProperties: PatternProperties? = null
 
+    private var myPattern: PropertyNamePattern? = null
+
+    var pattern: String?
+        get() = myPattern?.pattern
+        set(value) {
+            myPattern = value?.let { PropertyNamePattern(it) }
+        }
+
     private var myId: String? = null
 
     private var myType: CirJsonSchemaType? = null
@@ -57,7 +65,23 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
 
     private var myIsRecursiveAnchor = false
 
+    var format: String? = null
+
     private var myTypeVariants: MutableSet<CirJsonSchemaType>? = null
+
+    var multipleOf: Number? = null
+
+    var maximum: Number? = null
+
+    var exclusiveMaximum: Boolean = false
+
+    var exclusiveMaximumNumber: Number? = null
+
+    var minimum: Number? = null
+
+    var exclusiveMinimum: Boolean = false
+
+    var exclusiveMinimumNumber: Number? = null
 
     private var myAdditionalPropertiesAllowed: Boolean? = null
 
@@ -73,9 +97,28 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
 
     private var myItemsSchema: CirJsonSchemaObject? = null
 
+    var containsSchema: CirJsonSchemaObject? = null
+
     private var myItemsSchemaList: MutableList<CirJsonSchemaObject>? = null
 
+    var maxItems: Int? = null
+
+    var minItems: Int? = null
+
+    var uniqueItems: Boolean? = null
+
+    val isUniqueItem: Boolean
+        get() = uniqueItems == true
+
+    var maxProperties: Int? = null
+
+    var minProperties: Int? = null
+
     private var myRequired: MutableSet<String>? = null
+
+    var propertyDependencies: Map<String, List<String>>? = null
+
+    var schemaDependencies: Map<String, CirJsonSchemaObject>? = null
 
     private var myEnum: MutableList<Any>? = null
 
@@ -227,20 +270,20 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
             myRef = other.myRef
         }
 
-        // TODO: merge myFormat when added
+        other.format?.let { format = it }
 
         myTypeVariants = mergeTypeVariantSets(myTypeVariants, other.myTypeVariants)
 
-        // TODO: merge myMultipleOf when added
-        // TODO: merge myMaximum when added
-        // TODO: merge myExclusiveMaximumNumber when added
-        // TODO: merge myExclusiveMaximum when added
-        // TODO: merge myMinimum when added
-        // TODO: merge myExclusiveMinimumNumber when added
-        // TODO: merge myExclusiveMinimum when added
+        other.multipleOf?.let { multipleOf = it }
+        other.maximum?.let { maximum = it }
+        other.exclusiveMaximumNumber?.let { exclusiveMaximumNumber = it }
+        exclusiveMaximum = exclusiveMaximum || other.exclusiveMaximum
+        other.minimum?.let { minimum = it }
+        other.exclusiveMinimumNumber?.let { exclusiveMinimumNumber = it }
+        exclusiveMinimum = exclusiveMinimum || other.exclusiveMaximum
         // TODO: merge myMaxLength when added
         // TODO: merge myMinLength when added
-        // TODO: merge myPattern when added
+        other.myPattern?.let { myPattern = it }
 
         if (other.myAdditionalPropertiesAllowed != null) {
             myAdditionalPropertiesAllowed = other.myAdditionalPropertiesAllowed
@@ -270,15 +313,15 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
             myItemsSchema = other.myItemsSchema
         }
 
-        // TODO: merge myContainsSchema when added
+        other.containsSchema?.let { containsSchema = it }
 
         myItemsSchemaList = copyList(myItemsSchemaList, other.myItemsSchemaList)
 
-        // TODO: merge myMaxItems when added
-        // TODO: merge myMinItems when added
-        // TODO: merge myUniqueItems when added
-        // TODO: merge myMaxProperties when added
-        // TODO: merge myMinProperties when added
+        other.maxItems?.let { maxItems = it }
+        other.minItems?.let { minItems = it }
+        other.uniqueItems?.let { uniqueItems = it }
+        other.maxProperties?.let { maxProperties = it }
+        other.minProperties?.let { minProperties = it }
 
         if (myRequired != null && other.myRequired != null) {
             val set = HashSet<String>(myRequired!!.size + other.myRequired!!.size)
@@ -287,8 +330,10 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
             myRequired = set
         }
 
-        // TODO: merge myPropertyDependencies when added
-        // TODO: merge mySchemaDependencies when added
+        propertyDependencies =
+                copyMap(propertyDependencies?.toMutableMap(), other.propertyDependencies?.toMutableMap())
+        schemaDependencies =
+                copyMap(schemaDependencies?.toMutableMap(), other.schemaDependencies?.toMutableMap())
         myEnumMetadata = copyMap(myEnumMetadata, other.myEnumMetadata)
 
         if (other.myEnum != null) {
@@ -635,12 +680,101 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
     }
 
     fun getTypeDescription(shortDesc: Boolean): String? {
-        TODO()
+        val type = type
+
+        if (type != null) {
+            return type.description
+        }
+
+        val possibleTypes = typeVariants
+
+        val description = getTypesDescription(shortDesc, possibleTypes)
+
+        if (description != null) {
+            return description
+        }
+
+        val anEnum = enum
+
+        if (anEnum != null) {
+            return if (shortDesc) {
+                "enum"
+            } else {
+                anEnum.joinToString(" | ") { it.toString() }
+            }
+        }
+
+        return guessType()?.description
     }
 
     fun guessType(): CirJsonSchemaType? {
-        TODO()
+        val type = type
+
+        if (type != null) {
+            return type
+        }
+
+        val typeVariants = typeVariants
+
+        if (typeVariants != null) {
+            val size = typeVariants.size
+
+            if (size == 1) {
+                return typeVariants.first()
+            } else if (size >= 2) {
+                return null
+            }
+        }
+
+        // heuristic type detection based on the set of applied constraints
+        val hasObjectChecks = hasObjectChecks
+        val hasNumericChecks = hasNumericChecks
+        val hasStringChecks = hasStringChecks
+        val hasArrayChecks = hasArrayChecks
+
+        return if (hasObjectChecks && !hasNumericChecks && !hasStringChecks && !hasArrayChecks) {
+            CirJsonSchemaType._object
+        } else if (!hasObjectChecks && hasNumericChecks && !hasStringChecks && !hasArrayChecks) {
+            CirJsonSchemaType._number
+        } else if (!hasObjectChecks && !hasNumericChecks && hasStringChecks && !hasArrayChecks) {
+            CirJsonSchemaType._string
+        } else if (!hasObjectChecks && !hasNumericChecks && !hasStringChecks && hasArrayChecks) {
+            CirJsonSchemaType._array
+        } else {
+            null
+        }
     }
+
+    val hasObjectChecks: Boolean
+        get() {
+            return hasProperties || propertyNamesSchema != null || propertyDependencies != null || hasPatternProperties
+                    || required != null || minProperties != null || maxProperties != null
+        }
+
+    val hasProperties: Boolean
+        get() {
+            return propertyNames.isNotEmpty()
+        }
+
+    val hasPatternProperties: Boolean
+        get() = myPatternProperties != null
+
+    val hasNumericChecks: Boolean
+        get() {
+            return myPatternProperties != null || exclusiveMaximumNumber != null || exclusiveMinimumNumber != null
+                    || maximum != null || minimum != null
+        }
+
+    val hasStringChecks: Boolean
+        get() {
+            return pattern != null || format != null
+        }
+
+    val hasArrayChecks: Boolean
+        get() {
+            return isUniqueItem || containsSchema != null || itemsSchema != null || itemsSchemaList != null
+                    || minItems != null || maxItems != null
+        }
 
     fun resolveRefSchema(service: CirJsonSchemaService): CirJsonSchemaObject? {
         val ref = this.ref
@@ -678,6 +812,36 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
             CachedValueProvider.Result.create(ConcurrentHashMap(),
                     CirJsonDependencyModificationTracker.forProject(project))
         }
+    }
+
+    private class PropertyNamePattern(pattern: String) {
+
+        val pattern = StringUtil.unescapeBackSlashes(pattern)
+
+        val patternError: String?
+
+        private val myCompiledPattern: Pattern?
+
+        private val myValuePatternCache = CollectionFactory.createConcurrentWeakKeyWeakValueMap<String, Boolean>()
+
+        init {
+            val pair = compilePattern(pattern)
+            patternError = pair.second
+            myCompiledPattern = pair.first
+        }
+
+        fun checkByPattern(name: String): Boolean {
+            patternError ?: return true
+
+            if (myValuePatternCache[name] == true) {
+                return true
+            }
+
+            val matches = matchPatter(myCompiledPattern!!, name)
+            myValuePatternCache[name] = matches
+            return matches
+        }
+
     }
 
     private class PatternProperties(schemasMap: Map<String, CirJsonSchemaObject>) {

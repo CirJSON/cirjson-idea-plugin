@@ -14,6 +14,7 @@ import com.intellij.psi.PsiManager
 import com.intellij.util.AstLoadingFilter
 import com.intellij.util.containers.ContainerUtil
 import org.cirjson.plugin.idea.CirJsonBundle
+import org.cirjson.plugin.idea.schema.CirJsonPointerUtil
 import org.cirjson.plugin.idea.schema.extension.CirJsonLikePsiWalker
 import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonArrayValueAdapter
 import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonObjectValueAdapter
@@ -137,33 +138,49 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             }
             this["default"] = createDefault()
             // TODO example when added
-            // TODO format when added
+            this["format"] = createFromStringValue { obj, s -> obj.format = s }
             this[CirJsonSchemaObject.DEFINITIONS] = createDefinitionsConsumer()
             this[CirJsonSchemaObject.DEFINITIONS_v9] = createDefinitionsConsumer()
             this[CirJsonSchemaObject.PROPERTIES] = createPropertiesConsumer()
-            // TODO multipleOf when added
-            // TODO maximum when added
-            // TODO minimum when added
-            // TODO exclusiveMaximum when added
-            // TODO exclusiveMinimum when added
+            this["multipleOf"] = createFromNumber { obj, i -> obj.multipleOf = i }
+            this["maximum"] = createFromNumber { obj, i -> obj.multipleOf = i }
+            this["minimum"] = createFromNumber { obj, i -> obj.multipleOf = i }
+            this["exclusiveMaximum"] = MyReader { element, obj, _, _ ->
+                if (element.isBooleanLiteral) {
+                    obj.exclusiveMaximum = getBoolean(element)
+                } else if (element.isNumberLiteral) {
+                    obj.exclusiveMaximumNumber = getNumber(element)
+                }
+            }
+            this["exclusiveMinimum"] = MyReader { element, obj, _, _ ->
+                if (element.isBooleanLiteral) {
+                    obj.exclusiveMinimum = getBoolean(element)
+                } else if (element.isNumberLiteral) {
+                    obj.exclusiveMinimumNumber = getNumber(element)
+                }
+            }
             // TODO maxLength when added
             // TODO minLength when added
-            // TODO pattern when added
+            this["pattern"] = createFromStringValue { obj, s -> obj.pattern = s }
             this[CirJsonSchemaObject.ADDITIONAL_ITEMS] = createAdditionalItems()
             this[CirJsonSchemaObject.ITEMS] = createItems()
-            // TODO contains when added
-            // TODO maxItems when added
-            // TODO minItems when added
-            // TODO uniqueItems when added
-            // TODO maxProperties when added
-            // TODO minProperties when added
+            this["contains"] = createContains()
+            this["maxItems"] = createFromInteger { obj, i -> obj.maxItems = i }
+            this["minItems"] = createFromInteger { obj, i -> obj.minItems = i }
+            this["uniqueItems"] = MyReader { element, obj, _, _ ->
+                if (element.isBooleanLiteral) {
+                    obj.uniqueItems = getBoolean(element)
+                }
+            }
+            this["maxProperties"] = createFromInteger { obj, i -> obj.maxProperties = i }
+            this["minProperties"] = createFromInteger { obj, i -> obj.minProperties = i }
             this["required"] = createRequired()
             this["additionalProperties"] = createAdditionalProperties()
             this["propertyNames"] =
                     createFromObject("propertyNames") { obj, schema -> obj.propertyNamesSchema = schema }
             // TODO propertyNames when added
             // TODO patternProperties when added
-            // TODO dependencies when added
+            this["propertyNames"] = createDependencies()
             this["enum"] = createEnum()
             this["type"] = createType()
             this["allOf"] = createContainer { obj, members -> obj.allOf = members }
@@ -394,6 +411,46 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             }
         }
 
+        private fun createDependencies(): MyReader {
+            return MyReader { element, obj, queue, virtualFile ->
+                if (element !is CirJsonObjectValueAdapter) {
+                    return@MyReader
+                }
+
+                val propertyDependencies = hashMapOf<String, List<String>>()
+                val schemaDependencies = hashMapOf<String, CirJsonSchemaObject>()
+
+                val list = element.propertyList
+
+                for (property in list) {
+                    val escapedName = CirJsonPointerUtil.escapeForCirJsonPointer(StringUtil.notNullize(property.name))
+                    val values = property.values
+
+                    if (values.size != 1) {
+                        continue
+                    }
+
+                    val value = values.firstOrNull() ?: continue
+
+                    if (value is CirJsonArrayValueAdapter) {
+                        val dependencies = value.elements.filter(notEmptyString())
+                                .map { StringUtil.unquoteString(it.delegate.text) }.toList()
+
+                        if (dependencies.isNotEmpty()) {
+                            propertyDependencies[property.name!!] = dependencies
+                        }
+                    } else if (value.isObject) {
+                        val newPointer = getNewPointer("dependencies/$escapedName", obj.pointer)
+                        schemaDependencies[property.name!!] =
+                                enqueue(queue, CirJsonSchemaObject(virtualFile, newPointer), value)
+                    }
+                }
+
+                obj.propertyDependencies = propertyDependencies
+                obj.schemaDependencies = schemaDependencies
+            }
+        }
+
         private fun notEmptyString(): (CirJsonValueAdapter) -> Boolean {
             return { it.isStringLiteral && !StringUtil.isEmptyOrSpaces(it.delegate.text) }
         }
@@ -447,6 +504,16 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
                 if (element.isObject) {
                     obj.definitionsMap =
                             readInnerObject(getNewPointer("definitions", obj.pointer), element, queue, virtualFile)
+                }
+            }
+        }
+
+        private fun createContains(): MyReader {
+            return MyReader { element, obj, queue, virtualFile ->
+                if (element.isObject) {
+                    obj.containsSchema =
+                            enqueue(queue, CirJsonSchemaObject(virtualFile, getNewPointer("contains", obj.pointer)),
+                                    element)
                 }
             }
         }

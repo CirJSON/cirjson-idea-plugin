@@ -159,8 +159,8 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
                     obj.exclusiveMinimumNumber = getNumber(element)
                 }
             }
-            // TODO maxLength when added
-            // TODO minLength when added
+            this["maxLength"] = createFromInteger { obj, i -> obj.maxLength = i }
+            this["minLength"] = createFromInteger { obj, i -> obj.minLength = i }
             this["pattern"] = createFromStringValue { obj, s -> obj.pattern = s }
             this[CirJsonSchemaObject.ADDITIONAL_ITEMS] = createAdditionalItems()
             this[CirJsonSchemaObject.ITEMS] = createItems()

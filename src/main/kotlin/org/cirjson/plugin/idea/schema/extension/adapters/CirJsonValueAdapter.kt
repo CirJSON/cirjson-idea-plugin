@@ -4,6 +4,9 @@ import com.intellij.psi.PsiElement
 
 interface CirJsonValueAdapter {
 
+    val shouldBeIgnored: Boolean
+        get() = false
+
     val isObject: Boolean
 
     val isArray: Boolean

@@ -83,6 +83,10 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
 
     var exclusiveMinimumNumber: Number? = null
 
+    var maxLength: Int? = null
+
+    var minLength: Int? = null
+
     private var myAdditionalPropertiesAllowed: Boolean? = null
 
     private var myAdditionalPropertiesNotAllowedFor: MutableSet<String>? = null
@@ -281,6 +285,8 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
         other.minimum?.let { minimum = it }
         other.exclusiveMinimumNumber?.let { exclusiveMinimumNumber = it }
         exclusiveMinimum = exclusiveMinimum || other.exclusiveMaximum
+        other.maxLength?.let { maxLength = it }
+        other.minLength?.let { minLength = it }
         // TODO: merge myMaxLength when added
         // TODO: merge myMinLength when added
         other.myPattern?.let { myPattern = it }

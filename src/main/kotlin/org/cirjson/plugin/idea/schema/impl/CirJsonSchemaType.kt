@@ -1,5 +1,6 @@
 package org.cirjson.plugin.idea.schema.impl
 
+import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonValueAdapter
 import java.math.BigInteger
 
 enum class CirJsonSchemaType {
@@ -42,6 +43,18 @@ enum class CirJsonSchemaType {
                 } catch (_: NumberFormatException) {
                     null
                 }
+            }
+        }
+
+        fun getType(value: CirJsonValueAdapter): CirJsonSchemaType? {
+            return when {
+                value.isNull -> _null
+                value.isBooleanLiteral -> _boolean
+                value.isStringLiteral -> if (value.isNumberLiteral) _string_number else _string
+                value.isArray -> _array
+                value.isObject -> _object
+                value.isNumberLiteral -> if (isInteger(value.delegate.text)) _integer else _number
+                else -> null
             }
         }
 

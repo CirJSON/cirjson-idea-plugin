@@ -1,5 +1,6 @@
 package org.cirjson.plugin.idea.schema.remote
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
@@ -7,17 +8,49 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.impl.http.HttpVirtualFile
+import com.intellij.openapi.vfs.impl.http.RemoteFileManager
 import com.intellij.util.containers.ContainerUtil
 import org.cirjson.plugin.idea.schema.CirJsonSchemaCatalogEntry
 import org.cirjson.plugin.idea.schema.CirJsonSchemaCatalogProjectConfiguration
+import org.cirjson.plugin.idea.schema.CirJsonSchemaService
 import org.cirjson.plugin.idea.schema.impl.CirJsonCachedValues
 import java.nio.file.*
 
 class CirJsonSchemaCatalogManager(private val myProject: Project) {
 
+    private val myRemoteContentProvider = CirJsonSchemaRemoteContentProvider()
+
     private var myCatalog: VirtualFile? = null
 
     private var myResolvedMappings = ContainerUtil.createConcurrentSoftMap<VirtualFile, String>()
+
+    private var myTestSchemaStoreFile: VirtualFile? = null
+
+    fun startUpdates() {
+        CirJsonSchemaCatalogProjectConfiguration.getInstance(myProject).addChangeHandler {
+            update()
+            CirJsonSchemaService.get(myProject).reset()
+        }
+
+        val instance = RemoteFileManager.getInstance()
+        instance.addRemoteContentProvider(myRemoteContentProvider)
+        update()
+    }
+
+    private fun update() {
+        val application = ApplicationManager.getApplication()
+
+        if (application.isUnitTestMode) {
+            myCatalog = myTestSchemaStoreFile
+            return
+        }
+
+        myCatalog = if (CirJsonFileResolver.isRemoteEnabled(myProject)) {
+            CirJsonFileResolver.urlToFile(DEFAULT_CATALOG)
+        } else {
+            null
+        }
+    }
 
     fun getSchemaFileForFile(file: VirtualFile): VirtualFile? {
         if (!CirJsonSchemaCatalogProjectConfiguration.getInstance(myProject).isCatalogEnabled) {
@@ -51,6 +84,12 @@ class CirJsonSchemaCatalogManager(private val myProject: Project) {
         return CirJsonFileResolver.resolveSchemaByReference(file, schemaUrl)
     }
 
+    val allCatalogEntries: List<CirJsonSchemaCatalogEntry>
+        get() {
+            myCatalog ?: return emptyList()
+            return CirJsonCachedValues.getSchemaCatalog(myCatalog!!, myProject) ?: emptyList()
+        }
+
     private class FileMatcher(val myEntry: CirJsonSchemaCatalogEntry) {
 
         private var myMatcher: PathMatcher? = null
@@ -82,6 +121,10 @@ class CirJsonSchemaCatalogManager(private val myProject: Project) {
     }
 
     companion object {
+
+        const val DEFAULT_CATALOG: String = "http://cirjson.org/api/catalog.cirjson"
+
+        const val DEFAULT_CATALOG_HTTPS: String = "https://cirjson.org/api/catalog.cirjson"
 
         private const val NO_CACHE = "\$_\$_WS_NO_CACHE_\$_\$"
 

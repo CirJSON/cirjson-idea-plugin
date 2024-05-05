@@ -15,16 +15,19 @@ class CirJsonFileType private constructor() : LanguageFileType(CirJsonLanguage.I
     }
 
     override fun getDefaultExtension(): String {
-        return "rpy"
+        return DEFAULT_EXTENSION
     }
 
     override fun getIcon(): Icon {
         return CirJsonIcons.ICON
     }
 
+    @Suppress("CompanionObjectInExtension")
     companion object {
 
         val INSTANCE = CirJsonFileType()
+
+        const val DEFAULT_EXTENSION = "cirjson"
 
     }
 

@@ -22,15 +22,14 @@ import com.intellij.psi.PsiManager
 import com.intellij.util.SmartList
 import com.intellij.util.concurrency.SynchronizedClearableLazy
 import com.intellij.util.containers.ContainerUtil
-import org.cirjson.plugin.idea.schema.CirJsonPointerUtil
-import org.cirjson.plugin.idea.schema.CirJsonSchemaCatalogProjectConfiguration
-import org.cirjson.plugin.idea.schema.CirJsonSchemaMappingsProjectConfiguration
-import org.cirjson.plugin.idea.schema.CirJsonSchemaService
+import org.cirjson.plugin.idea.schema.*
 import org.cirjson.plugin.idea.schema.extension.*
 import org.cirjson.plugin.idea.schema.remote.CirJsonFileResolver
+import org.cirjson.plugin.idea.schema.remote.CirJsonSchemaCatalogExclusion
 import org.cirjson.plugin.idea.schema.remote.CirJsonSchemaCatalogManager
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
+import java.util.function.Consumer
 
 open class CirJsonSchemaServiceImpl(final override val project: Project) : CirJsonSchemaService, ModificationTracker,
         Disposable {
@@ -53,12 +52,23 @@ open class CirJsonSchemaServiceImpl(final override val project: Project) : CirJs
 
     private val myAnyChangeCount = AtomicLong(0)
 
+    private val mySchemaUpdater =
+            CirJsonSchemaVfsListener.startListening(project, this, project.messageBus.connect(this).apply {
+                subscribe(CirJsonSchemaVfsListener.CIRJSON_SCHEMA_CHANGED,
+                        Runnable { myAnyChangeCount.incrementAndGet() })
+                subscribe(CirJsonSchemaVfsListener.CIRJSON_DEPS_CHANGED, Runnable {
+                    myRefs.clear()
+                    myAnyChangeCount.incrementAndGet()
+                })
+            })
+
     private val myResetActions = ContainerUtil.createConcurrentList<Runnable>()
 
     init {
         CirJsonSchemaProviderFactory.EP_NAME.addChangeListener(this::reset, this)
         CirJsonSchemaEnabler.EXTENSION_POINT_NAME.addChangeListener(this::reset, this)
-        // TODO continue when needed
+        CirJsonSchemaCatalogExclusion.EP_NAME.addChangeListener(this::reset, this)
+        myCatalogManager.startUpdates()
     }
 
     override fun getModificationCount(): Long {
@@ -285,6 +295,10 @@ open class CirJsonSchemaServiceImpl(final override val project: Project) : CirJs
         myRefs.add(realRef)
     }
 
+    override fun possiblyHasReference(ref: String): Boolean {
+        return ref in myRefs
+    }
+
     override fun getSchemaObject(file: VirtualFile): CirJsonSchemaObject? {
         val schemas = getSchemasForFile(file, single = true, onlyUserSchemas = false)
 
@@ -382,7 +396,46 @@ open class CirJsonSchemaServiceImpl(final override val project: Project) : CirJs
 
     override val allUserVisibleSchemas: List<CirJsonSchemaInfo>
         get() {
-            TODO()
+            val schemas = myCatalogManager.allCatalogEntries
+            val map = myState.myData.value
+            val results = ArrayList<CirJsonSchemaInfo>(schemas.size + map.size)
+            val processedRemotes = HashMap<String, CirJsonSchemaInfo>()
+            myState.processProviders { provider ->
+                if (!provider.isUserVisible) {
+                    return@processProviders
+                }
+
+                val remoteSource = provider.remoteSource
+
+                if (remoteSource != null) {
+                    if (remoteSource !in processedRemotes.keys) {
+                        val info = CirJsonSchemaInfo(provider)
+                        processedRemotes[remoteSource] = info
+                        results.add(info)
+                    }
+                } else {
+                    results.add(CirJsonSchemaInfo(provider))
+                }
+            }
+
+            for (schema in schemas) {
+                val url = schema.url
+
+                if (url !in processedRemotes.keys) {
+                    val info = CirJsonSchemaInfo(url)
+                    schema.description?.let { info.documentation = it }
+                    schema.name?.let { info.name = it }
+                    results.add(info)
+                } else {
+                    // use documentation from schema catalog for bundled schemas if possible. We don't have our own
+                    // docs, so let's reuse the existing docs from the catalog
+                    val info = processedRemotes[url]!!
+                    schema.description?.let { info.documentation = it }
+                    schema.name?.let { info.name = it }
+                }
+            }
+
+            return results
         }
 
     override fun isApplicableToFile(file: VirtualFile?): Boolean {
@@ -405,6 +458,18 @@ open class CirJsonSchemaServiceImpl(final override val project: Project) : CirJs
 
         fun reset() {
             myData.drop()
+        }
+
+        fun processProviders(consumer: Consumer<CirJsonSchemaFileProvider>) {
+            val map = myData.value
+
+            if (map.isEmpty()) {
+                return
+            }
+
+            for (providers in map.values) {
+                providers.forEach(consumer)
+            }
         }
 
         val files: Set<VirtualFile>

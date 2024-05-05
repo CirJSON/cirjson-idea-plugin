@@ -28,6 +28,10 @@ open class CirJsonSchemaCatalogProjectConfiguration :
             return state != null && state.myIsPreferRemoteSchemas
         }
 
+    fun addChangeHandler(runnable: Runnable) {
+        myChangeHandlers.add(runnable)
+    }
+
     override fun getState(): MyState? {
         return myState
     }

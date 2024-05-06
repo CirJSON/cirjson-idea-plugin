@@ -20,7 +20,7 @@ import java.util.stream.Collectors
 class CirJsonSchemaAnnotatorChecker(private val myProject: Project,
         private val myOptions: CirJsonComplianceCheckerOptions) : CirJsonValidationHost {
 
-    private val myErrors = HashMap<PsiElement, CirJsonValidationError>()
+    val errors = HashMap<PsiElement, CirJsonValidationError>()
 
     var hadTypeError = false
 
@@ -34,11 +34,11 @@ class CirJsonSchemaAnnotatorChecker(private val myProject: Project,
 
     override fun error(error: String, holder: PsiElement, fixableIssueKind: CirJsonValidationError.FixableIssueKind,
             data: CirJsonValidationError.IssueData?, priority: CirJsonErrorPriority) {
-        if (holder in myErrors) {
+        if (holder in errors) {
             return
         }
 
-        myErrors[holder] = CirJsonValidationError(error, fixableIssueKind, data, priority)
+        errors[holder] = CirJsonValidationError(error, fixableIssueKind, data, priority)
     }
 
     override fun typeError(value: PsiElement, currentType: CirJsonSchemaType?, vararg allowedTypes: CirJsonSchemaType) {
@@ -77,7 +77,7 @@ class CirJsonSchemaAnnotatorChecker(private val myProject: Project,
     }
 
     override val isValid: Boolean
-        get() = myErrors.isNotEmpty() && !hadTypeError
+        get() = errors.isNotEmpty() && !hadTypeError
 
     fun checkByScheme(value: CirJsonValueAdapter, schema: CirJsonSchemaObject) {
         val type = CirJsonSchemaType.getType(value)
@@ -89,7 +89,7 @@ class CirJsonSchemaAnnotatorChecker(private val myProject: Project,
 
     val isCorrect: Boolean
         get() {
-            return myErrors.isEmpty()
+            return errors.isEmpty()
         }
 
     private fun processOneOf(value: CirJsonValueAdapter, oneOf: List<CirJsonSchemaObject>): CirJsonSchemaObject? {
@@ -168,14 +168,14 @@ class CirJsonSchemaAnnotatorChecker(private val myProject: Project,
                 .minWithOrNull(Comparator.comparingInt { it.ordinal })
         val min = (minAverage ?: AverageFailureAmount.Hard).ordinal
 
-        val minErrorCount = candidateErroneousCheckers.map { it.myErrors.size }.minOrNull() ?: Int.MAX_VALUE
+        val minErrorCount = candidateErroneousCheckers.map { it.errors.size }.minOrNull() ?: Int.MAX_VALUE
 
         val errorsWithMinAverage = MultiMap<PsiElement, CirJsonValidationError>()
         var allErrors = MultiMap<PsiElement, CirJsonValidationError>()
 
         for (i in candidateErroneousCheckers.indices) {
             val checker = candidateErroneousCheckers[i]
-            val isMoreThanMinErrors = checker.myErrors.size > minErrorCount
+            val isMoreThanMinErrors = checker.errors.size > minErrorCount
             val isMoreThanAverage = getAverageFailureAmount(checker).ordinal > min
 
             if (!isMoreThanMinErrors) {
@@ -185,7 +185,7 @@ class CirJsonSchemaAnnotatorChecker(private val myProject: Project,
                     current = candidateErroneousSchemas[i]
                 }
 
-                for (entry in checker.myErrors) {
+                for (entry in checker.errors) {
                     val insertedIn = if (isMoreThanAverage) errorsWithMinAverage else allErrors
                     insertedIn[entry.key] = entry.value
                 }
@@ -383,7 +383,7 @@ class CirJsonSchemaAnnotatorChecker(private val myProject: Project,
             val checker = CirJsonSchemaAnnotatorChecker(project, options)
 
             for (ch in list) {
-                for (element in ch.myErrors) {
+                for (element in ch.errors) {
                     val error = element.value
 
                     if (error.fixableIssueKind == CirJsonValidationError.FixableIssueKind.ProhibitedProperty) {
@@ -405,7 +405,7 @@ class CirJsonSchemaAnnotatorChecker(private val myProject: Project,
                         }
                     }
 
-                    checker.myErrors[element.key] = error
+                    checker.errors[element.key] = error
                 }
             }
 
@@ -498,7 +498,7 @@ class CirJsonSchemaAnnotatorChecker(private val myProject: Project,
             var hasMedium = false
             var hasMissing = false
             var hasHard = false
-            val values = checker.myErrors.values
+            val values = checker.errors.values
 
             for (value in values) {
                 when (value.priority) {

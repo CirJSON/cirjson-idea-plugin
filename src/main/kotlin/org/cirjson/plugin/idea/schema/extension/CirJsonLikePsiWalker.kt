@@ -63,6 +63,10 @@ interface CirJsonLikePsiWalker {
     val hasWhitespaceDelimitedCodeBlocks: Boolean
         get() = false
 
+    fun getNodeTextForValidation(element: PsiElement): String {
+        return element.text
+    }
+
     fun getPropertyValueSeparator(valueType: CirJsonSchemaType?): String {
         return ":"
     }

@@ -182,6 +182,9 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             // TODO patternProperties when added
             this["propertyNames"] = createDependencies()
             this["enum"] = createEnum()
+            this["const"] = MyReader { element, obj, _, _ ->
+                obj.enum = ContainerUtil.createMaybeSingletonList(readEnumValue(element))
+            }
             this["type"] = createType()
             this["allOf"] = createContainer { obj, members -> obj.allOf = members }
             this["anyOf"] = createContainer { obj, members -> obj.anyOf = members }
@@ -190,8 +193,8 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             this["if"] = createFromObject("if") { obj, members -> obj.`if` = members }
             this["then"] = createFromObject("then") { obj, members -> obj.then = members }
             this["else"] = createFromObject("else") { obj, members -> obj.`else` = members }
-            // TODO instanceof when added
-            // TODO typeof when added
+            this["instanceof"] = MyReader { _, obj, _, _ -> obj.shouldValidateAgainstJSType = true }
+            this["typeof"] = MyReader { _, obj, _, _ -> obj.shouldValidateAgainstJSType = true }
         }
 
         fun readFromFile(project: Project, file: VirtualFile): CirJsonSchemaObject {

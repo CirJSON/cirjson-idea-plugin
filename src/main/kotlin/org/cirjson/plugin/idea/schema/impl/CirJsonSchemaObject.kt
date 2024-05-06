@@ -14,6 +14,7 @@ import com.intellij.psi.util.CachedValuesManager
 import com.intellij.util.ObjectUtils
 import com.intellij.util.containers.CollectionFactory
 import com.intellij.util.containers.ContainerUtil
+import org.cirjson.plugin.idea.extentions.kotlin.trueOrNull
 import org.cirjson.plugin.idea.schema.CirJsonDependencyModificationTracker
 import org.cirjson.plugin.idea.schema.CirJsonPointerUtil
 import org.cirjson.plugin.idea.schema.CirJsonSchemaService
@@ -141,6 +142,8 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
     private var myThen: CirJsonSchemaObject? = null
 
     private var myElse: CirJsonSchemaObject? = null
+
+    var shouldValidateAgainstJSType = false
 
     private var myIsValidByExclusion = true
 
@@ -355,14 +358,14 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
         }
 
         if (other.myIfThenElse != null) {
-            if (myIfThenElse == null) {
-                myIfThenElse = other.myIfThenElse
+            myIfThenElse = if (myIfThenElse == null) {
+                other.myIfThenElse
             } else {
-                myIfThenElse = ContainerUtil.concat(myIfThenElse!!, other.myIfThenElse!!)
+                ContainerUtil.concat(myIfThenElse!!, other.myIfThenElse!!)
             }
         }
 
-        // TODO: merge myShouldValidateAgainstJSType when added
+        shouldValidateAgainstJSType = shouldValidateAgainstJSType || other.shouldValidateAgainstJSType
         // TODO: merge myLanguageInjection when added
         // TODO: merge myForceCaseInsensitive when added
     }
@@ -398,6 +401,12 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
             if (myAdditionalPropertiesAllowed == false) {
                 addAdditionalPropsNotAllowedFor(fileUrl!!, pointer)
             }
+        }
+
+    val hasOwnExtraPropertyProhibition: Boolean
+        get() {
+            return additionalPropertiesAllowed == false
+                    && (myAdditionalPropertiesNotAllowedFor?.contains(fileUrl + pointer).trueOrNull())
         }
 
     private fun addAdditionalPropsNotAllowedFor(url: String, pointer: String) {

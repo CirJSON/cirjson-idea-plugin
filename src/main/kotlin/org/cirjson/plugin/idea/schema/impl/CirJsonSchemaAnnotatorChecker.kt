@@ -10,6 +10,7 @@ import com.intellij.util.containers.MultiMap
 import com.intellij.util.containers.stream
 import org.cirjson.plugin.idea.CirJsonBundle
 import org.cirjson.plugin.idea.extentions.intellij.set
+import org.cirjson.plugin.idea.pointer.CirJsonPointerPosition
 import org.cirjson.plugin.idea.schema.extension.CirJsonErrorPriority
 import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaValidation
 import org.cirjson.plugin.idea.schema.extension.CirJsonValidationHost
@@ -71,9 +72,26 @@ class CirJsonSchemaAnnotatorChecker(private val myProject: Project,
         hadTypeError = true
     }
 
+    override fun resolve(schemaObject: CirJsonSchemaObject): MatchResult {
+        return CirJsonSchemaResolver(myProject, schemaObject).detailedResolve()
+    }
+
     override fun checkByMatchResult(adapter: CirJsonValueAdapter, result: MatchResult,
             options: CirJsonComplianceCheckerOptions) {
         checkByMatchResult(myProject, adapter, result, options)
+    }
+
+    override fun checkObjectBySchemaRecordErrors(schema: CirJsonSchemaObject, obj: CirJsonValueAdapter) {
+        checkObjectBySchemaRecordErrors(schema, obj, CirJsonPointerPosition())
+    }
+
+    fun checkObjectBySchemaRecordErrors(schema: CirJsonSchemaObject, obj: CirJsonValueAdapter,
+            position: CirJsonPointerPosition) {
+        checkByMatchResult(myProject, obj, CirJsonSchemaResolver(myProject, schema, position).detailedResolve(),
+                myOptions)?.let {
+            hadTypeError = it.hadTypeError
+            errors.putAll(it.errors)
+        }
     }
 
     override val isValid: Boolean

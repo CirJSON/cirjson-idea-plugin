@@ -2,10 +2,7 @@ package org.cirjson.plugin.idea.schema.extension
 
 import com.intellij.psi.PsiElement
 import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonValueAdapter
-import org.cirjson.plugin.idea.schema.impl.CirJsonComplianceCheckerOptions
-import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaType
-import org.cirjson.plugin.idea.schema.impl.CirJsonValidationError
-import org.cirjson.plugin.idea.schema.impl.MatchResult
+import org.cirjson.plugin.idea.schema.impl.*
 
 interface CirJsonValidationHost {
 
@@ -18,7 +15,11 @@ interface CirJsonValidationHost {
 
     fun typeError(value: PsiElement, currentType: CirJsonSchemaType?, vararg allowedTypes: CirJsonSchemaType)
 
+    fun resolve(schemaObject: CirJsonSchemaObject): MatchResult
+
     fun checkByMatchResult(adapter: CirJsonValueAdapter, result: MatchResult, options: CirJsonComplianceCheckerOptions)
+
+    fun checkObjectBySchemaRecordErrors(schema: CirJsonSchemaObject, obj: CirJsonValueAdapter)
 
     val isValid: Boolean
 

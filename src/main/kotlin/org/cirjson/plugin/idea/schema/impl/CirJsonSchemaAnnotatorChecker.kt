@@ -77,8 +77,8 @@ class CirJsonSchemaAnnotatorChecker(private val myProject: Project,
     }
 
     override fun checkByMatchResult(adapter: CirJsonValueAdapter, result: MatchResult,
-            options: CirJsonComplianceCheckerOptions) {
-        checkByMatchResult(myProject, adapter, result, options)
+            options: CirJsonComplianceCheckerOptions): CirJsonValidationHost? {
+        return checkByMatchResult(myProject, adapter, result, options)
     }
 
     override fun checkObjectBySchemaRecordErrors(schema: CirJsonSchemaObject, obj: CirJsonValueAdapter) {

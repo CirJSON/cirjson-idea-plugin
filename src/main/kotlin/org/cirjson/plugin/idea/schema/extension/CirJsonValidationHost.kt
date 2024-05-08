@@ -17,7 +17,8 @@ interface CirJsonValidationHost {
 
     fun resolve(schemaObject: CirJsonSchemaObject): MatchResult
 
-    fun checkByMatchResult(adapter: CirJsonValueAdapter, result: MatchResult, options: CirJsonComplianceCheckerOptions)
+    fun checkByMatchResult(adapter: CirJsonValueAdapter, result: MatchResult,
+            options: CirJsonComplianceCheckerOptions): CirJsonValidationHost?
 
     fun checkObjectBySchemaRecordErrors(schema: CirJsonSchemaObject, obj: CirJsonValueAdapter)
 

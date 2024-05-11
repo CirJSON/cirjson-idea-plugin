@@ -335,7 +335,7 @@ class CirJsonSchemaAnnotatorChecker(private val myProject: Project,
             return Pair.create(selected, checker)
         }
 
-        private fun getExpectedTypes(schemas: Collection<CirJsonSchemaObject>): Array<CirJsonSchemaType> {
+        fun getExpectedTypes(schemas: Collection<CirJsonSchemaObject>): Array<CirJsonSchemaType> {
             val list = arrayListOf<CirJsonSchemaType>()
 
             for (schema in schemas) {

@@ -14,6 +14,7 @@ import com.intellij.psi.util.CachedValuesManager
 import com.intellij.util.ObjectUtils
 import com.intellij.util.containers.CollectionFactory
 import com.intellij.util.containers.ContainerUtil
+import org.cirjson.plugin.idea.extentions.kotlin.orFalse
 import org.cirjson.plugin.idea.extentions.kotlin.trueOrNull
 import org.cirjson.plugin.idea.schema.CirJsonDependencyModificationTracker
 import org.cirjson.plugin.idea.schema.CirJsonPointerUtil
@@ -599,6 +600,13 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
     fun getMatchingPatternPropertySchema(name: String): CirJsonSchemaObject? {
         return myPatternProperties?.getPatternPropertySchema(name)
     }
+
+    fun checkByPattern(value: String): Boolean {
+        return myPattern?.checkByPattern(value).orFalse()
+    }
+
+    val patternError: String?
+        get() = myPattern?.patternError
 
     val propertyNames: Set<String>
         get() {

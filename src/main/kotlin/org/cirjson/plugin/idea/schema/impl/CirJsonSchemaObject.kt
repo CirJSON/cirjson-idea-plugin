@@ -153,6 +153,8 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
 
     private var myEnumMetadata: MutableMap<String, Map<String, String>>? = null
 
+    var isForceCaseInsensitive = false
+
     private val myUserDataHolder = UserDataHolderBase()
 
     constructor(file: VirtualFile?, pointer: String) : this(
@@ -367,7 +369,7 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
 
         shouldValidateAgainstJSType = shouldValidateAgainstJSType || other.shouldValidateAgainstJSType
         // TODO: merge myLanguageInjection when added
-        // TODO: merge myForceCaseInsensitive when added
+        isForceCaseInsensitive = isForceCaseInsensitive || other.isForceCaseInsensitive
     }
 
     var definitionsMap: Map<String, CirJsonSchemaObject>?

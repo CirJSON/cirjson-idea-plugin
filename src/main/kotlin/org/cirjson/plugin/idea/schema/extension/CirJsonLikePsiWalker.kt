@@ -31,6 +31,8 @@ interface CirJsonLikePsiWalker {
     val isRequiringValueQuote: Boolean
         get() = true
 
+    val isAllowingSingleQuotes: Boolean
+
     fun isValidIdentifier(string: String, project: Project): Boolean = true
 
     fun isQuotedString(element: PsiElement): Boolean {

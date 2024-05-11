@@ -124,7 +124,11 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             // TODO injectionMetadata when added
             this[CirJsonSchemaObject.X_INTELLIJ_LANGUAGE_INJECTION] =
                     MyReader { element, obj, _, _ -> readEnumMetadata(element, obj) }
-            // TODO forceCaseInsensitive when added
+            this[CirJsonSchemaObject.X_INTELLIJ_LANGUAGE_INJECTION] = MyReader { element, obj, _, _ ->
+                if (element.isBooleanLiteral) {
+                    obj.isForceCaseInsensitive = getBoolean(element)
+                }
+            }
             // TODO title when added
             this["\$ref"] = createFromStringValue { obj, s -> obj.ref = s }
             this["\$recursiveRef"] = createFromStringValue { obj, s ->

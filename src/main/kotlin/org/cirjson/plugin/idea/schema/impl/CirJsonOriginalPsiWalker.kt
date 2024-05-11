@@ -124,6 +124,8 @@ class CirJsonOriginalPsiWalker private constructor() : CirJsonLikePsiWalker {
     override val isRequiringNameQuote: Boolean
         get() = true
 
+    override val isAllowingSingleQuotes: Boolean = false
+
     override fun isQuotedString(element: PsiElement): Boolean {
         return element is CirJsonStringLiteral
     }

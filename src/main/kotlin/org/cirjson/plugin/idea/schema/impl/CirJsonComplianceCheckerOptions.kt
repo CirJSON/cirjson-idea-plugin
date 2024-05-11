@@ -8,6 +8,10 @@ class CirJsonComplianceCheckerOptions(val isCaseInsensitiveEnumCheck: Boolean, v
     constructor(isCaseInsensitiveEnumCheck: Boolean, isForceStrict: Boolean) : this(isCaseInsensitiveEnumCheck,
             isForceStrict, false)
 
+    fun withForceStrict(): CirJsonComplianceCheckerOptions {
+        return CirJsonComplianceCheckerOptions(isCaseInsensitiveEnumCheck, true)
+    }
+
     companion object {
 
         val RELAX_ENUM_CHECK = CirJsonComplianceCheckerOptions(isCaseInsensitiveEnumCheck = true, isForceStrict = false)

@@ -32,7 +32,7 @@ class CirJsonValidationError(val message: String, val fixableIssueKind: FixableI
 
     data class ProhibitedPropertyIssueData(val propertyName: String) : IssueData
 
-    data class TypeMismatchIssueData(val expectedTypes: Array<CirJsonSchemaType>) : IssueData {
+    data class TypeMismatchIssueData(val expectedTypes: Array<CirJsonSchemaType?>) : IssueData {
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

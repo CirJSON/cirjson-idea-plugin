@@ -12,6 +12,7 @@ import org.cirjson.plugin.idea.CirJsonBundle
 import org.cirjson.plugin.idea.extentions.intellij.set
 import org.cirjson.plugin.idea.pointer.CirJsonPointerPosition
 import org.cirjson.plugin.idea.schema.extension.CirJsonErrorPriority
+import org.cirjson.plugin.idea.schema.extension.CirJsonLikePsiWalker
 import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaValidation
 import org.cirjson.plugin.idea.schema.extension.CirJsonValidationHost
 import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonValueAdapter
@@ -58,14 +59,14 @@ class CirJsonSchemaAnnotatorChecker(private val myProject: Project,
             error("$prefix ${
                 CirJsonBundle.message("schema.validation.required.one", allowedTypes.first().name, currentTypeDesc)
             }", value, CirJsonValidationError.FixableIssueKind.ProhibitedType,
-                    CirJsonValidationError.TypeMismatchIssueData(allowedTypes as Array<CirJsonSchemaType>),
+                    CirJsonValidationError.TypeMismatchIssueData(allowedTypes as Array<CirJsonSchemaType?>),
                     CirJsonErrorPriority.TYPE_MISMATCH)
         } else {
             val typesText =
                     allowedTypes.map(CirJsonSchemaType::name).sortedWith(Comparator.naturalOrder()).joinToString(", ")
             error("$prefix ${CirJsonBundle.message("schema.validation.required.one", typesText, currentTypeDesc)}",
                     value, CirJsonValidationError.FixableIssueKind.ProhibitedType,
-                    CirJsonValidationError.TypeMismatchIssueData(allowedTypes as Array<CirJsonSchemaType>),
+                    CirJsonValidationError.TypeMismatchIssueData(allowedTypes as Array<CirJsonSchemaType?>),
                     CirJsonErrorPriority.TYPE_MISMATCH)
         }
 
@@ -596,7 +597,7 @@ class CirJsonSchemaAnnotatorChecker(private val myProject: Project,
                     val actualInfo = if (actualInfos.size == 1) " ${
                         CirJsonBundle.message("schema.validation.actual")
                     } ${actualInfos[0]}." else ""
-                    val required = allTypes.map { it.description }.sorted().joinToString(", ")
+                    val required = allTypes.map { it!!.description }.sorted().joinToString(", ")
                     val commonTypeMessage = "${CirJsonBundle.message("schema.validation.incompatible.types")}\n${
                         CirJsonBundle.message("schema.validation.required.one.of", required, actualInfo)
                     }"
@@ -624,6 +625,17 @@ class CirJsonSchemaAnnotatorChecker(private val myProject: Project,
             }
 
             return StringUtil.trimEnd(substring, ".")
+        }
+
+        fun getValue(propValue: PsiElement, schema: CirJsonSchemaObject): String? {
+            val walker = CirJsonLikePsiWalker.getWalker(propValue, schema)!!
+            val adapter = walker.createValueAdapter(propValue)
+
+            if (adapter != null && !adapter.shouldCheckAsValue) {
+                return null
+            }
+
+            return walker.getNodeTextForValidation(propValue)
         }
 
     }

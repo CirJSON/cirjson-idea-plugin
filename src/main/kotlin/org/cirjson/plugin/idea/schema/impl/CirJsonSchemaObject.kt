@@ -74,13 +74,13 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
 
     var maximum: Number? = null
 
-    var exclusiveMaximum: Boolean = false
+    var isExclusiveMaximum: Boolean = false
 
     var exclusiveMaximumNumber: Number? = null
 
     var minimum: Number? = null
 
-    var exclusiveMinimum: Boolean = false
+    var isExclusiveMinimum: Boolean = false
 
     var exclusiveMinimumNumber: Number? = null
 
@@ -286,10 +286,10 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
         other.multipleOf?.let { multipleOf = it }
         other.maximum?.let { maximum = it }
         other.exclusiveMaximumNumber?.let { exclusiveMaximumNumber = it }
-        exclusiveMaximum = exclusiveMaximum || other.exclusiveMaximum
+        isExclusiveMaximum = isExclusiveMaximum || other.isExclusiveMaximum
         other.minimum?.let { minimum = it }
         other.exclusiveMinimumNumber?.let { exclusiveMinimumNumber = it }
-        exclusiveMinimum = exclusiveMinimum || other.exclusiveMaximum
+        isExclusiveMinimum = isExclusiveMinimum || other.isExclusiveMaximum
         other.maxLength?.let { maxLength = it }
         other.minLength?.let { minLength = it }
         // TODO: merge myMaxLength when added

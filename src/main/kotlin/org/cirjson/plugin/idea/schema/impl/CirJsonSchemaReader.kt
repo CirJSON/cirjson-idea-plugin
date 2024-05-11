@@ -151,14 +151,14 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             this["minimum"] = createFromNumber { obj, i -> obj.multipleOf = i }
             this["exclusiveMaximum"] = MyReader { element, obj, _, _ ->
                 if (element.isBooleanLiteral) {
-                    obj.exclusiveMaximum = getBoolean(element)
+                    obj.isExclusiveMaximum = getBoolean(element)
                 } else if (element.isNumberLiteral) {
                     obj.exclusiveMaximumNumber = getNumber(element)
                 }
             }
             this["exclusiveMinimum"] = MyReader { element, obj, _, _ ->
                 if (element.isBooleanLiteral) {
-                    obj.exclusiveMinimum = getBoolean(element)
+                    obj.isExclusiveMinimum = getBoolean(element)
                 } else if (element.isNumberLiteral) {
                     obj.exclusiveMinimumNumber = getNumber(element)
                 }

@@ -1,5 +1,6 @@
 package org.cirjson.plugin.idea.schema.impl.adapters
 
+import com.intellij.psi.PsiElement
 import org.cirjson.plugin.idea.psi.CirJsonArray
 import org.cirjson.plugin.idea.psi.CirJsonObject
 import org.cirjson.plugin.idea.psi.CirJsonProperty
@@ -14,12 +15,17 @@ class CirJsonCirJsonPropertyAdapter(private val myProperty: CirJsonProperty) : C
     override val name: String
         get() = myProperty.name
 
+    override val nameValueAdapter: CirJsonValueAdapter
+        get() = createAdapterByType(myProperty.nameElement)
+
     override val values: Collection<CirJsonValueAdapter>
         get() {
             val value = myProperty.value ?: return emptyList()
 
             return Collections.singletonList(createAdapterByType(value))
         }
+
+    override val delegate: PsiElement = myProperty
 
     override val parentObject: CirJsonObjectValueAdapter?
         get() {

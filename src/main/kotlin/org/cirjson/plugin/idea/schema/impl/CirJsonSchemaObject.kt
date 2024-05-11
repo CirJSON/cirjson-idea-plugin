@@ -61,6 +61,8 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
             return field
         }
 
+    var example: Map<String, Any>? = null
+
     private var myRef: String? = null
 
     private var myRefIsRecursive = false
@@ -125,6 +127,13 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
     var propertyDependencies: Map<String, List<String>>? = null
 
     var schemaDependencies: Map<String, CirJsonSchemaObject>? = null
+
+    val schemaDependencyNames: Set<String>?
+        get() = schemaDependencies?.keys
+
+    fun getSchemaDependencyByName(name: String): CirJsonSchemaObject? {
+        return schemaDependencies?.get(name)
+    }
 
     private var myEnum: MutableList<Any>? = null
 
@@ -274,7 +283,7 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
             default = other.default
         }
 
-        // TODO: merge myExample when added
+        other.example?.let { example = it }
 
         if (other.myRef != null) {
             myRef = other.myRef

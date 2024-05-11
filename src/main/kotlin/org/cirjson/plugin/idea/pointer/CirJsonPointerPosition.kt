@@ -106,6 +106,10 @@ class CirJsonPointerPosition(val steps: MutableList<Step>) {
             return CirJsonPointerPosition(steps)
         }
 
+        fun createSingleProperty(property: String): CirJsonPointerPosition {
+            return CirJsonPointerPosition(ContainerUtil.createMaybeSingletonList(Step.createPropertyStep(property)))
+        }
+
     }
 
 }

@@ -98,6 +98,10 @@ class CirJsonSchemaAnnotatorChecker(private val myProject: Project,
     override val isValid: Boolean
         get() = errors.isNotEmpty() && !hadTypeError
 
+    override fun addErrorsFrom(otherHost: CirJsonValidationHost) {
+        errors.putAll((otherHost as CirJsonSchemaAnnotatorChecker).errors)
+    }
+
     fun checkByScheme(value: CirJsonValueAdapter, schema: CirJsonSchemaObject) {
         val type = CirJsonSchemaType.getType(value)
 

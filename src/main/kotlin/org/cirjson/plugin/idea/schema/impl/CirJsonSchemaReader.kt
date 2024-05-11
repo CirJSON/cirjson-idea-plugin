@@ -141,7 +141,7 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
                 }
             }
             this["default"] = createDefault()
-            // TODO example when added
+            this["example"] = createExampleConsumer()
             this["format"] = createFromStringValue { obj, s -> obj.format = s }
             this[CirJsonSchemaObject.DEFINITIONS] = createDefinitionsConsumer()
             this[CirJsonSchemaObject.DEFINITIONS_v9] = createDefinitionsConsumer()
@@ -597,6 +597,30 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
                     obj.default = getBoolean(element)
                 }
             }
+        }
+
+        private fun createExampleConsumer(): MyReader {
+            return MyReader { element, obj, _, _ ->
+                if (element.isObject) {
+                    obj.example = readExample(element)
+                }
+            }
+        }
+
+        private fun readExample(element: CirJsonValueAdapter): Map<String, Any> {
+            val example = HashMap<String, Any>()
+
+            if (element !is CirJsonObjectValueAdapter) {
+                return example
+            }
+
+            for (property in element.propertyList) {
+                val value = property.values.first()
+                val propertyName = property.name ?: continue
+                example[propertyName] = value
+            }
+
+            return example
         }
 
     }

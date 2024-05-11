@@ -24,4 +24,6 @@ interface CirJsonValidationHost {
 
     val isValid: Boolean
 
+    fun addErrorsFrom(otherHost: CirJsonValidationHost)
+
 }

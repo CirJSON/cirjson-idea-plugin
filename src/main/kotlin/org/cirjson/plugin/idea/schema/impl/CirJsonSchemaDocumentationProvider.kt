@@ -1,23 +1,67 @@
 package org.cirjson.plugin.idea.schema.impl
 
 import com.intellij.ide.impl.isTrusted
+import com.intellij.ide.projectView.PresentationData
 import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.lang.documentation.DocumentationProvider
+import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.PsiComment
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiReference
-import com.intellij.psi.PsiWhiteSpace
+import com.intellij.psi.*
 import com.intellij.psi.impl.FakePsiElement
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.PsiFileReference
 import com.intellij.util.ObjectUtils
 import org.cirjson.plugin.idea.CirJsonBundle
 import org.cirjson.plugin.idea.pointer.CirJsonPointerPosition
+import org.cirjson.plugin.idea.psi.CirJsonObject
+import org.cirjson.plugin.idea.psi.CirJsonProperty
 import org.cirjson.plugin.idea.schema.CirJsonSchemaService
 import org.cirjson.plugin.idea.schema.extension.CirJsonLikePsiWalker
 
 class CirJsonSchemaDocumentationProvider : DocumentationProvider {
+
+    override fun getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement?): String? {
+        return findSchemaAndGenerateDoc(element, originalElement, true, null)
+    }
+
+    override fun generateDoc(element: PsiElement, originalElement: PsiElement?): String? {
+        var realElement = element
+        var forcedPropName: String? = null
+
+        if (realElement is FakeDocElement) {
+            forcedPropName = realElement.myAltName
+            realElement = realElement.myContextElement
+        }
+
+        return findSchemaAndGenerateDoc(realElement, originalElement, false, forcedPropName)
+    }
+
+    private class FakeDocElement(val myContextElement: PsiElement, val myAltName: String) : FakePsiElement() {
+
+        override fun getParent(): PsiElement {
+            return myContextElement
+        }
+
+        override fun getTextRangeInParent(): TextRange {
+            return myContextElement.textRange.shiftLeft(myContextElement.textOffset)
+        }
+
+        override fun getPresentation(): ItemPresentation {
+            return PresentationData(myAltName, null, null, null)
+        }
+
+    }
+
+    override fun getDocumentationElementForLookupItem(psiManager: PsiManager?, `object`: Any?,
+            element: PsiElement): PsiElement? {
+        return if ((element is CirJsonProperty || isWhitespaceOrComment(element) && element.parent is CirJsonObject)
+                && `object` is String) {
+            FakeDocElement((element as? CirJsonProperty)?.nameElement ?: element, StringUtil.unquoteString(`object`))
+        } else {
+            null
+        }
+    }
 
     @Suppress("CompanionObjectInExtension")
     companion object {

@@ -124,6 +124,10 @@
         <projectService serviceInterface="org.cirjson.plugin.idea.schema.CirJsonSchemaService"
                 serviceImplementation="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaServiceImpl"/>
 
+        <!-- Documentation -->
+        <lang.documentationProvider language="CirJson" id="CirJsonSchemaDocumentationProvider"
+                implementationClass="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaDocumentationProvider"/>
+
         <!-- Stats -->
         <statistics.counterUsagesCollector
                 implementationClass="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaUsageTriggerCollector"/>

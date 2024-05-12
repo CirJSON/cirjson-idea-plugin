@@ -2,6 +2,7 @@ package org.cirjson.plugin.idea.schema.impl
 
 import com.intellij.ide.impl.isTrusted
 import com.intellij.lang.documentation.DocumentationMarkup
+import com.intellij.lang.documentation.DocumentationProvider
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiComment
@@ -16,8 +17,9 @@ import org.cirjson.plugin.idea.pointer.CirJsonPointerPosition
 import org.cirjson.plugin.idea.schema.CirJsonSchemaService
 import org.cirjson.plugin.idea.schema.extension.CirJsonLikePsiWalker
 
-class CirJsonSchemaDocumentationProvider {
+class CirJsonSchemaDocumentationProvider : DocumentationProvider {
 
+    @Suppress("CompanionObjectInExtension")
     companion object {
 
         fun findSchemaAndGenerateDoc(element: PsiElement, originalElement: PsiElement?, preferShort: Boolean,

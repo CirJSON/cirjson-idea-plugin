@@ -13,6 +13,13 @@ interface CirJsonSchemaFileProvider {
     val schemaType: SchemaType
 
     /**
+     * Information about the provided API (e.g., an API version or the target platform). This is useful for
+     * auto-generated schemas targeting multiple versions of the same config.
+     */
+    val thirdPartyApiInformation: String?
+        get() = null
+
+    /**
      * If this schema is shown and selectable by the user in the schema dropdown menu.
      *
      * Some schemas are designed to be auto-assigned and bound to very particular contexts,

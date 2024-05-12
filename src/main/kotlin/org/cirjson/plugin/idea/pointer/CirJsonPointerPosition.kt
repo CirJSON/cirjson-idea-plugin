@@ -19,10 +19,18 @@ class CirJsonPointerPosition(val steps: MutableList<Step>) {
         steps.add(Step.createPropertyStep(value))
     }
 
+    fun replaceStep(pos: Int, value: String) {
+        steps[pos] = Step.createPropertyStep(value)
+    }
+
     val empty: Boolean
         get() {
             return steps.isEmpty()
         }
+
+    fun isArray(pos: Int): Boolean {
+        return checkPosInRange(pos) && steps[pos].isFromArray
+    }
 
     fun isObject(pos: Int): Boolean {
         return checkPosInRange(pos) && steps[pos].isFromObject
@@ -36,9 +44,14 @@ class CirJsonPointerPosition(val steps: MutableList<Step>) {
         }
     }
 
+    val lastName: String?
+        get() {
+            return steps.lastOrNull()?.name
+        }
+
     val firstName: String?
         get() {
-            return ContainerUtil.getFirstItem(steps)?.name
+            return steps.firstOrNull()?.name
         }
 
     val firstIndex: Int
@@ -71,6 +84,8 @@ class CirJsonPointerPosition(val steps: MutableList<Step>) {
     }
 
     class Step private constructor(val name: String?, val idx: Int) {
+
+        val isFromArray = name == null
 
         val isFromObject = name != null
 

@@ -41,6 +41,12 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
 
     private var myPattern: PropertyNamePattern? = null
 
+    private var myTitle: String? = null
+
+    private var myDescription: String? = null
+
+    private var myHtmlDescription: String? = null
+
     var pattern: String?
         get() = myPattern?.pattern
         set(value) {
@@ -269,9 +275,17 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
             null
         }
 
-        // TODO: merge myTitle when added
-        // TODO: merge myDescription when added
-        // TODO: merge myHtmlDescription when added
+        if (!StringUtil.isEmptyOrSpaces(other.myTitle)) {
+            myTitle = other.myTitle
+        }
+
+        if (!StringUtil.isEmptyOrSpaces(other.myDescription)) {
+            myDescription = other.myDescription
+        }
+
+        if (!StringUtil.isEmptyOrSpaces(other.myHtmlDescription)) {
+            myHtmlDescription = other.myHtmlDescription
+        }
 
         if (!StringUtil.isEmptyOrSpaces(other.deprecationMessage)) {
             deprecationMessage = other.deprecationMessage
@@ -604,6 +618,24 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
         get() = throw IllegalAccessException()
         set(value) {
             myElse = value
+        }
+
+    var description: String?
+        get() = myDescription
+        set(value) {
+            myDescription = value?.let { unescapeJsonString(it) } ?: myDescription
+        }
+
+    var htmlDescription: String?
+        get() = myHtmlDescription
+        set(value) {
+            myHtmlDescription = value?.let { unescapeJsonString(it) } ?: myHtmlDescription
+        }
+
+    var title: String?
+        get() = myTitle
+        set(value) {
+            myTitle = value?.let { unescapeJsonString(it) } ?: myTitle
         }
 
     fun getMatchingPatternPropertySchema(name: String): CirJsonSchemaObject? {
@@ -949,6 +981,10 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
         const val X_INTELLIJ_ENUM_ORDER_SENSITIVE = "x-intellij-enum-order-sensitive"
 
         val NULL_OBJ = CirJsonSchemaObject("\$_NULL_$")
+
+        private fun unescapeJsonString(text: String): String {
+            return StringUtil.unescapeStringCharacters(text)
+        }
 
         private fun getSubtypeOfBoth(selfType: CirJsonSchemaType, otherType: CirJsonSchemaType): CirJsonSchemaType? {
             if (otherType == CirJsonSchemaType._any) {

@@ -118,9 +118,10 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             this["\$id"] = createFromStringValue { obj, s -> obj.id = s }
             this["id"] = createFromStringValue { obj, s -> obj.id = s }
             // TODO schema when added
-            // TODO description when added
+            this["description"] = createFromStringValue { obj, s -> obj.description = s }
             this["deprecationMessage"] = createFromStringValue { obj, s -> obj.deprecationMessage = s }
-            // TODO htmlDescription when added
+            this[CirJsonSchemaObject.X_INTELLIJ_HTML_DESCRIPTION] =
+                    createFromStringValue { obj, s -> obj.htmlDescription = s }
             // TODO injectionMetadata when added
             this[CirJsonSchemaObject.X_INTELLIJ_LANGUAGE_INJECTION] =
                     MyReader { element, obj, _, _ -> readEnumMetadata(element, obj) }
@@ -129,7 +130,7 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
                     obj.isForceCaseInsensitive = getBoolean(element)
                 }
             }
-            // TODO title when added
+            this["title"] = createFromStringValue { obj, s -> obj.title = s }
             this["\$ref"] = createFromStringValue { obj, s -> obj.ref = s }
             this["\$recursiveRef"] = createFromStringValue { obj, s ->
                 obj.ref = s

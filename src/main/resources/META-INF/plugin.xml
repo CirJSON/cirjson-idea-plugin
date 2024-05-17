@@ -140,6 +140,8 @@
         <multiHostInjector implementation="org.cirjson.plugin.idea.schema.impl.injector.CirJsonSchemaRegexInjector"/>
         <multiHostInjector
                 implementation="org.cirjson.plugin.idea.schema.impl.injector.CirJsonSchemaBasedLanguageInjector"/>
+        <gotoDeclarationHandler id="CirJsonSchemaGotoDeclarationHandler"
+                implementation="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaGotoDeclarationHandler"/>
         <lang.lineWrapStrategy language="CirJson"
                 implementationClass="org.cirjson.plugin.idea.formatter.CirJsonLineWrapPositionStrategy"/>
         <highlightVisitor implementation="org.cirjson.plugin.idea.highlighting.CirJsonRainbowVisitor"/>
@@ -165,6 +167,8 @@
         <extensionPoint qualifiedName="javaScript.cirJsonSchema.contentAwareSchemaFileProvider"
                 interface="org.cirjson.plugin.idea.schema.extension.ContentAwareCirJsonSchemaFileProvider"
                 dynamic="true"/>
+        <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonSchemaGotoDeclarationSuppressor" dynamic="true"
+                interface="org.cirjson.plugin.idea.schema.extension.CirJsonSchemaGotoDeclarationSuppressor"/>
         <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonLikePsiWalkerFactory"
                 interface="org.cirjson.plugin.idea.schema.extension.CirJsonLikePsiWalkerFactory" dynamic="true"/>
         <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonSchemaNestedCompletionsTreeProvider"

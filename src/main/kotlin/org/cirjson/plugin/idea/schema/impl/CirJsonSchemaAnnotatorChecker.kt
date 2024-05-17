@@ -355,7 +355,7 @@ class CirJsonSchemaAnnotatorChecker(private val myProject: Project,
             return list.toTypedArray()
         }
 
-        private fun areSchemaTypesCompatible(schema: CirJsonSchemaObject, type: CirJsonSchemaType): Boolean {
+        fun areSchemaTypesCompatible(schema: CirJsonSchemaObject, type: CirJsonSchemaType): Boolean {
             val matchingSchemaType = getMatchingSchemaType(schema, type)
 
             return if (matchingSchemaType != null) {

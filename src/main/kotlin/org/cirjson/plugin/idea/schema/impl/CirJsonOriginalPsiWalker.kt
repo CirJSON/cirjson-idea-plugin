@@ -180,6 +180,15 @@ class CirJsonOriginalPsiWalker private constructor() : CirJsonLikePsiWalker {
         }
     }
 
+    override fun getParentContainer(element: PsiElement): PsiElement? {
+        return PsiTreeUtil.getParentOfType(PsiTreeUtil.getParentOfType(element, CirJsonProperty::class.java),
+                CirJsonObject::class.java, CirJsonArray::class.java)
+    }
+
+    override fun getPropertyNameElement(property: PsiElement?): PsiElement? {
+        return (property as? CirJsonProperty)?.nameElement
+    }
+
     companion object {
 
         val INSTANCE = CirJsonOriginalPsiWalker()

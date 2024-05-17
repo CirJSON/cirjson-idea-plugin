@@ -69,6 +69,12 @@ interface CirJsonLikePsiWalker {
         return element.text
     }
 
+    fun getParentContainer(element: PsiElement): PsiElement? {
+        return null
+    }
+
+    fun getPropertyNameElement(property: PsiElement?): PsiElement?
+
     fun getPropertyValueSeparator(valueType: CirJsonSchemaType?): String {
         return ":"
     }

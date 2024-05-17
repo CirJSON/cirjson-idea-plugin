@@ -4,6 +4,7 @@ import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.xmlb.annotations.Tag
@@ -40,6 +41,14 @@ open class CirJsonSchemaMappingsProjectConfiguration(private val myProject: Proj
 
     override fun getState(): MyState? {
         return myState
+    }
+
+    fun schemaFileMoved(project: Project, oldRelativePath: String, newRelativePath: String) {
+        val configuration =
+                myState.myState.values.firstOrNull { FileUtil.pathsEqual(it.relativePathToSchema, oldRelativePath) }
+                        ?: return
+        configuration.relativePathToSchema = newRelativePath
+        CirJsonSchemaService.get(project).reset()
     }
 
     override fun loadState(state: MyState) {

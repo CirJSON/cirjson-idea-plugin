@@ -133,6 +133,8 @@
                 implementationClass="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaUsageTriggerCollector"/>
 
         <!-- IDE utils -->
+        <refactoring.elementListenerProvider
+                implementation="org.cirjson.plugin.idea.schema.CirJsonSchemaRefactoringListenerProvider"/>
         <lang.lineWrapStrategy language="CirJson"
                 implementationClass="org.cirjson.plugin.idea.formatter.CirJsonLineWrapPositionStrategy"/>
         <highlightVisitor implementation="org.cirjson.plugin.idea.highlighting.CirJsonRainbowVisitor"/>

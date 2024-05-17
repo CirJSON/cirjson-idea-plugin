@@ -123,9 +123,9 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             this[CirJsonSchemaObject.X_INTELLIJ_HTML_DESCRIPTION] =
                     createFromStringValue { obj, s -> obj.htmlDescription = s }
             // TODO injectionMetadata when added
-            this[CirJsonSchemaObject.X_INTELLIJ_LANGUAGE_INJECTION] =
+            this[CirJsonSchemaObject.X_INTELLIJ_ENUM_METADATA] =
                     MyReader { element, obj, _, _ -> readEnumMetadata(element, obj) }
-            this[CirJsonSchemaObject.X_INTELLIJ_LANGUAGE_INJECTION] = MyReader { element, obj, _, _ ->
+            this[CirJsonSchemaObject.X_INTELLIJ_CASE_INSENSITIVE] = MyReader { element, obj, _, _ ->
                 if (element.isBooleanLiteral) {
                     obj.isForceCaseInsensitive = getBoolean(element)
                 }

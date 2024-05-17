@@ -137,6 +137,9 @@
                 implementation="org.cirjson.plugin.idea.schema.CirJsonSchemaRefactoringListenerProvider"/>
         <psi.referenceContributor language="CirJson"
                 implementation="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaReferenceContributor"/>
+        <multiHostInjector implementation="org.cirjson.plugin.idea.schema.impl.injector.CirJsonSchemaRegexInjector"/>
+        <multiHostInjector
+                implementation="org.cirjson.plugin.idea.schema.impl.injector.CirJsonSchemaBasedLanguageInjector"/>
         <lang.lineWrapStrategy language="CirJson"
                 implementationClass="org.cirjson.plugin.idea.formatter.CirJsonLineWrapPositionStrategy"/>
         <highlightVisitor implementation="org.cirjson.plugin.idea.highlighting.CirJsonRainbowVisitor"/>

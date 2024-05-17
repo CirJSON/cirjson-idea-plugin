@@ -18,6 +18,7 @@ import org.cirjson.plugin.idea.schema.CirJsonPointerUtil
 import org.cirjson.plugin.idea.schema.extension.CirJsonLikePsiWalker
 import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonArrayValueAdapter
 import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonObjectValueAdapter
+import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonPropertyAdapter
 import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonValueAdapter
 import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaReader.MyReader
 import java.util.*
@@ -122,7 +123,9 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             this["deprecationMessage"] = createFromStringValue { obj, s -> obj.deprecationMessage = s }
             this[CirJsonSchemaObject.X_INTELLIJ_HTML_DESCRIPTION] =
                     createFromStringValue { obj, s -> obj.htmlDescription = s }
-            // TODO injectionMetadata when added
+            this[CirJsonSchemaObject.X_INTELLIJ_LANGUAGE_INJECTION] = MyReader { element, obj, _, _ ->
+                readInjectionMetadata(element, obj)
+            }
             this[CirJsonSchemaObject.X_INTELLIJ_ENUM_METADATA] =
                     MyReader { element, obj, _, _ -> readEnumMetadata(element, obj) }
             this[CirJsonSchemaObject.X_INTELLIJ_CASE_INSENSITIVE] = MyReader { element, obj, _, _ ->
@@ -183,9 +186,8 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             this["additionalProperties"] = createAdditionalProperties()
             this["propertyNames"] =
                     createFromObject("propertyNames") { obj, schema -> obj.propertyNamesSchema = schema }
-            // TODO propertyNames when added
-            // TODO patternProperties when added
-            this["propertyNames"] = createDependencies()
+            this["patternProperties"] = createPatternProperties()
+            this["dependencies"] = createDependencies()
             this["enum"] = createEnum()
             this["const"] = MyReader { element, obj, _, _ ->
                 obj.enum = ContainerUtil.createMaybeSingletonList(readEnumValue(element))
@@ -229,6 +231,34 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             } else {
                 "$oldPointer/$name"
             }
+        }
+
+        private fun readInjectionMetadata(element: CirJsonValueAdapter, obj: CirJsonSchemaObject) {
+            if (element.isStringLiteral) {
+                obj.languageInjection = getString(element)
+            } else if (element is CirJsonObjectValueAdapter) {
+                for (adapter in element.propertyList) {
+                    val lang = readSingleProp(adapter, "language", CirJsonSchemaReader::getString)
+                    lang?.let { obj.languageInjection = it }
+                    val prefix = readSingleProp(adapter, "prefix", CirJsonSchemaReader::getString)
+                    prefix?.let { obj.languageInjectionPrefix = it }
+                    val suffix = readSingleProp(adapter, "suffix", CirJsonSchemaReader::getString)
+                    suffix?.let { obj.languageInjectionSuffix = it }
+                }
+            }
+        }
+
+        private fun <T> readSingleProp(adapter: CirJsonPropertyAdapter, propName: String,
+                getterFunc: (CirJsonValueAdapter) -> T): T? {
+            if (propName == adapter.name) {
+                val values = adapter.values
+
+                if (values.size == 1) {
+                    return getterFunc.invoke(values.first())
+                }
+            }
+
+            return null
         }
 
         private fun readEnumMetadata(element: CirJsonValueAdapter, obj: CirJsonSchemaObject) {
@@ -415,6 +445,16 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
                     value.delegate.text.toDouble()
                 } catch (e2: NumberFormatException) {
                     -1
+                }
+            }
+        }
+
+        private fun createPatternProperties(): MyReader {
+            return MyReader { element, obj, queue, virtualFile ->
+                if (element.isObject) {
+                    obj.patternProperties =
+                            readInnerObject(getNewPointer("patternProperties", obj.pointer), element, queue,
+                                    virtualFile)
                 }
             }
         }

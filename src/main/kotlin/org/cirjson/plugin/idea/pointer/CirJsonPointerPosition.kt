@@ -44,6 +44,14 @@ class CirJsonPointerPosition(val steps: MutableList<Step>) {
         }
     }
 
+    fun trimTail(count: Int): CirJsonPointerPosition? {
+        return if (checkPosInRangeIncl(count)) {
+            CirJsonPointerPosition(steps.subList(0, steps.size - count))
+        } else {
+            null
+        }
+    }
+
     val lastName: String?
         get() {
             return steps.lastOrNull()?.name

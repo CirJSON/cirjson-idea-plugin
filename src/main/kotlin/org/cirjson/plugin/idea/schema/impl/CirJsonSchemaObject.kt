@@ -47,6 +47,12 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
 
     private var myHtmlDescription: String? = null
 
+    var languageInjection: String? = null
+
+    var languageInjectionPrefix: String? = null
+
+    var languageInjectionSuffix: String? = null
+
     var pattern: String?
         get() = myPattern?.pattern
         set(value) {
@@ -392,7 +398,7 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
         }
 
         shouldValidateAgainstJSType = shouldValidateAgainstJSType || other.shouldValidateAgainstJSType
-        // TODO: merge myLanguageInjection when added
+        other.languageInjection?.let { languageInjection = it }
         isForceCaseInsensitive = isForceCaseInsensitive || other.isForceCaseInsensitive
     }
 
@@ -824,6 +830,12 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
 
     val hasPatternProperties: Boolean
         get() = myPatternProperties != null
+
+    var patternProperties: Map<String, CirJsonSchemaObject>
+        get() = throw IllegalAccessException("You can only set patternProperties")
+        set(value) {
+            myPatternProperties = PatternProperties(value)
+        }
 
     val hasNumericChecks: Boolean
         get() {

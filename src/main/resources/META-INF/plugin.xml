@@ -135,6 +135,8 @@
         <!-- IDE utils -->
         <refactoring.elementListenerProvider
                 implementation="org.cirjson.plugin.idea.schema.CirJsonSchemaRefactoringListenerProvider"/>
+        <psi.referenceContributor language="CirJson"
+                implementation="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaReferenceContributor"/>
         <lang.lineWrapStrategy language="CirJson"
                 implementationClass="org.cirjson.plugin.idea.formatter.CirJsonLineWrapPositionStrategy"/>
         <highlightVisitor implementation="org.cirjson.plugin.idea.highlighting.CirJsonRainbowVisitor"/>

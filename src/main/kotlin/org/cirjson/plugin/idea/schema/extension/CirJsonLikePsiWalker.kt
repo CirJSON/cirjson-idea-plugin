@@ -69,6 +69,10 @@ interface CirJsonLikePsiWalker {
         return element.text
     }
 
+    fun getSyntaxAdapter(project: Project): CirJsonLikeSyntaxAdapter? {
+        return null
+    }
+
     fun getParentContainer(element: PsiElement): PsiElement? {
         return null
     }

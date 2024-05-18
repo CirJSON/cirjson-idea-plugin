@@ -2,6 +2,7 @@ package org.cirjson.plugin.idea.psi
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileFactory
 import org.cirjson.plugin.idea.CirJsonFileType
@@ -47,6 +48,16 @@ class CirJsonElementGenerator(private val myProject: Project) {
      */
     fun createStringLiteral(unescapedContent: String): CirJsonStringLiteral {
         return createValue("\"${StringUtil.escapeStringCharacters(unescapedContent)}\"")
+    }
+
+    fun createProperty(name: String, value: String): CirJsonProperty {
+        val file = createDummyFile("{\"__cirJsonId__\": \"1\", \"$name\": \"$value\"}")
+        return (file.firstChild as CirJsonObject).propertyList[0]
+    }
+
+    fun createComma(): PsiElement {
+        val cirJsonArray = createValue<CirJsonArray>("[\"1\", 1, 2]")
+        return cirJsonArray.valueList[0].nextSibling
     }
 
 }

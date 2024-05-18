@@ -154,6 +154,12 @@
             <bundleName>messages.CirJsonBundle</bundleName>
             <categoryKey>cirjson.intention.category.name</categoryKey>
         </intentionAction>
+        <intentionAction>
+            <language>CirJson</language>
+            <bundleName>messages.CirJsonBundle</bundleName>
+            <categoryKey>cirjson.intention.category.name</categoryKey>
+            <className>org.cirjson.plugin.idea.schema.impl.fixes.AddOptionalPropertiesIntention</className>
+        </intentionAction>
     </extensions>
 
     <extensions defaultExtensionNs="org.cirjson.plugin.idea">

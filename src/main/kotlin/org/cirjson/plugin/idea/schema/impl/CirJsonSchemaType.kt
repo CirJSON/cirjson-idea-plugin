@@ -28,6 +28,17 @@ enum class CirJsonSchemaType {
     val description: String
         get() = if (this == _any) "*" else realName
 
+    val defaultValue: String
+        get() = when (this) {
+            _string -> "\"\""
+            _number, _integer, _string_number -> "0"
+            _boolean -> "false"
+            _object -> "{}"
+            _array -> "[]"
+            _null -> "null"
+            _any -> ""
+        }
+
     companion object {
 
         fun isInteger(text: String): Boolean {

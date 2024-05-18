@@ -1,11 +1,13 @@
 package org.cirjson.plugin.idea.schema.impl
 
 import com.intellij.codeInsight.completion.CompletionUtil
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.IncorrectOperationException
 import com.intellij.util.ThreeState
 import com.intellij.util.containers.ContainerUtil
 import org.cirjson.plugin.idea.CirJsonDialectUtil
@@ -13,6 +15,7 @@ import org.cirjson.plugin.idea.CirJsonElementTypes
 import org.cirjson.plugin.idea.pointer.CirJsonPointerPosition
 import org.cirjson.plugin.idea.psi.*
 import org.cirjson.plugin.idea.schema.extension.CirJsonLikePsiWalker
+import org.cirjson.plugin.idea.schema.extension.CirJsonLikeSyntaxAdapter
 import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonPropertyAdapter
 import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonValueAdapter
 import org.cirjson.plugin.idea.schema.impl.adapters.CirJsonCirJsonPropertyAdapter
@@ -177,6 +180,43 @@ class CirJsonOriginalPsiWalker private constructor() : CirJsonLikePsiWalker {
             ContainerUtil.createMaybeSingletonList(file.topLevelValue)
         } else {
             emptyList()
+        }
+    }
+
+    override fun getSyntaxAdapter(project: Project): CirJsonLikeSyntaxAdapter {
+        return object : CirJsonLikeSyntaxAdapter {
+
+            private val myGenerator = CirJsonElementGenerator(project)
+
+            override fun getPropertyValue(property: PsiElement): PsiElement? {
+                return (property as CirJsonProperty).value
+            }
+
+            override fun getDefaultValueFromType(type: CirJsonSchemaType?): String {
+                return type?.defaultValue ?: ""
+            }
+
+            override fun createProperty(name: String, value: String, element: PsiElement): PsiElement {
+                return myGenerator.createProperty(name, value)
+            }
+
+            override fun adjustPropertyAnchor(element: LeafPsiElement): PsiElement {
+                throw IncorrectOperationException("Shouldn't use leafs for insertion in pure CirJSON!")
+            }
+
+            override fun adjustNewProperty(element: PsiElement): PsiElement {
+                return element
+            }
+
+            override fun ensureComma(self: PsiElement, newElement: PsiElement): Boolean {
+                if (newElement is CirJsonProperty && self is CirJsonProperty) {
+                    self.parent.addAfter(myGenerator.createComma(), self)
+                    return true
+                }
+
+                return false
+            }
+
         }
     }
 

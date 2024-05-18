@@ -320,4 +320,11 @@ object CirJsonCachedValues {
         return schemas.first()
     }
 
+    fun hasComputedSchemaObjectForFile(file: PsiFile): Boolean {
+        val data = CompletionUtil.getOriginalOrSelf(file).getUserData(OBJECT_FOR_FILE_KEY) ?: return false
+        val cachedValueGetter = data.upToDateOrNull ?: return false
+        val upToDateCachedValueOrNull = cachedValueGetter.get()
+        return upToDateCachedValueOrNull != null && upToDateCachedValueOrNull !== CirJsonSchemaObject.NULL_OBJ
+    }
+
 }

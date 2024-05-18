@@ -54,8 +54,7 @@ class CirJsonValidationError(val message: String, val fixableIssueKind: FixableI
 
     }
 
-    class MissingMultiplePropsIssueData(private val myMissingPropertyIssues: Collection<MissingPropertyIssueData>) :
-            IssueData {
+    class MissingMultiplePropsIssueData(val myMissingPropertyIssues: Collection<MissingPropertyIssueData>) : IssueData {
 
         fun getMessage(trimIfNeeded: Boolean): String {
             if (myMissingPropertyIssues.size == 1) {

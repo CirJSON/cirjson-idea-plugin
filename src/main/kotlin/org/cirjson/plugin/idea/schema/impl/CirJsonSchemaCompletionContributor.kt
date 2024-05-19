@@ -40,7 +40,6 @@ import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaFileProvider
 import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaNestedCompletionsTreeProvider
 import org.cirjson.plugin.idea.schema.extension.SchemaType
 import org.cirjson.plugin.idea.schema.extension.adapters.CirJsonPropertyAdapter
-import org.cirjson.plugin.idea.schema.impl.light.CirJsonSchemaObjectReadingUtils
 import org.cirjson.plugin.idea.schema.impl.nestedCompletions.*
 import org.jetbrains.annotations.TestOnly
 import java.util.function.Consumer
@@ -367,7 +366,7 @@ class CirJsonSchemaCompletionContributor : CompletionContributor() {
                     }
                 }
             } else if (isSurelyValue) {
-                val type = CirJsonSchemaObjectReadingUtils.guessType(schema)
+                val type = schema.guessType()
                 suggestSpecialValues(type)
 
                 if (type != null) {

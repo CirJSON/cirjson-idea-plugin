@@ -22,11 +22,11 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-        <fileType name="CirJson" fieldName="INSTANCE" language="CirJson" extensions="cirjson"
+        <fileType name="CirJSON" fieldName="INSTANCE" language="CirJSON" extensions="cirjson"
                 implementationClass="org.cirjson.plugin.idea.CirJsonFileType"/>
-        <lang.parserDefinition language="CirJson"
+        <lang.parserDefinition language="CirJSON"
                 implementationClass="org.cirjson.plugin.idea.CirJsonParserDefinition"/>
-        <lang.syntaxHighlighterFactory language="CirJson"
+        <lang.syntaxHighlighterFactory language="CirJSON"
                 implementationClass="org.cirjson.plugin.idea.highlighting.CirJsonSyntaxHighlighterFactory"/>
         <fileBasedIndex implementation="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaFileValuesIndex"/>
 
@@ -35,12 +35,12 @@
         <langCodeStyleSettingsProvider
                 implementation="org.cirjson.plugin.idea.formatter.CirJsonLanguageCodeStyleSettingsProvider"/>
         <colorSettingsPage implementation="org.cirjson.plugin.idea.highlighting.CirJsonColorsPage"/>
-        <lang.formatter language="CirJson"
+        <lang.formatter language="CirJSON"
                 implementationClass="org.cirjson.plugin.idea.formatter.CirJsonFormattingBuilderModel"/>
         <preFormatProcessor implementation="org.cirjson.plugin.idea.formatter.CirJsonTrailingCommaRemover"/>
-        <lang.braceMatcher language="CirJson" implementationClass="org.cirjson.plugin.idea.CirJsonBraceMatcher"/>
-        <quoteHandler fileType="CirJson" className="org.cirjson.plugin.idea.CirJsonQuoteHandler"/>
-        <enterBetweenBracesDelegate language="CirJson"
+        <lang.braceMatcher language="CirJSON" implementationClass="org.cirjson.plugin.idea.CirJsonBraceMatcher"/>
+        <quoteHandler fileType="CirJSON" className="org.cirjson.plugin.idea.CirJsonQuoteHandler"/>
+        <enterBetweenBracesDelegate language="CirJSON"
                 implementationClass="com.intellij.codeInsight.editorActions.enter.EnterBetweenBracesAndBracketsDelegate"/>
         <enterHandlerDelegate id="CirJsonEnterHandler"
                 implementation="org.cirjson.plugin.idea.editor.CirJsonEnterHandler"/>
@@ -53,57 +53,57 @@
 
         <!-- Codeinsight -->
         <breadcrumbsInfoProvider implementation="org.cirjson.plugin.idea.breadcrumbs.CirJsonBreadcrumbsProvider"/>
-        <focusModeProvider language="CirJson"
+        <focusModeProvider language="CirJSON"
                 implementationClass="org.cirjson.plugin.idea.editor.CirJsonFocusModeProvider"/>
         <qualifiedNameProvider implementation="org.cirjson.plugin.idea.navigation.CirJsonQualifiedNameProvider"/>
-        <completion.contributor language="CirJson" id="CirJsonCompletionContributor" order="last"
+        <completion.contributor language="CirJSON" id="CirJsonCompletionContributor" order="last"
                 implementationClass="org.cirjson.plugin.idea.codeinsight.CirJsonCompletionContributor"/>
-        <completion.contributor language="CirJson" order="last, before CirJsonCompletionContributor"
+        <completion.contributor language="CirJSON" order="last, before CirJsonCompletionContributor"
                 implementationClass="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaCompletionContributor"/>
-        <lang.psiStructureViewFactory language="CirJson"
+        <lang.psiStructureViewFactory language="CirJSON"
                 implementationClass="org.cirjson.plugin.idea.structureView.CirJsonStructureViewBuilderFactory"/>
-        <lang.foldingBuilder language="CirJson"
+        <lang.foldingBuilder language="CirJSON"
                 implementationClass="org.cirjson.plugin.idea.editor.folding.CirJsonFoldingBuilder"/>
-        <lang.smartEnterProcessor language="CirJson"
+        <lang.smartEnterProcessor language="CirJSON"
                 implementationClass="org.cirjson.plugin.idea.editor.smartEnter.CirJsonSmartEnterProcessor"/>
-        <lang.namesValidator language="CirJson" implementationClass="org.cirjson.plugin.idea.CirJsonNamesValidator"/>
-        <lang.commenter language="CirJson" implementationClass="org.cirjson.plugin.idea.editor.CirJsonCommenter"/>
-        <lang.surroundDescriptor language="CirJson"
+        <lang.namesValidator language="CirJSON" implementationClass="org.cirjson.plugin.idea.CirJsonNamesValidator"/>
+        <lang.commenter language="CirJSON" implementationClass="org.cirjson.plugin.idea.editor.CirJsonCommenter"/>
+        <lang.surroundDescriptor language="CirJSON"
                 implementationClass="org.cirjson.plugin.idea.surroundWith.CirJsonSurroundDescriptor"/>
-        <lang.findUsagesProvider language="CirJson"
+        <lang.findUsagesProvider language="CirJSON"
                 implementationClass="org.cirjson.plugin.idea.findUsages.CirJsonFindUsagesProvider"/>
-        <statementUpDownMover id="CirJson" order="before line"
+        <statementUpDownMover id="CirJSON" order="before line"
                 implementation="org.cirjson.plugin.idea.editor.lineMover.CirJsonLineMover"/>
 
         <!-- Live template context -->
-        <liveTemplateContext contextId="CirJson"
+        <liveTemplateContext contextId="CirJSON"
                 implementation="org.cirjson.plugin.idea.liveTemplates.CirJsonContextType"/>
-        <liveTemplateContext contextId="CirJsonStringValues" baseContextId="CirJson"
+        <liveTemplateContext contextId="CirJsonStringValues" baseContextId="CirJSON"
                 implementation="org.cirjson.plugin.idea.liveTemplates.CirJsonInLiteralsContextType"/>
-        <liveTemplateContext contextId="CirJsonPropertyKeys" baseContextId="CirJson"
+        <liveTemplateContext contextId="CirJsonPropertyKeys" baseContextId="CirJSON"
                 implementation="org.cirjson.plugin.idea.liveTemplates.CirJsonInPropertyKeysContextType"/>
 
         <!-- Spellchecking -->
-        <spellchecker.support language="CirJson"
+        <spellchecker.support language="CirJSON"
                 implementationClass="org.cirjson.plugin.idea.CirJsonSpellcheckerStrategy"/>
 
         <!-- Annotators -->
-        <annotator language="CirJson"
+        <annotator language="CirJSON"
                 implementationClass="org.cirjson.plugin.idea.codeinsight.CirJsonLiteralAnnotator"/>
 
         <!-- Inspections -->
         <!--suppress PluginXmlValidity -->
         <inspection.basicVisitor class="org.cirjson.plugin.idea.psi.CirJsonElementVisitor"/>
 
-        <localInspection language="CirJson" shortName="CirJsonStandardCompliance" bundle="messages.CirJsonBundle"
+        <localInspection language="CirJSON" shortName="CirJsonStandardCompliance" bundle="messages.CirJsonBundle"
                 key="inspection.compliance.name" groupKey="cirJson.inspection.group" enabledByDefault="true"
                 level="ERROR"
                 implementationClass="org.cirjson.plugin.idea.codeinsight.CirJsonStandardComplianceInspection"/>
-        <localInspection language="CirJson" shortName="CirJsonDifferentDataTypesShareID" bundle="messages.CirJsonBundle"
+        <localInspection language="CirJSON" shortName="CirJsonDifferentDataTypesShareID" bundle="messages.CirJsonBundle"
                 key="inspection.id.different.type" groupKey="cirJson.inspection.group" enabledByDefault="true"
                 level="ERROR"
                 implementationClass="org.cirjson.plugin.idea.codeinsight.CirJsonDifferentDataTypesShareIDInspection"/>
-        <localInspection language="CirJson" shortName="CirJsonDuplicatePropertyKeys" bundle="messages.CirJsonBundle"
+        <localInspection language="CirJSON" shortName="CirJsonDuplicatePropertyKeys" bundle="messages.CirJsonBundle"
                 key="inspection.duplicate.keys.name" groupKey="cirJson.inspection.group" enabledByDefault="true"
                 level="WARNING"
                 implementationClass="org.cirjson.plugin.idea.codeinsight.CirJsonDuplicatePropertyKeysInspection"/>
@@ -125,7 +125,7 @@
                 serviceImplementation="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaServiceImpl"/>
 
         <!-- Documentation -->
-        <lang.documentationProvider language="CirJson" id="CirJsonSchemaDocumentationProvider"
+        <lang.documentationProvider language="CirJSON" id="CirJsonSchemaDocumentationProvider"
                 implementationClass="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaDocumentationProvider"/>
 
         <!-- Stats -->
@@ -135,26 +135,26 @@
         <!-- IDE utils -->
         <refactoring.elementListenerProvider
                 implementation="org.cirjson.plugin.idea.schema.CirJsonSchemaRefactoringListenerProvider"/>
-        <psi.referenceContributor language="CirJson"
+        <psi.referenceContributor language="CirJSON"
                 implementation="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaReferenceContributor"/>
         <multiHostInjector implementation="org.cirjson.plugin.idea.schema.impl.injector.CirJsonSchemaRegexInjector"/>
         <multiHostInjector
                 implementation="org.cirjson.plugin.idea.schema.impl.injector.CirJsonSchemaBasedLanguageInjector"/>
         <gotoDeclarationHandler id="CirJsonSchemaGotoDeclarationHandler"
                 implementation="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaGotoDeclarationHandler"/>
-        <lang.lineWrapStrategy language="CirJson"
+        <lang.lineWrapStrategy language="CirJSON"
                 implementationClass="org.cirjson.plugin.idea.formatter.CirJsonLineWrapPositionStrategy"/>
         <highlightVisitor implementation="org.cirjson.plugin.idea.highlighting.CirJsonRainbowVisitor"/>
 
         <!-- Intentions -->
         <intentionAction>
-            <language>CirJson</language>
+            <language>CirJSON</language>
             <className>org.cirjson.plugin.idea.intentions.CirJsonSortPropertiesIntention</className>
             <bundleName>messages.CirJsonBundle</bundleName>
             <categoryKey>cirjson.intention.category.name</categoryKey>
         </intentionAction>
         <intentionAction>
-            <language>CirJson</language>
+            <language>CirJSON</language>
             <bundleName>messages.CirJsonBundle</bundleName>
             <categoryKey>cirjson.intention.category.name</categoryKey>
             <className>org.cirjson.plugin.idea.schema.impl.fixes.AddOptionalPropertiesIntention</className>

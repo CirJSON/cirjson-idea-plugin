@@ -4,32 +4,22 @@ import com.intellij.openapi.util.text.StringUtil
 
 enum class CirJsonSchemaVersion {
 
-    SCHEMA_4,
-
-    SCHEMA_6,
-
-    SCHEMA_7;
+    SCHEMA_1;
 
     companion object {
 
-        private const val ourSchemaV4Schema = "http://json-schema.org/draft-04/schema"
+        private const val ourSchemaV1Schema = "http://cirjson.org/draft-01/schema"
 
-        private const val ourSchemaV6Schema = "http://json-schema.org/draft-06/schema"
-
-        private const val ourSchemaV7Schema = "http://json-schema.org/draft-07/schema"
-
-        private const val ourSchemaOrgPrefix = "http://json-schema.org/"
+        private const val ourSchemaOrgPrefix = "http://cirjson.org/"
 
         fun byId(id: String): CirJsonSchemaVersion? {
-            var id = id
-            if (id.startsWith("https://")) {
-                id = "http://" + id.substring("https://".length)
+            var realId = id
+            if (realId.startsWith("https://")) {
+                realId = "http://" + realId.substring("https://".length)
             }
-            return when (StringUtil.trimEnd(id, '#')) {
-                ourSchemaV4Schema -> SCHEMA_4
-                ourSchemaV6Schema -> SCHEMA_6
-                ourSchemaV7Schema -> SCHEMA_7
-                else -> if (id.startsWith(ourSchemaOrgPrefix)) SCHEMA_7 else null
+            return when (StringUtil.trimEnd(realId, '#')) {
+                ourSchemaV1Schema -> SCHEMA_1
+                else -> if (realId.startsWith(ourSchemaOrgPrefix)) SCHEMA_1 else null
             }
         }
 

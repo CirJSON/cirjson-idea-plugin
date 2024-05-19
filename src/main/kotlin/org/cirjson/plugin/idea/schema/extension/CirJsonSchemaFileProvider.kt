@@ -1,6 +1,7 @@
 package org.cirjson.plugin.idea.schema.extension
 
 import com.intellij.openapi.vfs.VirtualFile
+import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaVersion
 
 interface CirJsonSchemaFileProvider {
 
@@ -11,6 +12,9 @@ interface CirJsonSchemaFileProvider {
     val schemaFile: VirtualFile?
 
     val schemaType: SchemaType
+
+    val schemaVersion: CirJsonSchemaVersion
+        get() = CirJsonSchemaVersion.SCHEMA_1
 
     /**
      * Information about the provided API (e.g., an API version or the target platform). This is useful for

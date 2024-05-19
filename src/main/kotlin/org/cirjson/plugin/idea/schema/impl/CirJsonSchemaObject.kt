@@ -915,7 +915,7 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
                 return true
             }
 
-            val matches = matchPatter(myCompiledPattern!!, name)
+            val matches = matchPattern(myCompiledPattern!!, name)
             myValuePatternCache[name] = matches
             return matches
         }
@@ -951,7 +951,7 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
                 return mySchemasMap[value]
             }
 
-            value = ContainerUtil.find(myCachedPatterns.keys) { matchPatter(myCachedPatterns[it]!!, name) }
+            value = ContainerUtil.find(myCachedPatterns.keys) { matchPattern(myCachedPatterns[it]!!, name) }
 
             if (value != null) {
                 myCachedPatternProperties[name] = value
@@ -1152,7 +1152,7 @@ class CirJsonSchemaObject private constructor(val rawFile: VirtualFile?, val fil
             }
         }
 
-        private fun matchPatter(pattern: Pattern, s: String): Boolean {
+        fun matchPattern(pattern: Pattern, s: String): Boolean {
             return try {
                 pattern.matcher(StringUtil.newBombedCharSequence(s, 300)).matches()
             } catch (e: ProcessCanceledException) {

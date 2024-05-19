@@ -3,7 +3,9 @@ package org.cirjson.plugin.idea.schema.remote
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.ex.temp.TempFileSystem
@@ -16,6 +18,10 @@ import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaObject
 import java.io.File
 
 object CirJsonFileResolver {
+
+    private const val MOCK_URL = "mock://"
+
+    private const val TEMP_URL = "temp://"
 
     private val DOWNLOAD_STARTED = Key.create<Boolean>("DOWNLOAD_STARTED")
 
@@ -102,8 +108,13 @@ object CirJsonFileResolver {
     }
 
     fun isSchemaUrl(url: String?): Boolean {
-        return url != null && url.startsWith("http://json-schema.org/")
+        return url != null && url.startsWith("http://cirjson.org/")
                 && (url.endsWith("/schema") || url.endsWith("/schema#"))
+    }
+
+    fun isAbsoluteUrl(path: String): Boolean {
+        return isHttpPath(path) || path.startsWith(TEMP_URL) || FileUtil.toSystemIndependentName(path)
+                .startsWith(JarFileSystem.PROTOCOL_PREFIX)
     }
 
 }

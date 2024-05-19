@@ -22,7 +22,7 @@ open class CirJsonSchemaMappingsProjectConfiguration(private val myProject: Proj
         val projectBaseDir = myProject.baseDir
 
         for (configuration in myState.myState.values) {
-            for (pattern in configuration.patterns) {
+            for (pattern in configuration.patterns!!) {
                 if (pattern.mappingKind != CirJsonMappingKind.FILE) {
                     continue
                 }
@@ -30,7 +30,7 @@ open class CirJsonSchemaMappingsProjectConfiguration(private val myProject: Proj
                 val relativeFile = VfsUtil.findRelativeFile(projectBaseDir, *pattern.pathParts)
 
                 if (relativeFile == file
-                        || file.url == UserDefinedCirJsonSchemaConfiguration.Item.neutralizePath(pattern.path!!)) {
+                        || file.url == UserDefinedCirJsonSchemaConfiguration.Item.neutralizePath(pattern.path)) {
                     return configuration
                 }
             }
@@ -42,6 +42,9 @@ open class CirJsonSchemaMappingsProjectConfiguration(private val myProject: Proj
     override fun getState(): MyState? {
         return myState
     }
+
+    val stateMap: Map<String, UserDefinedCirJsonSchemaConfiguration>
+        get() = Collections.unmodifiableMap(myState.myState)
 
     fun schemaFileMoved(project: Project, oldRelativePath: String, newRelativePath: String) {
         val configuration =

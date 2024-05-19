@@ -165,6 +165,8 @@
 
     <extensions defaultExtensionNs="org.cirjson.plugin.idea">
         <cirJsonLiteralChecker implementation="org.cirjson.plugin.idea.codeinsight.StandardCirJsonLiteralChecker"/>
+        <javaScript.cirJsonSchema.providerFactory
+                implementation="org.cirjson.plugin.idea.schema.extension.CirJsonSchemaUserDefinedProviderFactory"/>
     </extensions>
 
     <extensionPoints>

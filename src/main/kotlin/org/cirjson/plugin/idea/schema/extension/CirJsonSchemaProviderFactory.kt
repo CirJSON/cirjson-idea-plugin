@@ -14,8 +14,8 @@ interface CirJsonSchemaProviderFactory {
 
     companion object {
 
-        val EP_NAME =
-                ExtensionPointName.create<CirJsonSchemaProviderFactory>("javaScript.cirJsonSchema.providerFactory")
+        val EP_NAME = ExtensionPointName.create<CirJsonSchemaProviderFactory>(
+                "org.cirjson.plugin.idea.javaScript.cirJsonSchema.providerFactory")
 
     }
 

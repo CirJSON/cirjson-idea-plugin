@@ -11,7 +11,7 @@ interface ContentAwareCirJsonSchemaFileProvider {
     companion object {
 
         val EP_NAME = ExtensionPointName.create<ContentAwareCirJsonSchemaFileProvider>(
-                "javaScript.cirJsonSchema.contentAwareSchemaFileProvider")
+                "org.cirjson.plugin.idea.javaScript.cirJsonSchema.contentAwareSchemaFileProvider")
 
     }
 

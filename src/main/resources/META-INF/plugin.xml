@@ -170,9 +170,9 @@
     <extensionPoints>
         <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonStandardComplianceProvider"
                 interface="org.cirjson.plugin.idea.codeinsight.CirJsonStandardComplianceProvider" dynamic="true"/>
-        <extensionPoint qualifiedName="javaScript.cirJsonSchema.providerFactory"
+        <extensionPoint qualifiedName="org.cirjson.plugin.idea.javaScript.cirJsonSchema.providerFactory"
                 interface="org.cirjson.plugin.idea.schema.extension.CirJsonSchemaProviderFactory" dynamic="true"/>
-        <extensionPoint qualifiedName="javaScript.cirJsonSchema.contentAwareSchemaFileProvider"
+        <extensionPoint qualifiedName="org.cirjson.plugin.idea.javaScript.cirJsonSchema.contentAwareSchemaFileProvider"
                 interface="org.cirjson.plugin.idea.schema.extension.ContentAwareCirJsonSchemaFileProvider"
                 dynamic="true"/>
         <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonSchemaGotoDeclarationSuppressor" dynamic="true"

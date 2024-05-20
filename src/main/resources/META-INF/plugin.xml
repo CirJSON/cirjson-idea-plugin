@@ -22,8 +22,11 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
+        <!-- File types -->
         <fileType name="CirJSON" fieldName="INSTANCE" language="CirJSON" extensions="cirjson"
                 implementationClass="org.cirjson.plugin.idea.CirJsonFileType"/>
+
+        <!-- File utils -->
         <lang.parserDefinition language="CirJSON"
                 implementationClass="org.cirjson.plugin.idea.CirJsonParserDefinition"/>
         <lang.syntaxHighlighterFactory language="CirJSON"

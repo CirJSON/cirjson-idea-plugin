@@ -21,6 +21,14 @@ interface CirJsonSchemaService {
 
     fun getDynamicSchemaForFile(psiFile: PsiFile): VirtualFile?
 
+    fun registerRemoteUpdateCallback(callback: Runnable)
+
+    fun unregisterRemoteUpdateCallback(callback: Runnable)
+
+    fun registerResetAction(action: Runnable)
+
+    fun unregisterResetAction(action: Runnable)
+
     fun registerReference(ref: String)
 
     fun possiblyHasReference(ref: String): Boolean

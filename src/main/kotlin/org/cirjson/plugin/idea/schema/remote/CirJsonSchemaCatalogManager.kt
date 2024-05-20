@@ -7,8 +7,10 @@ import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.impl.http.FileDownloadingAdapter
 import com.intellij.openapi.vfs.impl.http.HttpVirtualFile
 import com.intellij.openapi.vfs.impl.http.RemoteFileManager
+import com.intellij.util.containers.CollectionFactory
 import com.intellij.util.containers.ContainerUtil
 import org.cirjson.plugin.idea.schema.CirJsonSchemaCatalogEntry
 import org.cirjson.plugin.idea.schema.CirJsonSchemaCatalogProjectConfiguration
@@ -25,6 +27,8 @@ class CirJsonSchemaCatalogManager(private val myProject: Project) {
     private var myResolvedMappings = ContainerUtil.createConcurrentSoftMap<VirtualFile, String>()
 
     private var myTestSchemaStoreFile: VirtualFile? = null
+
+    private val myDownloadingAdapters = CollectionFactory.createConcurrentWeakMap<Runnable, FileDownloadingAdapter>()
 
     fun startUpdates() {
         CirJsonSchemaCatalogProjectConfiguration.getInstance(myProject).addChangeHandler {
@@ -89,6 +93,27 @@ class CirJsonSchemaCatalogManager(private val myProject: Project) {
             myCatalog ?: return emptyList()
             return CirJsonCachedValues.getSchemaCatalog(myCatalog!!, myProject) ?: emptyList()
         }
+
+    fun registerCatalogUpdateCallback(callback: Runnable) {
+        val info = (myCatalog as? HttpVirtualFile)?.fileInfo ?: return
+        val adapter = object : FileDownloadingAdapter() {
+
+            override fun fileDownloaded(file: VirtualFile) {
+                callback.run()
+            }
+
+        }
+
+        myDownloadingAdapters[callback] = adapter
+        info.addDownloadingListener(adapter)
+    }
+
+    fun unregisterCatalogUpdateCallback(callback: Runnable) {
+        val adapter = myDownloadingAdapters[callback] ?: return
+
+        val info = (myCatalog as? HttpVirtualFile)?.fileInfo ?: return
+        info.removeDownloadingListener(adapter)
+    }
 
     private class FileMatcher(val myEntry: CirJsonSchemaCatalogEntry) {
 

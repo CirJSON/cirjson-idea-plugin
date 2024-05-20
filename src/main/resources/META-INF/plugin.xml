@@ -34,6 +34,9 @@
                 implementationClass="org.cirjson.plugin.idea.highlighting.CirJsonSyntaxHighlighterFactory"/>
         <outerLanguageRangePatcher language="CirJSON"
                 implementationClass="com.intellij.psi.templateLanguages.DefaultOuterLanguagePatcher"/>
+        <statusBarWidgetFactory id="CirJSONSchemaSelector"
+                order="after CodeStyleStatusBarWidget, before ReadOnlyAttribute"
+                implementation="org.cirjson.plugin.idea.schema.widget.CirJsonSchemaStatusWidgetFactory"/>
         <fileBasedIndex implementation="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaFileValuesIndex"/>
 
         <!-- Code style and formatting -->
@@ -195,6 +198,8 @@
                 dynamic="true"/>
         <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonSchemaEnabler"
                 interface="org.cirjson.plugin.idea.schema.extension.CirJsonSchemaEnabler" dynamic="true"/>
+        <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonWidgetSuppressor" dynamic="true"
+            interface="org.cirjson.plugin.idea.schema.extension.CirJsonWidgetSuppressor"/>
         <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonLiteralChecker"
                 interface="org.cirjson.plugin.idea.codeinsight.CirJsonLiteralChecker" dynamic="true"/>
         <extensionPoint qualifiedName="org.cirjson.plugin.idea.catalog.exclusion"

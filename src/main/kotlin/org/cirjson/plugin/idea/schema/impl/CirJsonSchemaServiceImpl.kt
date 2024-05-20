@@ -296,6 +296,22 @@ open class CirJsonSchemaServiceImpl(final override val project: Project) : CirJs
                 .firstOrNull()
     }
 
+    override fun registerRemoteUpdateCallback(callback: Runnable) {
+        myCatalogManager.startUpdates()
+    }
+
+    override fun unregisterRemoteUpdateCallback(callback: Runnable) {
+        myCatalogManager.unregisterCatalogUpdateCallback(callback)
+    }
+
+    override fun registerResetAction(action: Runnable) {
+        myResetActions.add(action)
+    }
+
+    override fun unregisterResetAction(action: Runnable) {
+        myResetActions.remove(action)
+    }
+
     override fun registerReference(ref: String) {
         var realRef = ref
         val index = StringUtil.lastIndexOfAny(realRef, "\\/")

@@ -1,5 +1,10 @@
 package org.cirjson.plugin.idea
 
+import com.intellij.ide.scratch.ScratchFileService
+import com.intellij.ide.scratch.ScratchUtil
+import com.intellij.openapi.fileTypes.LanguageFileType
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import org.cirjson.plugin.idea.psi.CirJsonArray
 import org.cirjson.plugin.idea.psi.CirJsonValue
@@ -52,6 +57,21 @@ object CirJsonUtil {
         }
 
         return -1
+    }
+
+    fun isCirJsonFile(file: VirtualFile, project: Project?): Boolean {
+        val type = file.fileType
+
+        if (type is LanguageFileType && type.language is CirJsonLanguage) {
+            return true
+        }
+
+        if (project == null || !ScratchUtil.isScratch(file)) {
+            return false
+        }
+
+        val rootType = ScratchFileService.findRootType(file) ?: return false
+        return rootType.substituteLanguage(project, file) is CirJsonLanguage
     }
 
 }

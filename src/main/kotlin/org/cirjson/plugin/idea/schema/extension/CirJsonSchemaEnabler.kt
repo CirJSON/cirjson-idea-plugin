@@ -16,7 +16,9 @@ interface CirJsonSchemaEnabler {
      *
      * @return `true` if available, `false` otherwise
      */
-    fun isEnabledForFile(file: VirtualFile, project: Project): Boolean
+    fun isEnabledForFile(file: VirtualFile, project: Project?): Boolean
+
+    fun canBeSchemaFile(file: VirtualFile): Boolean
 
     companion object {
 

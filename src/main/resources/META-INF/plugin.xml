@@ -169,6 +169,7 @@
                 implementation="org.cirjson.plugin.idea.schema.extension.CirJsonSchemaUserDefinedProviderFactory"/>
         <javaScript.cirJsonSchema.providerFactory
                 implementation="org.cirjson.plugin.idea.schema.extension.CirJsonSchemaProjectSelfProviderFactory"/>
+        <cirJsonSchemaEnabler implementation="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaInCirJsonFilesEnabler"/>
     </extensions>
 
     <extensionPoints>

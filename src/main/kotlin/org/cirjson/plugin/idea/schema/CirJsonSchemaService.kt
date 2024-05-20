@@ -7,6 +7,7 @@ import org.cirjson.plugin.idea.schema.extension.CirJsonLikePsiWalker
 import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaFileProvider
 import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaInfo
 import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaObject
+import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaVersion
 
 interface CirJsonSchemaService {
 
@@ -15,6 +16,8 @@ interface CirJsonSchemaService {
     fun isSchemaFile(schemaObject: CirJsonSchemaObject): Boolean
 
     val project: Project
+
+    fun getSchemaVersion(file: VirtualFile): CirJsonSchemaVersion?
 
     fun getDynamicSchemaForFile(psiFile: PsiFile): VirtualFile?
 

@@ -279,6 +279,18 @@ open class CirJsonSchemaServiceImpl(final override val project: Project) : CirJs
         return myCatalogManager.getSchemaFileForFile(file)
     }
 
+    override fun getSchemaVersion(file: VirtualFile): CirJsonSchemaVersion? {
+        if (isMappedSchema(file)) {
+            val provider = myState.getProvider(file)
+
+            if (provider != null) {
+                return provider.schemaVersion
+            }
+        }
+
+        return getSchemaVersionFromSchemaUrl(file)
+    }
+
     override fun getDynamicSchemaForFile(psiFile: PsiFile): VirtualFile? {
         return ContentAwareCirJsonSchemaFileProvider.EP_NAME.extensionList.mapNotNull { it.getSchemaFile(psiFile) }
                 .firstOrNull()

@@ -32,6 +32,8 @@
                 implementationClass="org.cirjson.plugin.idea.CirJsonParserDefinition"/>
         <lang.syntaxHighlighterFactory language="CirJSON"
                 implementationClass="org.cirjson.plugin.idea.highlighting.CirJsonSyntaxHighlighterFactory"/>
+        <outerLanguageRangePatcher language="CirJSON"
+                implementationClass="com.intellij.psi.templateLanguages.DefaultOuterLanguagePatcher"/>
         <fileBasedIndex implementation="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaFileValuesIndex"/>
 
         <!-- Code style and formatting -->

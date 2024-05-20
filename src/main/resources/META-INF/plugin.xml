@@ -27,6 +27,7 @@
                 implementationClass="org.cirjson.plugin.idea.CirJsonFileType"/>
 
         <!-- File utils -->
+        <fileIconProvider implementation="org.cirjson.plugin.idea.schema.CirJsonSchemaIconProvider"/>
         <lang.parserDefinition language="CirJSON"
                 implementationClass="org.cirjson.plugin.idea.CirJsonParserDefinition"/>
         <lang.syntaxHighlighterFactory language="CirJSON"

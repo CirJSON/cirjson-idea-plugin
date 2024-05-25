@@ -18,6 +18,14 @@ interface CirJsonSchemaEnabler {
      */
     fun isEnabledForFile(file: VirtualFile, project: Project?): Boolean
 
+    /**
+     * This method enables/disables JSON schema selection widget
+     * This method SHOULD NOT ADDRESS INDEXES
+     */
+    fun shouldShowSwitcherWidget(file: VirtualFile): Boolean {
+        return false
+    }
+
     fun canBeSchemaFile(file: VirtualFile): Boolean
 
     companion object {

@@ -3,17 +3,38 @@ package org.cirjson.plugin.idea.schema.widget
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.fileTypes.LanguageFileType
+import com.intellij.openapi.progress.EmptyProgressIndicator
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.ListPopup
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.impl.http.FileDownloadingAdapter
+import com.intellij.openapi.vfs.impl.http.HttpVirtualFile
+import com.intellij.openapi.vfs.impl.http.RemoteFileInfo
+import com.intellij.openapi.vfs.impl.http.RemoteFileState
 import com.intellij.openapi.wm.StatusBarWidget
 import com.intellij.openapi.wm.impl.status.EditorBasedStatusBarPopup
+import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.concurrency.SynchronizedClearableLazy
 import com.intellij.util.messages.MessageBusConnection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Runnable
+import org.cirjson.plugin.idea.CirJsonBundle
+import org.cirjson.plugin.idea.CirJsonLanguage
+import org.cirjson.plugin.idea.extentions.toCallable
+import org.cirjson.plugin.idea.schema.CirJsonSchemaCatalogProjectConfiguration
+import org.cirjson.plugin.idea.schema.CirJsonSchemaMappingsProjectConfiguration
 import org.cirjson.plugin.idea.schema.CirJsonSchemaService
+import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaEnabler
 import org.cirjson.plugin.idea.schema.extension.CirJsonWidgetSuppressor
+import org.cirjson.plugin.idea.schema.extension.SchemaType
+import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaServiceImpl
+import org.cirjson.plugin.idea.schema.remote.CirJsonFileResolver
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
@@ -41,6 +62,8 @@ class CirJsonSchemaStatusWidget internal constructor(project: Project, scope: Co
 
     @Volatile
     private var myLastWidgetStateAndFilePair: Pair<WidgetState, VirtualFile?>? = null
+
+    private var myCurrentProgress: ProgressIndicator? = null
 
     init {
         CirJsonWidgetSuppressor.EXTENSION_POINT_NAME.addChangeListener(this::update, this)
@@ -83,7 +106,211 @@ class CirJsonSchemaStatusWidget internal constructor(project: Project, scope: Co
 
     private fun calcWidgetState(file: VirtualFile?, lastWidgetState: WidgetState?,
             lastFile: VirtualFile?): WidgetState {
-        TODO()
+        val suppressInfo = mySuppressInfoRef.getAndSet(null)
+
+        if (myCurrentProgress != null && !myCurrentProgress!!.isCanceled) {
+            myCurrentProgress!!.cancel()
+        }
+
+        file ?: return WidgetState.HIDDEN
+
+        val status = getWidgetStatus(project, file)
+
+        if (status == WidgetStatus.DISABLED) {
+            return WidgetState.HIDDEN
+        }
+
+        val fileType = file.fileType
+        val language = (fileType as? LanguageFileType)?.language
+        val isCirJsonFile = language is CirJsonLanguage
+
+        if (DumbService.getInstance(project).isDumb) {
+            return getDumbModeState(isCirJsonFile)
+        }
+
+        if (status == WidgetStatus.MAYBE_SUPPRESSED) {
+            if (suppressInfo == null || suppressInfo.first == file) {
+                myCurrentProgress = EmptyProgressIndicator()
+                scheduleSuppressCheck(file, myCurrentProgress!!)
+
+                // show 'loading' only when switching between files and previous state was not hidden, otherwise the
+                // widget will "jump"
+                return if (lastFile != file && lastWidgetState != null && lastWidgetState != WidgetState.HIDDEN) {
+                    val analyzed = if (isCirJsonFile) {
+                        CirJsonBundle.message("schema.widget.prefix.cirjson.files")
+                    } else {
+                        CirJsonBundle.message("schema.widget.prefix.other.files")
+                    }
+
+                    WidgetState(CirJsonBundle.message("schema.widget.checking.state.tooltip"),
+                            CirJsonBundle.message("schema.widget.checking.state.text", "$analyzed "), false)
+                } else {
+                    WidgetState.NO_CHANGE
+                }
+            } else if (suppressInfo.second) {
+                return WidgetState.HIDDEN
+            }
+        }
+
+        return doGetWidgetState(file, isCirJsonFile)
+    }
+
+    private fun scheduleSuppressCheck(file: VirtualFile, globalProgress: ProgressIndicator) {
+        val update = Runnable {
+            if (DumbService.getInstance(project).isDumb) {
+                // Suppress check should be rescheduled when dumb mode ends.
+                mySuppressInfoRef.set(null)
+            } else {
+                val suppress = CirJsonWidgetSuppressor.EXTENSION_POINT_NAME.extensionList.any {
+                    it.suppressSwitcherWidget(file, project)
+                }
+                mySuppressInfoRef.set(file to suppress)
+            }
+
+            super.update(null)
+        }
+
+        if (ApplicationManager.getApplication().isUnitTestMode) {
+            // Give tests a chance to check the widget state before the task is run (see
+            // EditorBasedStatusBarPopup#updateInTests())
+            ApplicationManager.getApplication().invokeLater(update)
+        } else {
+            ReadAction.nonBlocking(update.toCallable()).expireWith(this).wrapProgress(globalProgress)
+                    .submit(AppExecutorUtil.getAppExecutorService())
+        }
+    }
+
+    private fun doGetWidgetState(file: VirtualFile, isCirJsonFile: Boolean): WidgetState {
+        val service = service
+        val userMappingsConfiguration = CirJsonSchemaMappingsProjectConfiguration.getInstance(project)
+
+        if (service == null || userMappingsConfiguration.isIgnoredFile(file)) {
+            return getNoSchemaState()
+        }
+
+        var schemaFiles = service.getSchemaFilesForFile(file)
+
+        if (schemaFiles.isEmpty()) {
+            return getNoSchemaState()
+        }
+
+        if (schemaFiles.size > 1) {
+            val userSchemas = arrayListOf<VirtualFile>()
+
+            if (hasConflicts(userSchemas, service, file)) {
+                val state = MyWidgetState(createMessage(schemaFiles, service, "<br/>",
+                        CirJsonBundle.message("schema.widget.conflict.message.prefix"), ""),
+                        "${schemaFiles.size} ${CirJsonBundle.message("schema.widget.conflict.message.postfix")}", true)
+                state.isWarning = true
+                state.isHavingConflict = true
+                return state
+            }
+
+            schemaFiles = userSchemas
+
+            if (schemaFiles.isEmpty()) {
+                return getNoSchemaState()
+            }
+        }
+
+        var schemaFile = schemaFiles.first()
+        schemaFile = (service as CirJsonSchemaServiceImpl).replaceHttpFileWithBuiltinIfNeeded(schemaFile)
+
+        val toolTip = if (isCirJsonFile) {
+            CirJsonBundle.message("schema.widget.tooltip.cirjson.files")
+        } else {
+            CirJsonBundle.message("schema.widget.tooltip.other.files")
+        }
+        val bar = if (isCirJsonFile) {
+            CirJsonBundle.message("schema.widget.prefix.cirjson.files")
+        } else {
+            CirJsonBundle.message("schema.widget.prefix.other.files")
+        }
+
+        if (schemaFile is HttpVirtualFile) {
+            val info = schemaFile.fileInfo ?: return getDownloadErrorState(null)
+
+            when (info.state) {
+                RemoteFileState.DOWNLOADING_NOT_STARTED -> {
+                    addDownloadingUpdateListener(info)
+                    return MyWidgetState("$toolTip ${getSchemaFileDesc(schemaFile)}",
+                            "$bar ${getPresentableNameForFile(schemaFile)}", true)
+                }
+
+                RemoteFileState.DOWNLOADING_IN_PROGRESS -> {
+                    addDownloadingUpdateListener(info)
+                    return MyWidgetState(CirJsonBundle.message("schema.widget.download.in.progress.tooltip"),
+                            CirJsonBundle.message("schema.widget.download.in.progress.label"), false)
+                }
+
+                RemoteFileState.ERROR_OCCURRED -> {
+                    return getDownloadErrorState(info.errorMessage)
+                }
+
+                else -> {}
+            }
+        }
+
+        if (!isValidSchemaFile(schemaFile)) {
+            val state = MyWidgetState(CirJsonBundle.message("schema.widget.error.not.a.schema"),
+                    CirJsonBundle.message("schema.widget.error.label"), true)
+            state.isWarning = true
+            return state
+        }
+
+        val provider = service.getSchemaProvider(schemaFile) ?: return MyWidgetState(
+                "$toolTip ${getSchemaFileDesc(schemaFile)}", "$bar ${getPresentableNameForFile(schemaFile)}", true)
+        val preferRemoteSchemas = CirJsonSchemaCatalogProjectConfiguration.getInstance(project).isPreferRemoteSchemas
+        val remoteSource = provider.remoteSource
+        val useRemoteSource = preferRemoteSchemas && remoteSource != null && !CirJsonFileResolver.isSchemaUrl(
+                remoteSource) && !remoteSource.endsWith("!")
+        val providerName = if (useRemoteSource) remoteSource!! else provider.presentableName
+        val shortName = StringUtil.trimEnd(StringUtil.trimEnd(providerName, ".cirjson"), "-schema")
+        val name = if (useRemoteSource) {
+            provider.presentableName
+        } else if (CirJsonBundle.message("schema.of.version", "") in shortName) {
+            shortName
+        } else {
+            "$bar $shortName"
+        }
+        val kind =
+                if (!useRemoteSource && (provider.schemaType == SchemaType.EMBEDDED_SCHEMA || provider.schemaType == SchemaType.SCHEMA)) {
+                    CirJsonBundle.message("schema.widget.bundled.postfix")
+                } else {
+                    ""
+                }
+
+        return MyWidgetState("$toolTip $providerName$kind", name, true)
+    }
+
+    private fun addDownloadingUpdateListener(info: RemoteFileInfo) {
+        info.addDownloadingListener(object : FileDownloadingAdapter() {
+
+            override fun fileDownloaded(localFile: VirtualFile) {
+                update()
+            }
+
+            override fun errorOccurred(errorMessage: String) {
+                update()
+            }
+
+            override fun downloadingCancelled() {
+                update()
+            }
+
+        })
+    }
+
+    private fun isValidSchemaFile(schemaFile: VirtualFile?): Boolean {
+        if (schemaFile is HttpVirtualFile) {
+            return true
+        }
+
+        schemaFile ?: return false
+
+        val service = service
+
+        return service != null && service.isSchemaFile(schemaFile) && service.isApplicableToFile(schemaFile)
     }
 
     override fun update(finishUpdate: Runnable?) {
@@ -136,6 +363,61 @@ class CirJsonSchemaStatusWidget internal constructor(project: Project, scope: Co
         private val ourIsNotified = AtomicBoolean(false)
 
         fun isAvailableOnFile(project: Project, file: VirtualFile?): Boolean {
+            file ?: return false
+
+            val enablers = CirJsonSchemaEnabler.EXTENSION_POINT_NAME.extensionList
+
+            return enablers.any { it.isEnabledForFile(file, project) && it.shouldShowSwitcherWidget(file) }
+        }
+
+        private fun getWidgetStatus(project: Project, file: VirtualFile): WidgetStatus {
+            val enablers = CirJsonSchemaEnabler.EXTENSION_POINT_NAME.extensionList
+
+            return if (!enablers.any { it.isEnabledForFile(file, project) && it.shouldShowSwitcherWidget(file) }) {
+                WidgetStatus.DISABLED
+            } else if (DumbService.getInstance(project).isDumb) {
+                WidgetStatus.ENABLED
+            } else if (CirJsonWidgetSuppressor.EXTENSION_POINT_NAME.extensionList.any {
+                        it.isCandidateForSuppress(file, project)
+                    }) {
+                WidgetStatus.MAYBE_SUPPRESSED
+            } else {
+                WidgetStatus.ENABLED
+            }
+        }
+
+        private fun getDumbModeState(isCirJsonFile: Boolean): WidgetState {
+            val prefix = if (isCirJsonFile) {
+                CirJsonBundle.message("schema.widget.prefix.cirjson.files")
+            } else {
+                CirJsonBundle.message("schema.widget.prefix.other.files")
+            }
+            return WidgetState.getDumbModeState(CirJsonBundle.message("schema.widget.service"), "$prefix ")
+        }
+
+        private fun getNoSchemaState(): WidgetState {
+            TODO()
+        }
+
+        private fun hasConflicts(files: Collection<VirtualFile>, service: CirJsonSchemaService,
+                file: VirtualFile): Boolean {
+            TODO()
+        }
+
+        private fun createMessage(schemaFiles: Collection<VirtualFile>, cirJsonSchemaService: CirJsonSchemaService,
+                separator: String, prefix: String, suffix: String): String {
+            TODO()
+        }
+
+        private fun getDownloadErrorState(message: String?): WidgetState {
+            TODO()
+        }
+
+        private fun getSchemaFileDesc(schemaFile: VirtualFile): String {
+            TODO()
+        }
+
+        private fun getPresentableNameForFile(schemaFile: VirtualFile): String {
             TODO()
         }
 

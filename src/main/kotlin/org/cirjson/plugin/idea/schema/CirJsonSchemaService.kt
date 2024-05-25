@@ -19,6 +19,8 @@ interface CirJsonSchemaService {
 
     fun getSchemaVersion(file: VirtualFile): CirJsonSchemaVersion?
 
+    fun getSchemaFilesForFile(file: VirtualFile): Collection<VirtualFile>
+
     fun getDynamicSchemaForFile(psiFile: PsiFile): VirtualFile?
 
     fun registerRemoteUpdateCallback(callback: Runnable)

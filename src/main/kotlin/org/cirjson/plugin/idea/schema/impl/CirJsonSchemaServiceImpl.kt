@@ -291,9 +291,14 @@ open class CirJsonSchemaServiceImpl(final override val project: Project) : CirJs
         return getSchemaVersionFromSchemaUrl(file)
     }
 
+    override fun getSchemaFilesForFile(file: VirtualFile): Collection<VirtualFile> {
+        return getSchemasForFile(file, single = false, onlyUserSchemas = false)
+    }
+
     override fun getDynamicSchemaForFile(psiFile: PsiFile): VirtualFile? {
-        return ContentAwareCirJsonSchemaFileProvider.EP_NAME.extensionList.mapNotNull { it.getSchemaFile(psiFile) }
-                .firstOrNull()
+        return ContentAwareCirJsonSchemaFileProvider.EP_NAME.extensionList.firstNotNullOfOrNull {
+            it.getSchemaFile(psiFile)
+        }
     }
 
     override fun registerRemoteUpdateCallback(callback: Runnable) {

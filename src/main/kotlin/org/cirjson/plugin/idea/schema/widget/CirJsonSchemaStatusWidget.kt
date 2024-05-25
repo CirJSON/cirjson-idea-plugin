@@ -11,6 +11,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.ListPopup
+import com.intellij.openapi.util.text.HtmlChunk
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.impl.http.FileDownloadingAdapter
@@ -31,6 +32,7 @@ import org.cirjson.plugin.idea.schema.CirJsonSchemaCatalogProjectConfiguration
 import org.cirjson.plugin.idea.schema.CirJsonSchemaMappingsProjectConfiguration
 import org.cirjson.plugin.idea.schema.CirJsonSchemaService
 import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaEnabler
+import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaInfo
 import org.cirjson.plugin.idea.schema.extension.CirJsonWidgetSuppressor
 import org.cirjson.plugin.idea.schema.extension.SchemaType
 import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaServiceImpl
@@ -333,7 +335,7 @@ class CirJsonSchemaStatusWidget internal constructor(project: Project, scope: Co
         TODO()
     }
 
-    private class MyWidgetState(toolTip: String, text: String, isActionEnabled: Boolean) :
+    private class MyWidgetState(toolTip: String?, text: String, isActionEnabled: Boolean) :
             WidgetState(toolTip, text, isActionEnabled) {
 
         var isWarning: Boolean = false
@@ -396,29 +398,113 @@ class CirJsonSchemaStatusWidget internal constructor(project: Project, scope: Co
         }
 
         private fun getNoSchemaState(): WidgetState {
-            TODO()
+            return MyWidgetState(CirJsonBundle.message("schema.widget.no.schema.tooltip"),
+                    CirJsonBundle.message("schema.widget.no.schema.label"), true)
         }
 
-        private fun hasConflicts(files: Collection<VirtualFile>, service: CirJsonSchemaService,
+        private fun hasConflicts(files: MutableCollection<VirtualFile>, service: CirJsonSchemaService,
                 file: VirtualFile): Boolean {
-            TODO()
+            val providers = (service as CirJsonSchemaServiceImpl).getProvidersForFile(file)
+
+            for (provider in providers) {
+                if (provider.schemaType == SchemaType.USER_SCHEMA) {
+                    continue
+                }
+
+                provider.schemaFile?.let { files.add(it) }
+            }
+
+            return files.size > 1
         }
 
+        @Suppress("SameParameterValue")
         private fun createMessage(schemaFiles: Collection<VirtualFile>, cirJsonSchemaService: CirJsonSchemaService,
-                separator: String, prefix: String, suffix: String): String {
-            TODO()
+                separator: String, prefix: String, suffix: String): String? {
+            val pairList = schemaFiles.mapNotNull { cirJsonSchemaService.getSchemaProvider(it) }
+                    .map { (it.schemaType == SchemaType.USER_SCHEMA) to it.name }
+
+            val numOfSystemSchemas = pairList.count { !it.first }
+
+            if (pairList.size == 2 && numOfSystemSchemas == 1) {
+                return null
+            }
+
+            val withTypes = numOfSystemSchemas > 0
+            return pairList.map { formatName(withTypes, it) }.joinToString(separator, prefix, suffix)
+        }
+
+        private fun formatName(withTypes: Boolean, pair: Pair<Boolean, String>): String {
+            return "&nbsp;&nbsp;- " + if (withTypes) {
+                "${if (pair.first) "user" else "&"} system ${pair.second}"
+            } else {
+                pair.second
+            }
         }
 
         private fun getDownloadErrorState(message: String?): WidgetState {
-            TODO()
+            val s = if (message == null) "" else ": ${HtmlChunk.br()}$message"
+            val state = MyWidgetState("${CirJsonBundle.message("schema.widget.error.cant.download")}$s",
+                    CirJsonBundle.message("schema.widget.error.label"), true)
+            state.isWarning = true
+            return state
         }
 
         private fun getSchemaFileDesc(schemaFile: VirtualFile): String {
-            TODO()
+            if (schemaFile is HttpVirtualFile) {
+                return schemaFile.presentableUrl
+            }
+
+            val npmPackageName = extractNpmPackageName(schemaFile.path)
+            val packageSuffix = if (npmPackageName != null) {
+                " ${CirJsonBundle.message("schema.widget.package.postfix", npmPackageName)}"
+            } else {
+                ""
+            }
+            return "${schemaFile.name}$packageSuffix"
+        }
+
+        private fun extractNpmPackageName(path: String?): String? {
+            var realPath = path
+
+            realPath ?: return null
+            var idx = realPath.indexOf("node_modules")
+
+            if (idx != -1) {
+                val trimIndex = idx + "node_modules".length + 1
+
+                if (trimIndex < realPath.length) {
+                    realPath = realPath.substring(trimIndex)
+                    idx = StringUtil.indexOfAny(realPath, "\\/")
+
+                    if (idx != -1) {
+                        if (realPath.startsWith("@")) {
+                            idx = StringUtil.indexOfAny(realPath, "\\/", idx + 1, realPath.length)
+                        }
+                    }
+                }
+
+                if (idx != -1) {
+                    return realPath.substring(0, idx)
+                }
+            }
+
+            return null
         }
 
         private fun getPresentableNameForFile(schemaFile: VirtualFile): String {
-            TODO()
+            if (schemaFile is HttpVirtualFile) {
+                return CirJsonSchemaInfo(schemaFile.url).description
+            }
+
+            val nameWithoutExtension = schemaFile.nameWithoutExtension
+
+            if (!CirJsonSchemaInfo.isVeryDumbName(nameWithoutExtension)) {
+                return nameWithoutExtension
+            }
+
+            val path = schemaFile.path
+            val npmPackageName = extractNpmPackageName(path)
+            return npmPackageName ?: schemaFile.name
         }
 
     }

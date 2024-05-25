@@ -8,7 +8,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.cirjson.plugin.idea.psi.CirJsonFile
 import org.cirjson.plugin.idea.psi.CirJsonValue
 
-class CirJsonFileImpl(fileViewProvider: FileViewProvider, language: Language): PsiFileBase(fileViewProvider, language), CirJsonFile {
+class CirJsonFileImpl(fileViewProvider: FileViewProvider, language: Language) : PsiFileBase(fileViewProvider, language),
+        CirJsonFile {
 
     override fun getFileType(): FileType {
         return viewProvider.fileType

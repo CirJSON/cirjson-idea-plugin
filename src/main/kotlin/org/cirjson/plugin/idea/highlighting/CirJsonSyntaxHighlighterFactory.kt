@@ -103,10 +103,10 @@ class CirJsonSyntaxHighlighterFactory : SyntaxHighlighterFactory() {
         val CIRJSON_PROPERTY_KEY = TextAttributesKey.createTextAttributesKey("CIRJSON.PROPERTY_KEY", INSTANCE_FIELD)
 
         val CIRJSON_VALID_ESCAPE =
-            TextAttributesKey.createTextAttributesKey("CIRJSON.VALID_ESCAPE", VALID_STRING_ESCAPE)
+                TextAttributesKey.createTextAttributesKey("CIRJSON.VALID_ESCAPE", VALID_STRING_ESCAPE)
 
         val CIRJSON_INVALID_ESCAPE =
-            TextAttributesKey.createTextAttributesKey("CIRJSON.INVALID_ESCAPE", INVALID_STRING_ESCAPE)
+                TextAttributesKey.createTextAttributesKey("CIRJSON.INVALID_ESCAPE", INVALID_STRING_ESCAPE)
 
         val CIRJSON_PARAMETER = TextAttributesKey.createTextAttributesKey("CIRJSON.PARAMETER", KEYWORD)
 

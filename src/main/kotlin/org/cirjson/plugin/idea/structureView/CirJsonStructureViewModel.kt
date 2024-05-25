@@ -12,7 +12,8 @@ import org.cirjson.plugin.idea.psi.CirJsonObject
 import org.cirjson.plugin.idea.psi.CirJsonProperty
 
 class CirJsonStructureViewModel(psiFile: PsiFile, editor: Editor?) :
-        StructureViewModelBase(psiFile, editor, CirJsonStructureViewElement(psiFile as CirJsonFile)), StructureViewModel.ElementInfoProvider {
+        StructureViewModelBase(psiFile, editor, CirJsonStructureViewElement(psiFile as CirJsonFile)),
+        StructureViewModel.ElementInfoProvider {
 
     init {
         withSuitableClasses(CirJsonFile::class.java, CirJsonProperty::class.java, CirJsonObject::class.java,

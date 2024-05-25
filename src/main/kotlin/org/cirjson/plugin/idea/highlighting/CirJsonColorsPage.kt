@@ -1,6 +1,5 @@
 package org.cirjson.plugin.idea.highlighting
 
-import com.intellij.json.highlighting.JsonSyntaxHighlighterFactory
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.fileTypes.SyntaxHighlighter

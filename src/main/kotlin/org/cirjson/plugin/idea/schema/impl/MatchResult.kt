@@ -5,12 +5,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectFunction
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import java.util.*
 import kotlin.collections.ArrayDeque
-import kotlin.collections.ArrayList
-import kotlin.collections.Collection
-import kotlin.collections.List
-import kotlin.collections.MutableList
-import kotlin.collections.emptyList
-import kotlin.collections.isNotEmpty
 
 class MatchResult private constructor(schemas: List<CirJsonSchemaObject>,
         excludingSchemas: List<Collection<CirJsonSchemaObject>>) {

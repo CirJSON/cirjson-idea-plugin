@@ -6,13 +6,12 @@ import com.intellij.application.options.codeStyle.properties.CodeStyleFieldAcces
 import com.intellij.application.options.codeStyle.properties.MagicIntegerConstAccessor
 import com.intellij.lang.Language
 import com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable
+import com.intellij.psi.codeStyle.CodeStyleSettingsCustomizableOptions.getInstance
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider
 import org.cirjson.plugin.idea.CirJsonBundle
 import org.cirjson.plugin.idea.CirJsonLanguage
 import java.lang.reflect.Field
-
-import com.intellij.psi.codeStyle.CodeStyleSettingsCustomizableOptions.getInstance
 
 class CirJsonLanguageCodeStyleSettingsProvider : LanguageCodeStyleSettingsProvider() {
 

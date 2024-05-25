@@ -2,8 +2,8 @@ package org.cirjson.plugin.idea.formatter
 
 import com.intellij.formatting.*
 import com.intellij.psi.codeStyle.CodeStyleSettings
-import org.cirjson.plugin.idea.CirJsonLanguage
 import org.cirjson.plugin.idea.CirJsonElementTypes.*
+import org.cirjson.plugin.idea.CirJsonLanguage
 
 class CirJsonFormattingBuilderModel : FormattingModelBuilder {
 

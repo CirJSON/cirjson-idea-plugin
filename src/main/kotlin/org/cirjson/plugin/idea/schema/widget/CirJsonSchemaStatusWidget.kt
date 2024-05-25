@@ -1,16 +1,20 @@
 package org.cirjson.plugin.idea.schema.widget
 
+import com.intellij.codeInsight.hint.HintUtil
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.ListPopup
+import com.intellij.openapi.util.text.HtmlBuilder
 import com.intellij.openapi.util.text.HtmlChunk
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
@@ -20,6 +24,7 @@ import com.intellij.openapi.vfs.impl.http.RemoteFileInfo
 import com.intellij.openapi.vfs.impl.http.RemoteFileState
 import com.intellij.openapi.wm.StatusBarWidget
 import com.intellij.openapi.wm.impl.status.EditorBasedStatusBarPopup
+import com.intellij.util.Alarm
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.concurrency.SynchronizedClearableLazy
 import com.intellij.util.messages.MessageBusConnection
@@ -316,23 +321,72 @@ class CirJsonSchemaStatusWidget internal constructor(project: Project, scope: Co
     }
 
     override fun update(finishUpdate: Runnable?) {
-        TODO()
+        mySuppressInfoRef.set(null)
+        super.update(finishUpdate)
     }
 
     override fun registerCustomListeners(connection: MessageBusConnection) {
-        TODO()
+        connection.subscribe(DumbService.DUMB_MODE, object : DumbService.DumbModeListener {
+
+            @Volatile
+            private var myIsDumbMode = false
+
+            override fun enteredDumbMode() {
+                myIsDumbMode = true
+                update()
+            }
+
+            override fun exitDumbMode() {
+                myIsDumbMode = false
+                update()
+            }
+
+        })
     }
 
     override fun handleFileChange(file: VirtualFile?) {
-        TODO()
+        ourIsNotified.set(false)
     }
 
     override fun dispose() {
-        TODO()
+        val service = myServiceLazy.takeIf { it.isInitialized() }?.value
+
+        service?.unregisterRemoteUpdateCallback(myUpdateCallback)
+        service?.unregisterResetAction(myUpdateCallback)
+
+        super.dispose()
     }
 
     override fun afterVisibleUpdate(state: WidgetState) {
-        TODO()
+        if (state !is MyWidgetState || !state.isHavingConflict) {
+            ourIsNotified.set(false)
+            return
+        }
+
+        if (ourIsNotified.get()) {
+            return
+        }
+
+        ourIsNotified.set(true)
+        val alarm = Alarm(Alarm.ThreadToUse.SWING_THREAD, this)
+        alarm.addRequest(Runnable {
+            val message = HtmlBuilder().apply {
+                append(HtmlChunk.tag("b").addText(CirJsonBundle.message("schema.widget.conflict.popup.title")))
+                append(HtmlChunk.br())
+                append(HtmlChunk.br())
+                appendRaw(state.toolTip!!)
+            }.toString()
+            val label = HintUtil.createErrorLabel(message)
+            val builder = JBPopupFactory.getInstance().createBalloonBuilder(label)
+            val statusBarComponent = component
+            val balloon = builder.apply {
+                setCalloutShift(statusBarComponent.height / 2)
+                setDisposable(this@CirJsonSchemaStatusWidget)
+                setFillColor(HintUtil.getErrorColor())
+                setHideOnClickOutside(true)
+            }.createBalloon()
+            balloon.showInCenterOf(statusBarComponent)
+        }, 500, ModalityState.nonModal())
     }
 
     private class MyWidgetState(toolTip: String?, text: String, isActionEnabled: Boolean) :

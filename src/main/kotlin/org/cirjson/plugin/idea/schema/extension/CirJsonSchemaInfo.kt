@@ -9,7 +9,7 @@ import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaType
 import java.io.File
 import java.nio.file.Paths
 
-class CirJsonSchemaInfo private constructor(val provider: CirJsonSchemaFileProvider?, private val myUrl: String?) {
+open class CirJsonSchemaInfo private constructor(val provider: CirJsonSchemaFileProvider?, private val myUrl: String?) {
 
     var documentation: String? = null
 
@@ -43,7 +43,7 @@ class CirJsonSchemaInfo private constructor(val provider: CirJsonSchemaFileProvi
         }
     }
 
-    val description: String
+    open val description: String
         get() {
             if (provider != null) {
                 val providerName = provider.presentableName

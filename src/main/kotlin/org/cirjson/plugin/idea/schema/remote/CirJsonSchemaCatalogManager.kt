@@ -115,6 +115,10 @@ class CirJsonSchemaCatalogManager(private val myProject: Project) {
         info.removeDownloadingListener(adapter)
     }
 
+    fun triggerUpdateCatalog(project: Project) {
+        CirJsonFileResolver.startFetchingHttpFileIfNeeded(myCatalog, project)
+    }
+
     private class FileMatcher(val myEntry: CirJsonSchemaCatalogEntry) {
 
         private var myMatcher: PathMatcher? = null

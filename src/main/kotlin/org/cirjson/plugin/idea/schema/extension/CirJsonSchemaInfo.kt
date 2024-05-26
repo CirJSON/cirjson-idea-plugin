@@ -6,6 +6,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.*
 import com.intellij.openapi.vfs.impl.http.HttpVirtualFile
 import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaType
+import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaVersion
 import java.io.File
 import java.nio.file.Paths
 
@@ -62,6 +63,9 @@ open class CirJsonSchemaInfo private constructor(val provider: CirJsonSchemaFile
 
             return StringUtil.split(url, "/").reversed().firstOrNull { !isVeryDumbName(it) } ?: myUrl
         }
+
+    val schemaVersion: CirJsonSchemaVersion
+        get() = provider?.schemaVersion ?: CirJsonSchemaVersion.SCHEMA_1
 
     companion object {
 

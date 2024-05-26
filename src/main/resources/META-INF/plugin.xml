@@ -133,6 +133,12 @@
         <projectService serviceInterface="org.cirjson.plugin.idea.schema.CirJsonSchemaService"
                 serviceImplementation="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaServiceImpl"/>
 
+        <!-- Configurables -->
+        <projectConfigurable groupId="preferences.externalResources" id="settings.cirjson.schema"
+                bundle="messages.CirJsonBundle" key="configurable.CirJsonSchemaMappingsConfigurable.display.name"
+                instance="org.cirjson.plugin.idea.schema.settings.mappings.CirJsonSchemaMappingsConfigurable"
+                nonDefaultProject="true"/>
+
         <!-- Documentation -->
         <lang.documentationProvider language="CirJSON" id="CirJsonSchemaDocumentationProvider"
                 implementationClass="org.cirjson.plugin.idea.schema.impl.CirJsonSchemaDocumentationProvider"/>
@@ -199,7 +205,7 @@
         <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonSchemaEnabler"
                 interface="org.cirjson.plugin.idea.schema.extension.CirJsonSchemaEnabler" dynamic="true"/>
         <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonWidgetSuppressor" dynamic="true"
-            interface="org.cirjson.plugin.idea.schema.extension.CirJsonWidgetSuppressor"/>
+                interface="org.cirjson.plugin.idea.schema.extension.CirJsonWidgetSuppressor"/>
         <extensionPoint qualifiedName="org.cirjson.plugin.idea.cirJsonLiteralChecker"
                 interface="org.cirjson.plugin.idea.codeinsight.CirJsonLiteralChecker" dynamic="true"/>
         <extensionPoint qualifiedName="org.cirjson.plugin.idea.catalog.exclusion"

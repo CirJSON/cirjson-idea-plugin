@@ -332,6 +332,10 @@ open class CirJsonSchemaServiceImpl(final override val project: Project) : CirJs
         return ref in myRefs
     }
 
+    override fun triggerUpdateRemote() {
+        myCatalogManager.triggerUpdateCatalog(project)
+    }
+
     override fun getSchemaObject(file: VirtualFile): CirJsonSchemaObject? {
         val schemas = getSchemasForFile(file, single = true, onlyUserSchemas = false)
 

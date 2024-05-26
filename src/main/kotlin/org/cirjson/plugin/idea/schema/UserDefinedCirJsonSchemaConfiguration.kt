@@ -91,6 +91,10 @@ class UserDefinedCirJsonSchemaConfiguration(var name: String?, var schemaVersion
         return result
     }
 
+    fun refreshPatterns() {
+        myCalculatedPatterns.drop()
+    }
+
     class Item(path: String, mappingKind: CirJsonMappingKind) {
 
         var mappingKind = mappingKind
@@ -118,6 +122,14 @@ class UserDefinedCirJsonSchemaConfiguration(var name: String?, var schemaVersion
             set(value) {
                 mappingKind = if (value) CirJsonMappingKind.DIRECTORY else CirJsonMappingKind.FILE
             }
+
+        constructor(path: String, isPattern: Boolean, isDirectory: Boolean) : this(path, if (isPattern) {
+            CirJsonMappingKind.PATTERN
+        } else if (isDirectory) {
+            CirJsonMappingKind.DIRECTORY
+        } else {
+            CirJsonMappingKind.FILE
+        })
 
         companion object {
 

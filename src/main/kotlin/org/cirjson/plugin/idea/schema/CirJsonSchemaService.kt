@@ -35,6 +35,8 @@ interface CirJsonSchemaService {
 
     fun possiblyHasReference(ref: String): Boolean
 
+    fun triggerUpdateRemote()
+
     fun getSchemaObject(file: VirtualFile): CirJsonSchemaObject?
 
     fun getSchemaObject(file: PsiFile): CirJsonSchemaObject?

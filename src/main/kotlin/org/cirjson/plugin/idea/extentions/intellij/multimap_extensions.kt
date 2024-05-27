@@ -5,3 +5,7 @@ import com.intellij.util.containers.MultiMap
 operator fun <K, V> MultiMap<K, V>.set(key: K, value: V) {
     putValue(key, value)
 }
+
+operator fun <K, V> MultiMap<K, V>.set(key: K, value: Collection<V>) {
+    put(key, value)
+}

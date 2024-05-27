@@ -10,6 +10,7 @@ import com.intellij.util.PatternUtil
 import com.intellij.util.SmartList
 import com.intellij.util.concurrency.SynchronizedClearableLazy
 import com.intellij.util.xmlb.annotations.Tag
+import org.cirjson.plugin.idea.CirJsonBundle
 import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaObject
 import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaVersion
 import org.cirjson.plugin.idea.schema.remote.CirJsonFileResolver
@@ -123,6 +124,15 @@ class UserDefinedCirJsonSchemaConfiguration(var name: String?, var schemaVersion
                 mappingKind = if (value) CirJsonMappingKind.DIRECTORY else CirJsonMappingKind.FILE
             }
 
+        val presentation: String
+            get() {
+                return if (mappingKind == CirJsonMappingKind.DIRECTORY && StringUtil.isEmpty(path)) {
+                    CirJsonBundle.message("schema.configuration.project.directory", mappingKind.prefix)
+                } else {
+                    "${mappingKind.prefix}$path"
+                }
+            }
+
         constructor(path: String, isPattern: Boolean, isDirectory: Boolean) : this(path, if (isPattern) {
             CirJsonMappingKind.PATTERN
         } else if (isDirectory) {
@@ -130,6 +140,28 @@ class UserDefinedCirJsonSchemaConfiguration(var name: String?, var schemaVersion
         } else {
             CirJsonMappingKind.FILE
         })
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            if (other == null || javaClass != other.javaClass) {
+                return false
+            }
+
+            return if (mappingKind != (other as Item).mappingKind) {
+                return false
+            } else {
+                path == other.path
+            }
+        }
+
+        override fun hashCode(): Int {
+            var result = path.hashCode()
+            result = 31 * result + mappingKind.hashCode()
+            return result
+        }
 
         companion object {
 

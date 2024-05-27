@@ -1,7 +1,9 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.9.23"
-    id("org.jetbrains.intellij") version "1.16.1"
+    id("org.jetbrains.kotlin.jvm") version "2.0.0"
+    id("org.jetbrains.intellij") version "1.17.3"
 }
 
 group = "org.cirjson.plugin.idea"
@@ -20,7 +22,7 @@ sourceSets {
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("2024.1.1")
+    version.set("2024.1.2")
     type.set("IC") // Target IDE Platform
 
     plugins.set(listOf(/* Plugin Dependencies */))
@@ -28,12 +30,12 @@ intellij {
 
 tasks {
     // Set the JVM compatibility versions
-    withType<JavaCompile> {
+    compileJava {
         sourceCompatibility = "17"
         targetCompatibility = "17"
     }
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
+    compileKotlin {
+        compilerOptions.jvmTarget = JvmTarget.JVM_17
     }
 
     patchPluginXml {

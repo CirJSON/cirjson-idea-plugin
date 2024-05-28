@@ -46,6 +46,8 @@ class UserDefinedCirJsonSchemaConfiguration(var name: String?, var schemaVersion
     val calculatedPatterns: List<BiPredicate<Project, VirtualFile>>
         get() = myCalculatedPatterns.value
 
+    constructor() : this(null, CirJsonSchemaVersion.SCHEMA_1, null, false, null)
+
     private fun recalculatePatterns(): List<BiPredicate<Project, VirtualFile>> {
         val result = SmartList<BiPredicate<Project, VirtualFile>>()
 

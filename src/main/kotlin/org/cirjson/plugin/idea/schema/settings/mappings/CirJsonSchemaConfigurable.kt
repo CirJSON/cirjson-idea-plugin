@@ -1,51 +1,129 @@
 package org.cirjson.plugin.idea.schema.settings.mappings
 
+import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.NamedConfigurable
+import com.intellij.openapi.util.Comparing
+import com.intellij.openapi.util.io.FileUtil
 import org.cirjson.plugin.idea.schema.UserDefinedCirJsonSchemaConfiguration
 import java.util.function.Function
 import javax.swing.JComponent
+import kotlin.math.max
 
 class CirJsonSchemaConfigurable(private val myProject: Project, private val mySchemaFilePath: String,
         val schema: UserDefinedCirJsonSchemaConfiguration, private val myTreeUpdater: TreeUpdater?,
         private val myNameCreator: Function<in String, String>) :
         NamedConfigurable<UserDefinedCirJsonSchemaConfiguration>(true, Runnable { myTreeUpdater?.updateTree(true) }) {
 
+    private var myDisplayName = schema.name
+
+    private var myError: String? = null
+
+    private val myViewDelegate = lazy {
+        CirJsonSchemaMappingsView(myProject, myTreeUpdater) { s, force ->
+            if (!(force || isGeneratedName)) {
+                readln()
+            }
+
+            val lastSlash = max(s.lastIndexOf('/'), s.lastIndexOf('\\'))
+
+            if (lastSlash > 0 || force) {
+                var substring = if (lastSlash > 0) s.substring(lastSlash + 1) else s
+                val dot = if (lastSlash > 0) substring.lastIndexOf('.') else -1
+
+                if (dot != -1) {
+                    substring = substring.substring(0, dot)
+                }
+
+                displayName = myNameCreator.apply(substring)
+                updateName()
+            }
+        }
+    }
+
+    private val myView: CirJsonSchemaMappingsView by myViewDelegate
+
+    private val isGeneratedName: Boolean
+        get() = myDisplayName == schema.name && myDisplayName == schema.generatedName
+
     val uiSchema: UserDefinedCirJsonSchemaConfiguration
         get() {
-            TODO()
+            return UserDefinedCirJsonSchemaConfiguration().apply {
+                if (myViewDelegate.isInitialized() && myView.isInitialized) {
+                    name = displayName
+                    schemaVersion = myView.schemaVersion
+                    patterns = myView.data
+                    relativePathToSchema = myView.schemaSubPath
+                } else {
+                    name = schema.name
+                    schemaVersion = schema.schemaVersion
+                    patterns = schema.patterns
+                    relativePathToSchema = schema.relativePathToSchema
+                }
+            }
         }
 
     override fun isModified(): Boolean {
-        TODO("Not yet implemented")
+        return if (!myViewDelegate.isInitialized()) {
+            false
+        } else if (FileUtil.toSystemIndependentName(schema.relativePathToSchema) != myView.schemaSubPath) {
+            true
+        } else if (schema.schemaVersion != myView.schemaVersion) {
+            true
+        } else {
+            !Comparing.equal(myView.data, schema.patterns)
+        }
     }
 
     override fun apply() {
-        TODO("Not yet implemented")
+        if (!myViewDelegate.isInitialized()) {
+            return
+        }
+
+        doValidation()
+        schema.apply {
+            name = displayName
+            schemaVersion = myView.schemaVersion
+            patterns = myView.data
+            relativePathToSchema = myView.schemaSubPath
+        }
     }
 
-    override fun getDisplayName(): String {
-        TODO("Not yet implemented")
+    @Throws(ConfigurationException::class)
+    private fun doValidation() {
+        TODO()
+    }
+
+    override fun getDisplayName(): String? {
+        return myDisplayName
     }
 
     override fun setDisplayName(name: String?) {
-        TODO("Not yet implemented")
+        myDisplayName = name
     }
 
     override fun getEditableObject(): UserDefinedCirJsonSchemaConfiguration {
-        TODO("Not yet implemented")
+        return schema
     }
 
-    override fun getBannerSlogan(): String {
-        TODO("Not yet implemented")
+    override fun getBannerSlogan(): String? {
+        return schema.name
     }
 
     override fun createOptionsPanel(): JComponent {
-        TODO("Not yet implemented")
+        if (!myViewDelegate.isInitialized()) {
+            myView.setError(myError, true)
+        }
+
+        return myView.component
     }
 
     fun setError(error: String?, showWarning: Boolean) {
-        TODO("Not yet implemented")
+        myError = error
+
+        if (myViewDelegate.isInitialized()) {
+            myView.setError(error, showWarning)
+        }
     }
 
 }

@@ -48,8 +48,11 @@ open class CirJsonSchemaMappingsProjectConfiguration(private val myProject: Proj
         return myState
     }
 
-    val stateMap: Map<String, UserDefinedCirJsonSchemaConfiguration>
+    var stateMap: Map<String, UserDefinedCirJsonSchemaConfiguration>
         get() = Collections.unmodifiableMap(myState.myState)
+        set(value) {
+            myState = MyState(value)
+        }
 
     fun schemaFileMoved(project: Project, oldRelativePath: String, newRelativePath: String) {
         val configuration =

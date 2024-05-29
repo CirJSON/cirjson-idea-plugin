@@ -162,6 +162,8 @@
         <lang.lineWrapStrategy language="CirJSON"
                 implementationClass="org.cirjson.plugin.idea.formatter.CirJsonLineWrapPositionStrategy"/>
         <highlightVisitor implementation="org.cirjson.plugin.idea.highlighting.CirJsonRainbowVisitor"/>
+        <notificationGroup displayType="NONE" id="CirJSON Schema" bundle="messages.CirJsonBundle"
+                key="notification.group.cirjson.schema"/>
 
         <!-- Intentions -->
         <intentionAction>

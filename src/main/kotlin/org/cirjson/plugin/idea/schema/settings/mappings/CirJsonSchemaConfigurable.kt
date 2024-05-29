@@ -1,11 +1,22 @@
 package org.cirjson.plugin.idea.schema.settings.mappings
 
+import com.intellij.execution.configurations.RuntimeConfigurationError
 import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.ui.NamedConfigurable
 import com.intellij.openapi.util.Comparing
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.impl.http.HttpVirtualFile
+import com.intellij.util.Urls
+import org.cirjson.plugin.idea.CirJsonBundle
 import org.cirjson.plugin.idea.schema.UserDefinedCirJsonSchemaConfiguration
+import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaReader
+import org.cirjson.plugin.idea.schema.remote.CirJsonFileResolver
+import java.io.File
 import java.util.function.Function
 import javax.swing.JComponent
 import kotlin.math.max
@@ -91,7 +102,68 @@ class CirJsonSchemaConfigurable(private val myProject: Project, private val mySc
 
     @Throws(ConfigurationException::class)
     private fun doValidation() {
-        TODO()
+        val schemaSubPath = myView.schemaSubPath
+
+        if (StringUtil.isEmptyOrSpaces(schemaSubPath)) {
+            val name = getConfigurationExceptionName(myDisplayName)
+            throw ConfigurationException("$name${CirJsonBundle.message("schema.configuration.error.empty.name")}")
+        }
+
+        val vFile: VirtualFile
+        val filename: String
+
+        if (CirJsonFileResolver.isHttpPath(schemaSubPath)) {
+            filename = schemaSubPath
+
+            if (!isValidURL(schemaSubPath)) {
+                val name = getConfigurationExceptionName(myDisplayName)
+                throw ConfigurationException("$name${CirJsonBundle.message("schema.configuration.error.invalid.url")}")
+            }
+
+            vFile = CirJsonFileResolver.urlToFile(schemaSubPath) ?: throw ConfigurationException(
+                    "${getConfigurationExceptionName(myDisplayName)}${
+                        CirJsonBundle.message("schema.configuration.error.invalid.url.resource")
+                    }")
+        } else {
+            val subPath = File(schemaSubPath)
+            val file = if (subPath.isAbsolute) subPath else File(myProject.basePath, schemaSubPath)
+
+            if (!file.exists()) {
+                val name = getConfigurationExceptionName(myDisplayName)
+                throw ConfigurationException(
+                        "$name${CirJsonBundle.message("schema.configuration.error.file.does.not.exist")}")
+            }
+
+            val localFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file)
+
+            if (localFile == null) {
+                val name = getConfigurationExceptionName(myDisplayName)
+                throw ConfigurationException(
+                        "$name${CirJsonBundle.message("schema.configuration.error.file.does.not.exist")}")
+            }
+
+            filename = file.name
+            vFile = localFile
+        }
+
+        if (StringUtil.isEmptyOrSpaces(myDisplayName)) {
+            throw ConfigurationException("$filename: ${CirJsonBundle.message("schema.configuration.error.empty.name")}")
+        }
+
+        if (vFile is HttpVirtualFile) {
+            return
+        }
+
+        val error = CirJsonSchemaReader.checkIfValidJsonSchema(myProject, vFile)
+
+        if (error != null) {
+            logErrorForUser(error)
+            throw RuntimeConfigurationError(error)
+        }
+    }
+
+    private fun logErrorForUser(error: String) {
+        CirJsonSchemaReader.ERRORS_NOTIFICATION.createNotification(error, MessageType.WARNING).notify(myProject)
     }
 
     override fun getDisplayName(): String? {
@@ -124,6 +196,18 @@ class CirJsonSchemaConfigurable(private val myProject: Project, private val mySc
         if (myViewDelegate.isInitialized()) {
             myView.setError(error, showWarning)
         }
+    }
+
+    companion object {
+
+        fun getConfigurationExceptionName(displayName: String?): String {
+            return if (!StringUtil.isEmptyOrSpaces(displayName)) "$displayName: " else ""
+        }
+
+        fun isValidURL(url: String): Boolean {
+            return CirJsonFileResolver.isHttpPath(url) && Urls.parse(url, false) != null
+        }
+
     }
 
 }

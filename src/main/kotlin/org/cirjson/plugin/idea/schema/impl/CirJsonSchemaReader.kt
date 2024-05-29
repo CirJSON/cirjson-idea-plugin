@@ -2,6 +2,7 @@ package org.cirjson.plugin.idea.schema.impl
 
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.intellij.notification.NotificationGroupManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Pair
@@ -114,6 +115,8 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
 
         val LOG = Logger.getInstance(CirJsonSchemaReader::class.java)
 
+        val ERRORS_NOTIFICATION = NotificationGroupManager.getInstance().getNotificationGroup("CirJSON Schema")
+
         private val READERS_MAP = HashMap<String, MyReader>().apply {
             this["\$anchor"] = createFromStringValue { obj, s -> obj.id = s }
             this["\$id"] = createFromStringValue { obj, s -> obj.id = s }
@@ -204,6 +207,29 @@ class CirJsonSchemaReader(private val myFile: VirtualFile) {
             this["typeof"] = MyReader { _, obj, _, _ -> obj.shouldValidateAgainstJSType = true }
         }
 
+        fun checkIfValidJsonSchema(project: Project, file: VirtualFile): String? {
+            val length = file.length
+            val fileName = file.name
+
+            if (length > MAX_SCHEMA_LENGTH) {
+                return CirJsonBundle.message("schema.reader.file.too.large", fileName, length)
+            } else if (length == 0L) {
+                return CirJsonBundle.message("schema.reader.file.empty", fileName)
+            }
+
+            try {
+                readFromFile(project, file)
+            } catch (e: Exception) {
+                val message =
+                        CirJsonBundle.message("schema.reader.file.not.found.or.error", fileName, e.message.toString())
+                LOG.info(message)
+                return message
+            }
+
+            return null
+        }
+
+        @Throws(Exception::class)
         fun readFromFile(project: Project, file: VirtualFile): CirJsonSchemaObject {
             if (!file.isValid) {
                 throw Exception(CirJsonBundle.message("schema.reader.cant.load.file", file.name))

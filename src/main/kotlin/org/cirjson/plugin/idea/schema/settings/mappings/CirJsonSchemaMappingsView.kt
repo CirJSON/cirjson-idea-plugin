@@ -257,19 +257,19 @@ class CirJsonSchemaMappingsView(private val myProject: Project, private val myTr
                     }
                 }
 
-                fun doRun(mappingKind: CirJsonMappingKind) {
-                    val currentItem = UserDefinedCirJsonSchemaConfiguration.Item("", mappingKind)
-                    myTableView.apply {
-                        listTableModel.addRow(currentItem)
-                        editCellAt(listTableModel.rowCount - 1, 0)
-                    }
-
-                    myTreeUpdater!!.updateTree(false)
-                }
-
             }
 
             JBPopupFactory.getInstance().createListPopup(popup).show(point)
+        }
+
+        fun doRun(mappingKind: CirJsonMappingKind) {
+            val currentItem = UserDefinedCirJsonSchemaConfiguration.Item("", mappingKind)
+            myTableView.apply {
+                listTableModel.addRow(currentItem)
+                editCellAt(listTableModel.rowCount - 1, 0)
+            }
+
+            myTreeUpdater!!.updateTree(false)
         }
 
     }

@@ -33,4 +33,9 @@ class CirJsonSchemaMappingsView(project: Project, private val myTreeUpdater: Tre
         TODO()
     }
 
+    fun setItems(schemaFilePath: String, version: CirJsonSchemaVersion,
+            data: List<UserDefinedCirJsonSchemaConfiguration.Item>?) {
+        TODO()
+    }
+
 }

@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.ui.NamedConfigurable
 import com.intellij.openapi.util.Comparing
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -195,6 +196,20 @@ class CirJsonSchemaConfigurable(private val myProject: Project, private val mySc
 
         if (myViewDelegate.isInitialized()) {
             myView.setError(error, showWarning)
+        }
+    }
+
+    override fun reset() {
+        if (!myViewDelegate.isInitialized()) {
+            return
+        }
+
+        myView.setItems(mySchemaFilePath, schema.schemaVersion, schema.patterns)
+    }
+
+    override fun disposeUIResources() {
+        if (myViewDelegate.isInitialized()) {
+            Disposer.dispose(myView)
         }
     }
 

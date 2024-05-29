@@ -114,6 +114,29 @@ class UserDefinedCirJsonSchemaConfiguration(var name: String?, var schemaVersion
                 return pathToParts(path)
             }
 
+        val error: String?
+            get() {
+                return when (mappingKind) {
+                    CirJsonMappingKind.FILE -> {
+                        if (path.isEmpty()) {
+                            CirJsonBundle.message("schema.configuration.error.empty.file.path")
+                        } else {
+                            null
+                        }
+                    }
+
+                    CirJsonMappingKind.PATTERN -> {
+                        if (path.isEmpty()) {
+                            CirJsonBundle.message("schema.configuration.error.empty.pattern")
+                        } else {
+                            null
+                        }
+                    }
+
+                    CirJsonMappingKind.DIRECTORY -> null
+                }
+            }
+
         var isPattern: Boolean
             get() = mappingKind == CirJsonMappingKind.PATTERN
             set(value) {

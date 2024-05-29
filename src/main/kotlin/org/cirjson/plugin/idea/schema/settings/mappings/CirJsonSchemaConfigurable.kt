@@ -204,7 +204,7 @@ class CirJsonSchemaConfigurable(private val myProject: Project, private val mySc
             return
         }
 
-        myView.setItems(mySchemaFilePath, schema.schemaVersion, schema.patterns)
+        myView.setItems(mySchemaFilePath, schema.schemaVersion, schema.patterns!!)
     }
 
     override fun disposeUIResources() {

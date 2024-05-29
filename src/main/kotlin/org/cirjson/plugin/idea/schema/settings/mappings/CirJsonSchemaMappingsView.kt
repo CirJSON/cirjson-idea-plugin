@@ -1,8 +1,11 @@
 package org.cirjson.plugin.idea.schema.settings.mappings
 
 import com.intellij.icons.AllIcons
+import com.intellij.ide.util.PsiNavigationSupport
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.CommonShortcuts
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.FixedSizeButton
@@ -10,6 +13,11 @@ import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.openapi.ui.panel.ComponentPanelBuilder
 import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.ui.popup.PopupStep
+import com.intellij.openapi.ui.popup.util.BaseListPopupStep
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.AnActionButton
 import com.intellij.ui.AnActionButtonRunnable
@@ -18,20 +26,25 @@ import com.intellij.ui.ToolbarDecorator
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.table.TableView
-import com.intellij.util.ui.FormBuilder
-import com.intellij.util.ui.JBUI
-import com.intellij.util.ui.SwingHelper
-import com.intellij.util.ui.UIUtil
+import com.intellij.util.ui.*
 import org.cirjson.plugin.idea.CirJsonBundle
+import org.cirjson.plugin.idea.schema.CirJsonMappingKind
 import org.cirjson.plugin.idea.schema.CirJsonSchemaService
 import org.cirjson.plugin.idea.schema.UserDefinedCirJsonSchemaConfiguration
 import org.cirjson.plugin.idea.schema.extension.CirJsonSchemaInfo
 import org.cirjson.plugin.idea.schema.impl.CirJsonSchemaVersion
+import org.cirjson.plugin.idea.schema.remote.CirJsonFileResolver
 import org.cirjson.plugin.idea.schema.widget.CirJsonSchemaInfoPopupStep
 import java.awt.BorderLayout
+import java.awt.Component
+import java.io.File
+import java.util.concurrent.TimeUnit
 import java.util.function.BiConsumer
 import javax.swing.*
 import javax.swing.event.DocumentEvent
+import javax.swing.table.DefaultTableCellRenderer
+import javax.swing.table.TableCellEditor
+import javax.swing.table.TableCellRenderer
 
 @Suppress("DialogTitleCapitalization")
 class CirJsonSchemaMappingsView(private val myProject: Project, private val myTreeUpdater: TreeUpdater?,
@@ -47,7 +60,7 @@ class CirJsonSchemaMappingsView(private val myProject: Project, private val myTr
 
     private val myError: JEditorPane
 
-    private var myErrorText: String = ""
+    private var myErrorText: String? = null
 
     private val myErrorIcon: JBLabel
 
@@ -55,13 +68,20 @@ class CirJsonSchemaMappingsView(private val myProject: Project, private val myTr
         private set
 
     val data: List<UserDefinedCirJsonSchemaConfiguration.Item>
-        get() = TODO()
+        get() = myTableView.listTableModel.items.filter { it.mappingKind == CirJsonMappingKind.DIRECTORY || it.path.isNotEmpty() }
 
     val schemaVersion: CirJsonSchemaVersion
-        get() = TODO()
+        get() = mySchemaVersionComboBox.selectedItem as CirJsonSchemaVersion
 
     val schemaSubPath: String
-        get() = TODO()
+        get() {
+            val schemaFieldText = mySchemaField.text
+            return if (CirJsonFileResolver.isAbsoluteUrl(schemaFieldText)) {
+                schemaFieldText
+            } else {
+                FileUtil.toSystemDependentName(CirJsonSchemaInfo.getRelativePath(myProject, schemaFieldText))
+            }
+        }
 
     init {
         val addAction = MyAddActionButtonRunnable()
@@ -162,11 +182,30 @@ class CirJsonSchemaMappingsView(private val myProject: Project, private val myTr
     }
 
     private fun attachNavigateToSchema() {
-        TODO()
+        DumbAwareAction.create {
+            val pathToSchema = mySchemaField.text
+
+            if (StringUtil.isEmptyOrSpaces(pathToSchema) || CirJsonFileResolver.isHttpPath(pathToSchema)) {
+                return@create
+            }
+
+            val virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(File(pathToSchema))
+
+            if (virtualFile == null) {
+                val balloonBuilder = JBPopupFactory.getInstance()
+                        .createHtmlTextBalloonBuilder(CirJsonBundle.message("cirjson.schema.file.not.found"),
+                                UIUtil.getBalloonErrorIcon(), MessageType.ERROR.popupBackground, null)
+                val balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(3)).createBalloon()
+                balloon.showInCenterOf(mySchemaField)
+                return@create
+            }
+
+            PsiNavigationSupport.getInstance().createNavigatable(myProject, virtualFile, -1).navigate(true)
+        }.registerCustomShortcutSet(CommonShortcuts.getEditSource(), mySchemaField)
     }
 
     private fun setupError() {
-        JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(myErrorText, UIUtil.getBalloonWarningIcon(),
+        JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(myErrorText!!, UIUtil.getBalloonWarningIcon(),
                 MessageType.WARNING.popupBackground, null).apply {
             setDisposable(this@CirJsonSchemaMappingsView)
             setHideOnClickOutside(true)
@@ -175,23 +214,62 @@ class CirJsonSchemaMappingsView(private val myProject: Project, private val myTr
         }
     }
 
-    override fun dispose() {
-        TODO("not implemented")
-    }
+    override fun dispose() {}
 
     fun setError(text: String?, showWarning: Boolean) {
-        TODO()
+        myErrorText = text
+        myError.isVisible = showWarning && text != null
+        myErrorIcon.isVisible = showWarning && text != null
     }
 
     fun setItems(schemaFilePath: String, version: CirJsonSchemaVersion,
-            data: List<UserDefinedCirJsonSchemaConfiguration.Item>?) {
-        TODO()
+            data: List<UserDefinedCirJsonSchemaConfiguration.Item>) {
+        isInitialized = true
+        mySchemaField.text = schemaFilePath
+        mySchemaVersionComboBox.selectedItem = version
+        myTableView.setModelAndUpdateColumns(ListTableModel(createColumns(), ArrayList(data)))
+    }
+
+    private fun createColumns(): Array<ColumnInfo<UserDefinedCirJsonSchemaConfiguration.Item, String>> {
+        return arrayOf(MappingItemColumnInfo())
     }
 
     internal inner class MyAddActionButtonRunnable : AnActionButtonRunnable {
 
-        override fun run(t: AnActionButton?) {
-            TODO("Not yet implemented")
+        override fun run(button: AnActionButton) {
+            val point = button.preferredPopupPoint
+            val popup = object : BaseListPopupStep<CirJsonMappingKind>() {
+
+                override fun getTextFor(value: CirJsonMappingKind): String {
+                    return CirJsonBundle.message("cirjson.schema.add.mapping.kind.text",
+                            StringUtil.capitalizeWords(value.description, true))
+                }
+
+                override fun getIconFor(value: CirJsonMappingKind): Icon {
+                    return value.icon
+                }
+
+                override fun onChosen(selectedValue: CirJsonMappingKind, finalChoice: Boolean): PopupStep<*>? {
+                    return if (finalChoice) {
+                        doFinalStep { doRun(selectedValue) }
+                    } else {
+                        FINAL_CHOICE
+                    }
+                }
+
+                fun doRun(mappingKind: CirJsonMappingKind) {
+                    val currentItem = UserDefinedCirJsonSchemaConfiguration.Item("", mappingKind)
+                    myTableView.apply {
+                        listTableModel.addRow(currentItem)
+                        editCellAt(listTableModel.rowCount - 1, 0)
+                    }
+
+                    myTreeUpdater!!.updateTree(false)
+                }
+
+            }
+
+            JBPopupFactory.getInstance().createListPopup(popup).show(point)
         }
 
     }
@@ -199,7 +277,17 @@ class CirJsonSchemaMappingsView(private val myProject: Project, private val myTr
     private inner class MyEditActionButtonRunnable : AnActionButtonRunnable {
 
         override fun run(t: AnActionButton?) {
-            TODO("Not yet implemented")
+            execute()
+        }
+
+        fun execute() {
+            val selectedRow = myTableView.selectedRow
+
+            if (selectedRow == -1) {
+                return
+            }
+
+            myTableView.editCellAt(selectedRow, 0)
         }
 
     }
@@ -207,7 +295,57 @@ class CirJsonSchemaMappingsView(private val myProject: Project, private val myTr
     private inner class MyRemoveActionButtonRunnable : AnActionButtonRunnable {
 
         override fun run(t: AnActionButton?) {
-            TODO("Not yet implemented")
+            val rows = myTableView.selectedRows
+
+            if (rows.isNotEmpty()) {
+
+                for ((cnt, row) in rows.withIndex()) {
+                    myTableView.listTableModel.removeRow(row - cnt)
+                }
+
+                myTableView.listTableModel.fireTableDataChanged()
+                myTreeUpdater!!.updateTree(true)
+            }
+        }
+
+    }
+
+    private inner class MappingItemColumnInfo : ColumnInfo<UserDefinedCirJsonSchemaConfiguration.Item, String>("") {
+
+        override fun valueOf(item: UserDefinedCirJsonSchemaConfiguration.Item): String {
+            return item.presentation
+        }
+
+        override fun getRenderer(item: UserDefinedCirJsonSchemaConfiguration.Item): TableCellRenderer {
+            return object : DefaultTableCellRenderer() {
+
+                override fun getTableCellRendererComponent(table: JTable?, value: Any?, isSelected: Boolean,
+                        hasFocus: Boolean, row: Int, column: Int): Component {
+                    val label = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
+                            column) as JLabel
+                    label.icon = item.mappingKind.icon
+
+                    val error = item.error ?: return label
+
+                    return JPanel().apply {
+                        layout = BorderLayout()
+                        add(label, BorderLayout.CENTER)
+                        background = label.background
+                        toolTipText = error
+                        val warning = JLabel(AllIcons.General.Warning)
+                        add(warning, BorderLayout.LINE_END)
+                    }
+                }
+
+            }
+        }
+
+        override fun getEditor(item: UserDefinedCirJsonSchemaConfiguration.Item): TableCellEditor {
+            return CirJsonMappingsTableCellEditor(item, myProject, myTreeUpdater)
+        }
+
+        override fun isCellEditable(item: UserDefinedCirJsonSchemaConfiguration.Item): Boolean {
+            return true
         }
 
     }

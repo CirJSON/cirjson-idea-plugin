@@ -213,4 +213,12 @@
         <extensionPoint qualifiedName="org.cirjson.plugin.idea.catalog.exclusion"
                 interface="org.cirjson.plugin.idea.schema.remote.CirJsonSchemaCatalogExclusion" dynamic="true"/>
     </extensionPoints>
+
+    <actions>
+        <action id="CirJsonCopyPointer" class="org.cirjson.plugin.idea.editor.CirJsonCopyPointerAction">
+            <add-to-group group-id="CutCopyPasteGroup" anchor="after" relative-to-action="CopyReference"/>
+            <add-to-group group-id="EditorTabPopupMenu" anchor="after" relative-to-action="CopyReference"/>
+            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="Copy.Paste.Special"/>
+        </action>
+    </actions>
 </idea-plugin>

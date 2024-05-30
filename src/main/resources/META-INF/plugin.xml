@@ -221,4 +221,11 @@
             <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="Copy.Paste.Special"/>
         </action>
     </actions>
+
+    <actions resource-bundle="messages.CirJsonBundle">
+        <action id="ConsoleView.ShowAsCirJsonAction" class="org.cirjson.plugin.idea.actions.ShowAsCirJsonAction">
+            <add-to-group group-id="ConsoleEditorPopupMenu" anchor="after"
+                    relative-to-action="ConsoleView.FoldLinesLikeThis"/>
+        </action>
+    </actions>
 </idea-plugin>

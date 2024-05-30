@@ -1,25 +1,39 @@
 {
+    "__cirJsonId__": "root",
     "$schema": "http://cirjson.org/draft-01/schema#",
     "$id": "http://cirjson.org/draft-01/schema#",
     "title": "Core schema meta-schema",
     "definitions": {
+        "__cirJsonId__": "definitions",
         "schemaArray": {
+            "__cirJsonId__": "definitions/schemaArray",
             "type": "array",
             "minItems": 1,
-            "items": { "$ref": "#" }
+            "items": { "__cirJsonId__": "definitions/schemaArray/items", "$ref": "#" }
         },
         "nonNegativeInteger": {
+            "__cirJsonId__": "definitions/nonNegativeInteger",
             "type": "integer",
             "minimum": 0
         },
         "nonNegativeIntegerDefault0": {
+            "__cirJsonId__": "definitions/nonNegativeIntegerDefault0",
             "allOf": [
-                { "$ref": "#/definitions/nonNegativeInteger" },
-                { "default": 0 }
+                "definitions/nonNegativeIntegerDefault0/allOf",
+                {
+                    "__cirJsonId__": "definitions/nonNegativeIntegerDefault0/allOf/0",
+                     "$ref": "#/definitions/nonNegativeInteger"
+                },
+                {
+                    "__cirJsonId__": "definitions/nonNegativeIntegerDefault0/allOf/1",
+                    "default": 0
+                }
             ]
         },
         "simpleTypes": {
+            "__cirJsonId__": "definitions/simpleTypes",
             "enum": [
+                "definitions/simpleTypes/enum",
                 "array",
                 "boolean",
                 "integer",
@@ -30,143 +44,197 @@
             ]
         },
         "stringArray": {
+            "__cirJsonId__": "definitions/stringArray",
             "type": "array",
-            "items": { "type": "string" },
+            "items": { "__cirJsonId__": "definitions/stringArray/items", "type": "string" },
             "uniqueItems": true,
-            "default": []
+            "default": ["definitions/stringArray/default"]
         }
     },
-    "type": ["object", "boolean"],
+    "type": ["type", "object", "boolean"],
     "properties": {
+        "__cirJsonId__": "properties",
         "$id": {
+            "__cirJsonId__": "properties/$id",
             "type": "string",
             "format": "uri-reference"
         },
         "$schema": {
+            "__cirJsonId__": "properties/$schema",
             "type": "string",
             "format": "uri"
         },
         "$ref": {
+            "__cirJsonId__": "properties/$ref",
             "type": "string",
             "format": "uri-reference"
         },
         "$comment": {
+            "__cirJsonId__": "properties/$comment",
             "type": "string"
         },
         "title": {
+            "__cirJsonId__": "properties/title",
             "type": "string"
         },
         "description": {
+            "__cirJsonId__": "properties/description",
             "type": "string"
         },
         "default": true,
         "readOnly": {
+            "__cirJsonId__": "properties/default",
             "type": "boolean",
             "default": false
         },
         "writeOnly": {
+            "__cirJsonId__": "properties/writeOnly",
             "type": "boolean",
             "default": false
         },
         "examples": {
+            "__cirJsonId__": "properties/examples",
             "type": "array",
             "items": true
         },
         "multipleOf": {
+            "__cirJsonId__": "properties/multipleOf",
             "type": "number",
             "exclusiveMinimum": 0
         },
         "maximum": {
+            "__cirJsonId__": "properties/maximum",
             "type": "number"
         },
         "exclusiveMaximum": {
+            "__cirJsonId__": "properties/exclusiveMaximum",
             "type": "number"
         },
         "minimum": {
+            "__cirJsonId__": "properties/minimum",
             "type": "number"
         },
         "exclusiveMinimum": {
+            "__cirJsonId__": "properties/exclusiveMinimum",
             "type": "number"
         },
-        "maxLength": { "$ref": "#/definitions/nonNegativeInteger" },
-        "minLength": { "$ref": "#/definitions/nonNegativeIntegerDefault0" },
+        "maxLength": {
+            "__cirJsonId__": "properties/maxLength",
+            "$ref": "#/definitions/nonNegativeInteger"
+        },
+        "minLength": {
+            "__cirJsonId__": "properties/minLength",
+            "$ref": "#/definitions/nonNegativeIntegerDefault0"
+        },
         "pattern": {
+            "__cirJsonId__": "properties/pattern",
             "type": "string",
             "format": "regex"
         },
-        "additionalItems": { "$ref": "#" },
+        "additionalItems": { "__cirJsonId__": "properties/additionalItems", "$ref": "#" },
         "items": {
+            "__cirJsonId__": "properties/items",
             "anyOf": [
-                { "$ref": "#" },
-                { "$ref": "#/definitions/schemaArray" }
+                "properties/items/anyOf"
+                { "__cirJsonId__": "properties/items/anyOf/0", "$ref": "#" },
+                { "__cirJsonId__": "properties/items/anyOf/1", "$ref": "#/definitions/schemaArray" }
             ],
             "default": true
         },
-        "maxItems": { "$ref": "#/definitions/nonNegativeInteger" },
-        "minItems": { "$ref": "#/definitions/nonNegativeIntegerDefault0" },
+        "maxItems": {
+            "__cirJsonId__": "properties/maxItems",
+            "$ref": "#/definitions/nonNegativeInteger"
+        },
+        "minItems": {
+            "__cirJsonId__": "properties/minItems",
+            "$ref": "#/definitions/nonNegativeIntegerDefault0"
+        },
         "uniqueItems": {
+            "__cirJsonId__": "properties/uniqueItems",
             "type": "boolean",
             "default": false
         },
-        "contains": { "$ref": "#" },
-        "maxProperties": { "$ref": "#/definitions/nonNegativeInteger" },
-        "minProperties": { "$ref": "#/definitions/nonNegativeIntegerDefault0" },
-        "required": { "$ref": "#/definitions/stringArray" },
-        "additionalProperties": { "$ref": "#" },
+        "contains": { "__cirJsonId__": "properties/contains", "$ref": "#" },
+        "maxProperties": {
+            "__cirJsonId__": "properties/maxProperties",
+            "$ref": "#/definitions/nonNegativeInteger"
+        },
+        "minProperties": {
+            "__cirJsonId__": "properties/minProperties",
+            "$ref": "#/definitions/nonNegativeIntegerDefault0"
+        },
+        "required": {
+            "__cirJsonId__": "properties/required",
+            "$ref": "#/definitions/stringArray"
+        },
+        "additionalProperties": { "__cirJsonId__": "properties/additionalProperties", "$ref": "#" },
         "definitions": {
+            "__cirJsonId__": "properties/definitions",
             "type": "object",
-            "additionalProperties": { "$ref": "#" },
-            "default": {}
+            "additionalProperties": { "__cirJsonId__": "properties/definitions/additionalProperties", "$ref": "#" },
+            "default": { "__cirJsonId__": "properties/definitions/default" }
         },
         "properties": {
+            "__cirJsonId__": "properties/properties",
             "type": "object",
             "additionalProperties": { "$ref": "#" },
             "default": {}
         },
         "patternProperties": {
+            "__cirJsonId__": "properties/patternProperties",
             "type": "object",
             "additionalProperties": { "$ref": "#" },
             "propertyNames": { "format": "regex" },
             "default": {}
         },
         "dependencies": {
+            "__cirJsonId__": "properties/dependencies",
             "type": "object",
             "additionalProperties": {
+                "__cirJsonId__": "properties/dependencies/additionalProperties",
                 "anyOf": [
-                    { "$ref": "#" },
-                    { "$ref": "#/definitions/stringArray" }
+                    "properties/dependencies/additionalProperties/anyOf",
+                    { "__cirJsonId__": "properties/dependencies/additionalProperties/anyOf/0", "$ref": "#" },
+                    {
+                        "__cirJsonId__": "properties/dependencies/additionalProperties/anyOf/1",
+                        "$ref": "#/definitions/stringArray"
+                    }
                 ]
             }
         },
-        "propertyNames": { "$ref": "#" },
+        "propertyNames": { "__cirJsonId__": "properties/propertyNames", "$ref": "#" },
         "const": true,
         "enum": {
+            "__cirJsonId__": "properties/enum",
             "type": "array",
             "items": true,
             "minItems": 1,
             "uniqueItems": true
         },
         "type": {
+            "__cirJsonId__": "properties/type",
             "anyOf": [
-                { "$ref": "#/definitions/simpleTypes" },
+                "properties/type/anyOf",
+                { "__cirJsonId__": "properties/type/anyOf/0", "$ref": "#/definitions/simpleTypes" },
                 {
+                    "__cirJsonId__": "properties/type/anyOf/1",
                     "type": "array",
-                    "items": { "$ref": "#/definitions/simpleTypes" },
+                    "items": { "__cirJsonId__": "properties/type/anyOf/1/items", "$ref": "#/definitions/simpleTypes" },
                     "minItems": 1,
                     "uniqueItems": true
                 }
             ]
         },
-        "format": { "type": "string" },
-        "contentMediaType": { "type": "string" },
-        "contentEncoding": { "type": "string" },
-        "if": { "$ref": "#" },
-        "then": { "$ref": "#" },
-        "else": { "$ref": "#" },
-        "allOf": { "$ref": "#/definitions/schemaArray" },
-        "anyOf": { "$ref": "#/definitions/schemaArray" },
-        "oneOf": { "$ref": "#/definitions/schemaArray" },
-        "not": { "$ref": "#" }
+        "format": { "__cirJsonId__": "properties/format", "type": "string" },
+        "contentMediaType": { "__cirJsonId__": "properties/contentMediaType", "type": "string" },
+        "contentEncoding": { "__cirJsonId__": "properties/contentEncoding", "type": "string" },
+        "if": { "__cirJsonId__": "properties/if", "$ref": "#" },
+        "then": { "__cirJsonId__": "properties/then", "$ref": "#" },
+        "else": { "__cirJsonId__": "properties/else", "$ref": "#" },
+        "allOf": { "__cirJsonId__": "properties/allOf", "$ref": "#/definitions/schemaArray" },
+        "anyOf": { "__cirJsonId__": "properties/anyOf", "$ref": "#/definitions/schemaArray" },
+        "oneOf": { "__cirJsonId__": "properties/oneOf", "$ref": "#/definitions/schemaArray" },
+        "not": { "__cirJsonId__": "properties/not", "$ref": "#" }
     },
     "default": true
 }

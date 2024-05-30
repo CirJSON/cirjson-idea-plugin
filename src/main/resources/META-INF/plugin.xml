@@ -224,8 +224,7 @@
 
     <actions resource-bundle="messages.CirJsonBundle">
         <action id="ConsoleView.ShowAsCirJsonAction" class="org.cirjson.plugin.idea.actions.ShowAsCirJsonAction">
-            <add-to-group group-id="ConsoleEditorPopupMenu" anchor="after"
-                    relative-to-action="ConsoleView.FoldLinesLikeThis"/>
+            <add-to-group group-id="ConsoleEditorPopupMenu" anchor="before" relative-to-action="ConsoleView.ClearAll"/>
         </action>
     </actions>
 </idea-plugin>

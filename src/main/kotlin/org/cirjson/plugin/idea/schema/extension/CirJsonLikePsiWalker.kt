@@ -1,6 +1,7 @@
 package org.cirjson.plugin.idea.schema.extension
 
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.util.ThreeState
@@ -49,7 +50,16 @@ interface CirJsonLikePsiWalker {
 
     fun getParentPropertyAdapter(element: PsiElement): CirJsonPropertyAdapter?
 
+    fun isTopCirJsonElement(element: PsiElement): Boolean
+
     fun createValueAdapter(element: PsiElement): CirJsonValueAdapter?
+
+    fun adjustErrorHighlightingRange(element: PsiElement): TextRange {
+        return element.textRange
+    }
+
+    val isAcceptsEmptyRoot: Boolean
+        get() = false
 
     fun getRoots(file: PsiFile): Collection<PsiElement>?
 

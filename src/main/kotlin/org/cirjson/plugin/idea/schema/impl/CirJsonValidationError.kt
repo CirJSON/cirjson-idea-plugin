@@ -1,10 +1,41 @@
 package org.cirjson.plugin.idea.schema.impl
 
+import com.intellij.codeInspection.LocalQuickFix
 import org.cirjson.plugin.idea.CirJsonBundle
 import org.cirjson.plugin.idea.schema.extension.CirJsonErrorPriority
+import org.cirjson.plugin.idea.schema.extension.CirJsonLikeSyntaxAdapter
+import org.cirjson.plugin.idea.schema.impl.fixes.AddMissingPropertyFix
+import org.cirjson.plugin.idea.schema.impl.fixes.RemoveProhibitedPropertyFix
+import org.cirjson.plugin.idea.schema.impl.fixes.SuggestEnumValuesFix
 
 class CirJsonValidationError(val message: String, val fixableIssueKind: FixableIssueKind, val issueData: IssueData?,
         val priority: CirJsonErrorPriority) {
+
+    fun createFixes(quickFixAdapter: CirJsonLikeSyntaxAdapter?): Array<LocalQuickFix> {
+        quickFixAdapter ?: return emptyArray()
+
+        return when (fixableIssueKind) {
+            FixableIssueKind.MissingProperty -> {
+                arrayOf(AddMissingPropertyFix(issueData as MissingMultiplePropsIssueData, quickFixAdapter))
+            }
+
+            FixableIssueKind.MissingOneOfProperty, FixableIssueKind.MissingAnyOfProperty -> {
+                (issueData as MissingOneOfPropsIssueData).exclusiveOptions.map {
+                    AddMissingPropertyFix(it, quickFixAdapter)
+                }.toTypedArray()
+            }
+
+            FixableIssueKind.ProhibitedProperty -> {
+                arrayOf(RemoveProhibitedPropertyFix(issueData as ProhibitedPropertyIssueData, quickFixAdapter))
+            }
+
+            FixableIssueKind.NonEnumValue -> {
+                arrayOf(SuggestEnumValuesFix(quickFixAdapter))
+            }
+
+            else -> emptyArray()
+        }
+    }
 
     enum class FixableIssueKind {
 

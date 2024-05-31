@@ -8,6 +8,12 @@ interface CirJsonLikeSyntaxAdapter {
 
     fun getPropertyValue(property: PsiElement): PsiElement?
 
+    fun adjustValue(value: PsiElement): PsiElement {
+        return value
+    }
+
+    fun getPropertyName(property: PsiElement): String?
+
     fun getDefaultValueFromType(type: CirJsonSchemaType?): String
 
     fun createProperty(name: String, value: String, element: PsiElement): PsiElement
@@ -17,5 +23,9 @@ interface CirJsonLikeSyntaxAdapter {
     fun adjustNewProperty(element: PsiElement): PsiElement
 
     fun ensureComma(self: PsiElement, newElement: PsiElement): Boolean
+
+    fun removeIfComma(forward: PsiElement?)
+
+    fun fixWhitespaceBefore(initialElement: PsiElement, element: PsiElement): Boolean
 
 }

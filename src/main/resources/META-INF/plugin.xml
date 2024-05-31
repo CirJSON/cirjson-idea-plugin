@@ -116,6 +116,10 @@
                 key="inspection.duplicate.keys.name" groupKey="cirJson.inspection.group" enabledByDefault="true"
                 level="WARNING"
                 implementationClass="org.cirjson.plugin.idea.codeinsight.CirJsonDuplicatePropertyKeysInspection"/>
+        <localInspection language="CirJSON" shortName="CirJsonSchemaCompliance" bundle="messages.CirJsonBundle"
+                key="cirjson.schema.inspection.compliance.name" groupKey="cirJson.inspection.group"
+                implementationClass="org.cirjson.plugin.idea.schema.impl.inspections.CirJsonSchemaComplianceInspection"
+                enabledByDefault="true" level="WARNING"/>
 
         <!-- Selection handling -->
         <extendWordSelectionHandler

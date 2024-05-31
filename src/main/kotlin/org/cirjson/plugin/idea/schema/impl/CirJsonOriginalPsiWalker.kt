@@ -2,6 +2,7 @@ package org.cirjson.plugin.idea.schema.impl
 
 import com.intellij.codeInsight.completion.CompletionUtil
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
@@ -171,8 +172,23 @@ class CirJsonOriginalPsiWalker private constructor() : CirJsonLikePsiWalker {
         return CirJsonCirJsonPropertyAdapter(property)
     }
 
+    override fun isTopCirJsonElement(element: PsiElement): Boolean {
+        return element is PsiFile
+    }
+
     override fun createValueAdapter(element: PsiElement): CirJsonValueAdapter? {
         return if (element is CirJsonValue) CirJsonCirJsonPropertyAdapter.createAdapterByType(element) else null
+    }
+
+    override fun adjustErrorHighlightingRange(element: PsiElement): TextRange {
+        val parent = element.parent
+
+        if (parent is CirJsonFile) {
+            val child = PsiTreeUtil.skipMatching(element.firstChild, { it.nextSibling }, { it !is CirJsonElement })
+            return (child ?: element).textRange
+        }
+
+        return element.textRange
     }
 
     override fun getRoots(file: PsiFile): Collection<PsiElement> {
@@ -190,6 +206,10 @@ class CirJsonOriginalPsiWalker private constructor() : CirJsonLikePsiWalker {
 
             override fun getPropertyValue(property: PsiElement): PsiElement? {
                 return (property as CirJsonProperty).value
+            }
+
+            override fun getPropertyName(property: PsiElement): String {
+                return (property as CirJsonProperty).name
             }
 
             override fun getDefaultValueFromType(type: CirJsonSchemaType?): String {
@@ -215,6 +235,16 @@ class CirJsonOriginalPsiWalker private constructor() : CirJsonLikePsiWalker {
                 }
 
                 return false
+            }
+
+            override fun removeIfComma(forward: PsiElement?) {
+                if (forward is LeafPsiElement && forward.elementType == CirJsonElementTypes.COMMA) {
+                    forward.delete()
+                }
+            }
+
+            override fun fixWhitespaceBefore(initialElement: PsiElement, element: PsiElement): Boolean {
+                return true
             }
 
         }

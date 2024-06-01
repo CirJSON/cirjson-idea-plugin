@@ -124,6 +124,10 @@
                 key="cirjson.schema.inspection.deprecation.name" groupKey="cirJson.inspection.group"
                 implementationClass="org.cirjson.plugin.idea.schema.impl.inspections.CirJsonSchemaDeprecationInspection"
                 enabledByDefault="true" level="WEAK WARNING"/>
+        <localInspection language="CirJSON" shortName="CirJsonSchemaRefReference" bundle="messages.CirJsonBundle"
+                key="cirjson.schema.inspection.deprecation.name" groupKey="cirJson.inspection.group"
+                implementationClass="org.cirjson.plugin.idea.schema.impl.inspections.CirJsonSchemaRefReferenceInspection"
+                enabledByDefault="true" level="WARNING"/>
 
         <!-- Selection handling -->
         <extendWordSelectionHandler
